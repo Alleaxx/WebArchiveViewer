@@ -1,0 +1,116 @@
+﻿<Window x:Class="WebArchiveViewer.SaveHTMLWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WebArchiveViewer"
+        mc:Ignorable="d"
+        Title="{Binding Snapshot.SourceURI}"  Height="550" Width="550" Closing="Window_Closing">
+    <Window.DataContext>
+        <local:SaveHTMLView>
+            
+        </local:SaveHTMLView>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Header="Начать" Command="{Binding StartDownloadCommand}" />
+            <MenuItem Header="Сохранить" Command="{Binding SaveProgressCommand}" />
+            <MenuItem Header="Завершить" Command="{Binding StopProgressCommand}" />
+        </Menu>
+        <ToolBar Grid.Row="1">
+            <TextBlock Text="{Binding LatencyMs,StringFormat=Задержка: {0}}" Margin="3,0" Foreground="Gray" Width="100"/>
+            <Slider Width="150" Minimum="500" Maximum="10000" Value="{Binding LatencyMs}" IsSnapToTickEnabled="True" TickFrequency="200"/>
+        </ToolBar>
+        <StackPanel Grid.Row="2">
+            <Border BorderThickness="1" BorderBrush="Gainsboro" Padding="3" Margin="3">
+                <DockPanel LastChildFill="True">
+                    <TextBlock Text="Папка: " Margin="3,0" VerticalAlignment="Center"/>
+                    <Button Command="{Binding SelectSaveFolderCommand}" ToolTip="{Binding FolderWrite}" VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding FolderWrite.Name}" FontSize="11" Foreground="Gray" VerticalAlignment="Center"/>
+                    </Button>
+                </DockPanel>
+            </Border>
+            <DockPanel HorizontalAlignment="Center">
+                <TextBlock Text="{Binding LinksLoadedCount}" FontSize="18"/>
+                <TextBlock Text="/" Margin="3,0"  FontSize="18"/>
+                <TextBlock Text="{Binding Snapshot.Links.Length}"  FontSize="18"/>
+                <TextBlock Text="{Binding LinksRemainingList.Count,StringFormat=(осталось {0})}" Margin="3,0" FontStyle="Italic"  FontSize="18"/>
+            </DockPanel>
+            <ProgressBar Value="{Binding LinksLoadedCount}" Maximum="{Binding Snapshot.Links.Length}" Foreground="{Binding PauseState.Color}" Height="12"/>
+            <DockPanel HorizontalAlignment="Center" LastChildFill="False" Margin="0,3">
+                <ToggleButton Content="| |" IsChecked="{Binding IsPaused}" Padding="15,2" Margin="1,0" Background="White"/>
+                <ToggleButton Content=">" IsChecked="{Binding IsPausedInverted}" Padding="15,2" Margin="1,0" Background="White"/>
+            </DockPanel>
+            <DockPanel HorizontalAlignment="Center">
+                <TextBlock Text="Начало: " Margin="3,0" Foreground="Gray"/>
+                <TextBlock Text="{Binding StartDateTime,StringFormat=dd.MM.yyyy HH:mm}" />
+                <TextBlock Text="Сохранение: " Margin="3,0" Foreground="Gray"/>
+                <TextBlock Text="{Binding LastSaveDate,StringFormat=dd.MM.yyyy HH:mm}" />
+            </DockPanel>
+        </StackPanel>
+        
+        <TabControl Grid.Row="3" Margin="0,10">
+            <TabItem>
+                <TabItem.Header>
+                    <DockPanel>
+                        <TextBlock Text="{Binding ActiveLinkRequests.Count,StringFormat=[{0}]}" Margin="3,0"/>
+                        <TextBlock Text="Текущие запросы" />
+                    </DockPanel>
+
+                </TabItem.Header>
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding ActiveLinkRequests}" ItemTemplate="{DynamicResource Request}" />
+                </ScrollViewer>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <DockPanel>
+                        <TextBlock Text="{Binding ErrorLinkRequests.Count,StringFormat=[{0}]}" Margin="3,0"/>
+                        <TextBlock Text="Ошибочные запросы" />
+                    </DockPanel>
+
+                </TabItem.Header>
+                <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding ErrorLinkRequests}" ItemTemplate="{DynamicResource Request}" />
+                </ScrollViewer>
+            </TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <DockPanel>
+                        <TextBlock Text="{Binding FinishedLinkRequests.Count,StringFormat=[{0}]}" Margin="3,0"/>
+                        <TextBlock Text="Завершенные запросы" />
+                    </DockPanel>
+
+                </TabItem.Header>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"  MaxHeight="300">
+                    <!--<ItemsControl ItemsSource="{Binding FinishedLinkRequests}" ItemTemplate="{DynamicResource Request}" />-->
+                </ScrollViewer>
+            </TabItem>
+            <TabControl.Resources>
+                <DataTemplate x:Key="Request" DataType="{x:Type local:LinkState}">
+                    <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="Gainsboro">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.RowSpan="2" Text="{Binding Index}" FontSize="18" FontWeight="Medium" Foreground="Black" Margin="5,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Link.Link}" Foreground="Blue" FontSize="11"/>
+                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Status}" Foreground="Gray" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </TabControl.Resources>
+        </TabControl>
+    </Grid>
+</Window>
