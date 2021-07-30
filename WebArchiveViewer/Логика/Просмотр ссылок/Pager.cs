@@ -8,7 +8,7 @@ using System.Windows.Data;
 namespace WebArchiveViewer
 {
     //Разделение списка по страницам
-    class Pager<T> : ObjNotify where T:class
+    class Pager<T> : NotifyObj where T:class
     {
         public int ElementsPerPage
         {
@@ -20,7 +20,7 @@ namespace WebArchiveViewer
                 Recount();
             }
         }
-        private int elementsPerPage = 24;
+        private int elementsPerPage = 50;
 
         public IEnumerable<T> Source { get; set; }
 
@@ -33,16 +33,22 @@ namespace WebArchiveViewer
             get => pageNowNumber;
             set
             {
-                if (value < PageMinAmount)
-                    value = PageMinAmount;
-                if (value > PageMaxAmount)
-                    value = PageMaxAmount;
+                if (!Updating)
+                {
+                    if (value < PageMinAmount)
+                        value = PageMinAmount;
+                    if (value > PageMaxAmount)
+                        value = PageMaxAmount;
 
-                pageNowNumber = value;
-                OnPropertyChanged();
-                PageNow = new Page<T>(PageNowNumber, ElementsPerPage, Source);
-                if(groupSelected != null)
-                    GroupSelected = groupSelected;
+                    pageNowNumber = value;
+                    OnPropertyChanged();
+
+                    PageNow = new Page<T>(PageNowNumber, ElementsPerPage, Source);
+                    if (groupSelected != null)
+                        GroupSelected = groupSelected;
+
+                    UpdatePagesAvailable();
+                }
             }
         }
         private int pageNowNumber;
@@ -57,6 +63,7 @@ namespace WebArchiveViewer
             }
         }
         private Page<T> pageNow;
+
 
         public Option<string> GroupSelected
         {
@@ -82,8 +89,13 @@ namespace WebArchiveViewer
         }
         private Option<string> groupSelected;
 
-        public Pager(IEnumerable<T> coll)
+        public Pager(IEnumerable<T> coll, Option<string> group = null)
         {
+            NextPageCommand = new RelayCommand(NextPage, IsNextPageAvail);
+            PrevPageCommand = new RelayCommand(PrevPage, IsPrevPageAvail);
+
+            groupSelected = group;
+
             Source = coll;
             Recount();
         }
@@ -93,6 +105,54 @@ namespace WebArchiveViewer
             OnPropertyChanged(nameof(PageMaxAmount));
             PageNowNumber = 1;
         }
+
+        public int[] PagesAvailable { get; private set; }
+        private bool Updating { get; set; }
+        private void UpdatePagesAvailable()
+        {
+            Updating = true;
+            int size = 5;
+            List<int> arr = new List<int>(size * 2) { pageNowNumber };
+
+            int counter = 1;
+            bool spaceExist = arr.Count < 10;
+            bool pagesExist = arr.Count <= PageMaxAmount - PageMinAmount;
+            while(spaceExist && pagesExist)
+            {
+                int prev = pageNowNumber - counter;
+                int next = pageNowNumber + counter;
+
+                if (prev >= PageMinAmount)
+                    arr.Insert(0, prev);
+                if (next <= PageMaxAmount)
+                    arr.Add(next);
+
+                spaceExist = arr.Count < 10;
+                pagesExist = arr.Count < PageMaxAmount - PageMinAmount;
+
+                counter++;
+            }
+
+            PagesAvailable = arr.ToArray();
+            OnPropertyChanged(nameof(PagesAvailable));
+            Updating = false;
+        }
+
+
+        public RelayCommand NextPageCommand { get; private set; }
+        private void NextPage(object obj)
+        {
+            PageNowNumber++;
+        }
+        private bool IsNextPageAvail(object obj) => PageNowNumber < PageMaxAmount;
+
+
+        public RelayCommand PrevPageCommand { get; private set; }
+        private void PrevPage(object obj)
+        {
+            PageNowNumber--;
+        }
+        private bool IsPrevPageAvail(object obj) => PageNowNumber > PageMinAmount;
     }
 
     //"Страница", содержащая определенное число элементов

@@ -8,33 +8,8 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
-
-    class Option<T>
-    {
-        public T Value { get; set; }
-        public bool Enabled { get; set; }
-        public Option()
-        {
-
-        }
-        public Option(T val, bool enabled = true)
-        {
-            Value = val;
-            Enabled = enabled;
-        }
-    }
-    class OptionCount<T> : Option<T>
-    {
-        public int Amount { get; set; }
-        public OptionCount(T val, bool enabled = true) : base(val,enabled)
-        {
-            Amount = 1;
-        }
-    }
-
-
     [Serializable]
-    class LinksViewOptions : ObjNotify
+    class ViewOptions : NotifyObj
     {
         public DateTime From
         {
@@ -59,13 +34,81 @@ namespace WebArchiveViewer
         }
         private DateTime to;
 
+
         [JsonIgnore]
-        public DateTime DateMin { get; set; }
+        public DateTime DateMin { get; protected set; }
         [JsonIgnore]
-        public DateTime DateMax { get; set; }
-        
+        public DateTime DateMax { get; protected set; }
+
+
+        [JsonIgnore]
+        public double Difference => (DateMax - DateMin).TotalHours;
+        [JsonIgnore]
+        public double DifferenceFrom
+        {
+            get => (From - DateMin).TotalHours;
+            set
+            {
+                From = DateMin.AddHours(value);
+            }
+        }
+        [JsonIgnore]
+        public double DifferenceTo
+        {
+            get => (To - DateMin).TotalHours;
+            set
+            {
+                To = DateMin.AddHours(value);
+            }
+        }
+
+
+
         public ObservableCollection<Option<string>> Codes { get; set; } = new ObservableCollection<Option<string>>();
         public ObservableCollection<Option<string>> Types { get; set; } = new ObservableCollection<Option<string>>();
+
+
+
+        [JsonIgnore]
+        public string CodesText
+        {
+            get => codesText;
+            set
+            {
+                codesText = value;
+                OnPropertyChanged();
+
+                Codes.Clear();
+                var res = codesText.Split(';');
+                foreach (var code in res)
+                {
+                    string newCode = code.Trim();
+                    Codes.Add(new Option<string>(newCode));
+                }
+            }
+        }
+        private string codesText;
+
+        [JsonIgnore]
+        public string TypesText
+        {
+            get => typesText;
+            set
+            {
+                typesText = value;
+                OnPropertyChanged();
+
+                Types.Clear();
+                var res = typesText.Split(';');
+                foreach (var type in res)
+                {
+                    string newType = type.Trim();
+                    Types.Add(new Option<string>(newType));
+                }
+
+            }
+        }
+        private string typesText;
 
         public string Search
         {
@@ -85,7 +128,7 @@ namespace WebArchiveViewer
         }
     }
 
-    class LinksViewOptionsGet : LinksViewOptions
+    class ViewOptionsGetLinks : ViewOptions
     {
         public bool CodesIncluded { get; set; } = true;
         public bool TypesIncluded { get; set; } = true;
@@ -102,22 +145,22 @@ namespace WebArchiveViewer
         }
         private int limit = -1;
 
-        public LinksViewOptionsGet()
+        public ViewOptionsGetLinks()
         {
             DateMin = new DateTime(2000, 1, 1);
             DateMax = DateTime.Now;
         }
     }
-    class LinksViewOptionsView : LinksViewOptions
+    class ViewOptionsLinks : ViewOptions
     {
         private ArchiveView View { get; set; }
         public bool? ShowLoaded { get; set; } = null;
 
-        public LinksViewOptionsView()
+        public ViewOptionsLinks()
         {
 
         }
-        public LinksViewOptionsView(ArchiveView view,SiteSnapshot snap)
+        public ViewOptionsLinks(ArchiveView view,SiteSnapshot snap)
         {
             From = snap.ViewOptions.From;
             DateMin = From;
@@ -131,8 +174,10 @@ namespace WebArchiveViewer
         {
             Types.Clear();
             Codes.Clear();
+
             List<string> types = new List<string>();
             List<string> codes = new List<string>();
+
             foreach (ArchiveLink link in snap.Links)
             {
                 if (!types.Contains(link.MimeType))

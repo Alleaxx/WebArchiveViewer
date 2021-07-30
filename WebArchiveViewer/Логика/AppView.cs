@@ -19,12 +19,12 @@ namespace WebArchiveViewer
         }
         private static AppView ex;
 
-        public ArchiveView Archive { get; set; }
-        public ArchiveLoadView Loading { get; set; }
+        public ArchiveReceiveView Receiving { get; private set; }
+        public ArchiveView Archive { get; private set; }
 
         private AppView()
         {
             Archive = new ArchiveView();
-            Loading = new ArchiveLoadView();
+            Receiving = new ArchiveReceiveView();
         }
     }}

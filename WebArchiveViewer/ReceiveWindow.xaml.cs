@@ -22,7 +22,7 @@ namespace WebArchiveViewer
         public LoadWindow()
         {
             InitializeComponent();
-            DataContext = AppView.Ex.Loading;
+            DataContext = AppView.Ex.Receiving;
         }
 
         private void BtnSaveFile_Click(object sender, RoutedEventArgs e)

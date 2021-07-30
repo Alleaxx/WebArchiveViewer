@@ -64,28 +64,48 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="LoadWindow.xaml.cs">
-      <DependentUpon>LoadWindow.xaml</DependentUpon>
+    <Compile Include="Логика\Снапшот\ArchiveLink.cs" />
+    <Compile Include="Логика\Техническое\FileDialog.cs" />
+    <Compile Include="Логика\Option.cs" />
+    <Compile Include="Конвертеры\Date.cs" />
+    <Compile Include="Конвертеры\StatusCode.cs" />
+    <Compile Include="Логика\Техническое\NotifyObj.cs" />
+    <Compile Include="Элементы\IntervalSlider.xaml.cs">
+      <DependentUpon>IntervalSlider.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ReceiveWindow.xaml.cs">
+      <DependentUpon>ReceiveWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="RulesWindow.xaml.cs">
+      <DependentUpon>RulesWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SaveHTMLWindow.xaml.cs">
       <DependentUpon>SaveHTMLWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Логика\GroupRule.cs" />
-    <Compile Include="Представления\AppView.cs" />
-    <Compile Include="Представления\Pager.cs" />
-    <Compile Include="Представления\SaveHTMLView.cs" />
+    <Compile Include="Логика\Просмотр ссылок\GroupRule.cs" />
+    <Compile Include="Логика\AppView.cs" />
+    <Compile Include="Логика\Просмотр ссылок\Pager.cs" />
+    <Compile Include="Логика\Загрузка HTML\SaveHTMLView.cs" />
     <Compile Include="Элементы\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Элементы\IntervalSelector.xaml.cs">
       <DependentUpon>IntervalSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Представления\ArchiveLoadView.cs" />
-    <Compile Include="Представления\ArchiveView.cs" />
-    <Compile Include="Логика\LinkViewOptions.cs" />
-    <Compile Include="Логика\RelayCommand.cs" />
-    <Compile Include="Логика\SiteSnapshot.cs" />
-    <Page Include="LoadWindow.xaml">
+    <Compile Include="Логика\Получение ссылок\ArchiveReceiveView.cs" />
+    <Compile Include="Логика\Просмотр ссылок\ArchiveView.cs" />
+    <Compile Include="Логика\Снапшот\LinkViewOptions.cs" />
+    <Compile Include="Логика\Техническое\RelayCommand.cs" />
+    <Compile Include="Логика\Снапшот\SiteSnapshot.cs" />
+    <Page Include="Элементы\IntervalSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ReceiveWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RulesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -145,5 +165,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

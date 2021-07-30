@@ -14,7 +14,7 @@ using System.Windows;
 
 namespace WebArchiveViewer
 {
-    class SaveHTMLView : ObjNotify
+    class SaveHTMLView : NotifyObj
     {
         //Инициализация
         public SaveHTMLView()
@@ -211,6 +211,8 @@ namespace WebArchiveViewer
                 using (Stream stream = response.GetResponseStream())
                 {
                     state.Status = "Соединение установлено...";
+
+
                     // запись в файл
                     using (StreamReader reader = new StreamReader(stream, Encoding.GetEncoding(1251)))
                     {
@@ -277,7 +279,7 @@ namespace WebArchiveViewer
             }
         }
     }
-    class LinkState : ObjNotify
+    class LinkState : NotifyObj
     {
         public int Index { get; set; }
         public ArchiveLink Link { get; set; }

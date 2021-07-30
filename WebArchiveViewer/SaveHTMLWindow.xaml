@@ -29,12 +29,21 @@
         </ToolBar>
         <StackPanel Grid.Row="2">
             <Border BorderThickness="1" BorderBrush="Gainsboro" Padding="3" Margin="3">
-                <DockPanel LastChildFill="True">
-                    <TextBlock Text="Папка: " Margin="3,0" VerticalAlignment="Center"/>
-                    <Button Command="{Binding SelectSaveFolderCommand}" ToolTip="{Binding FolderWrite}" VerticalAlignment="Center" HorizontalAlignment="Right">
-                        <TextBlock Text="{Binding FolderWrite.Name}" FontSize="11" Foreground="Gray" VerticalAlignment="Center"/>
-                    </Button>
-                </DockPanel>
+                <StackPanel>
+                    <DockPanel LastChildFill="True" Margin="0,3">
+                        <TextBlock Text="Папка: " Margin="3,0" VerticalAlignment="Center"/>
+                        <Button Command="{Binding SelectSaveFolderCommand}" ToolTip="{Binding FolderWrite}" VerticalAlignment="Center" HorizontalAlignment="Right">
+                            <TextBlock Text="{Binding FolderWrite.Name}" FontSize="11" Foreground="Gray" VerticalAlignment="Center"/>
+                        </Button>
+                    </DockPanel>
+                    <DockPanel LastChildFill="True" Margin="0,3">
+                        <TextBlock Text="Режим: " Margin="3,0" VerticalAlignment="Center"/>
+                        <CheckBox VerticalAlignment="Center" HorizontalAlignment="Right">
+                            <TextBlock Text="Загружать только имена: " Margin="3,0" VerticalAlignment="Center"/>
+                        </CheckBox>
+                    </DockPanel>
+
+                </StackPanel>
             </Border>
             <DockPanel HorizontalAlignment="Center">
                 <TextBlock Text="{Binding LinksLoadedCount}" FontSize="18"/>
