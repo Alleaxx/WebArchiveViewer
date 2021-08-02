@@ -9,8 +9,11 @@ using System.Threading.Tasks;
 namespace WebArchiveViewer
 {
     [Serializable]
-    class ViewOptions : NotifyObj
+    public class ViewOptions : NotifyObj
     {
+        public event Action Updated;
+
+
         public DateTime From
         {
             get => from;
@@ -124,11 +127,11 @@ namespace WebArchiveViewer
 
         protected virtual void Update()
         {
-
+            Updated?.Invoke();
         }
     }
 
-    class ViewOptionsGetLinks : ViewOptions
+    public class ViewOptionsGetLinks : ViewOptions
     {
         public bool CodesIncluded { get; set; } = true;
         public bool TypesIncluded { get; set; } = true;
@@ -151,8 +154,9 @@ namespace WebArchiveViewer
             DateMax = DateTime.Now;
         }
     }
-    class ViewOptionsLinks : ViewOptions
+    public class ViewOptionsLinks : ViewOptions
     {
+
         private ArchiveView View { get; set; }
         public bool? ShowLoaded { get; set; } = null;
 
@@ -160,7 +164,7 @@ namespace WebArchiveViewer
         {
 
         }
-        public ViewOptionsLinks(ArchiveView view,SiteSnapshot snap)
+        public ViewOptionsLinks(ISnapshot snap)
         {
             From = snap.ViewOptions.From;
             DateMin = From;
@@ -168,9 +172,8 @@ namespace WebArchiveViewer
             DateMax = To;
             Search = "";
             LoadCodesTypes(snap);
-            View = view;
         }
-        private void LoadCodesTypes(SiteSnapshot snap)
+        private void LoadCodesTypes(ISnapshot snap)
         {
             Types.Clear();
             Codes.Clear();
@@ -178,7 +181,7 @@ namespace WebArchiveViewer
             List<string> types = new List<string>();
             List<string> codes = new List<string>();
 
-            foreach (ArchiveLink link in snap.Links)
+            foreach (IArchLink link in snap.Links)
             {
                 if (!types.Contains(link.MimeType))
                     types.Add(link.MimeType);
@@ -193,13 +196,6 @@ namespace WebArchiveViewer
             {
                 Codes.Add(new Option<string>(item, true));
             }
-        }
-
-        protected override void Update()
-        {
-            base.Update();
-            if(View != null)
-                View.UpdateList();
         }
     }
 

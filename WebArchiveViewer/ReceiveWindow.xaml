@@ -11,75 +11,79 @@
     </Window.DataContext>
     <Window.Resources>
         <local:DateTextConverter x:Key="DateConverter" />
+
+
+        
     </Window.Resources>
 
     <ScrollViewer x:Name="elem" VerticalScrollBarVisibility="Auto">
         <StackPanel>
-
             <StackPanel Margin="5,0">
-                <TextBlock Text="Получение ссылок с веб-архива" Style="{DynamicResource Header}" VerticalAlignment="Center"/>
-                <Separator Margin="0,5" />
+                <Border Style="{DynamicResource HeaderPanel}">
+                    <TextBlock Text="Получение ссылок с веб-архива" FontSize="18" />
+                </Border>
                 <StackPanel>
                     <StackPanel>
-                        <DockPanel Margin="0,3">
-                            <TextBox Text="{Binding RequestString,Mode=OneWay}" FontSize="6" IsReadOnly="True" HorizontalAlignment="Right" TextWrapping="Wrap" />
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Ссылка:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
+                            <TextBox Text="{Binding Site}" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
-                        <DockPanel Margin="0,3">
-                            <TextBlock Text="Ссылка:" ToolTip="{Binding RequestString}" Foreground="Gray" />
-                            <TextBox Text="{Binding Site}" HorizontalAlignment="Right" TextWrapping="Wrap" />
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Лимит:" Style="{StaticResource PropertyName}" />
+                            <StackPanel Style="{StaticResource PropertiesPanel}">
+                                <ContentPresenter Content="{Binding Options.Limit}">
+                                    <ContentPresenter.ContentTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="block" Text="{Binding}" />
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding}" Value="-1">
+                                                    <Setter TargetName="block" Property="Text" Value="Без ограничений" />
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </ContentPresenter.ContentTemplate>
+                                </ContentPresenter>
+                                <Slider Minimum="-1" Maximum="2000" Value="{Binding Options.Limit}" />
+                            </StackPanel>
                         </DockPanel>
-                        <DockPanel Margin="0,3">
-                            <TextBlock Text="Лимит:" Foreground="Gray" />
-                            <ContentPresenter Content="{Binding Options.Limit}">
-                                <ContentPresenter.ContentTemplate>
-                                    <DataTemplate>
-                                        <TextBlock x:Name="block" Text="{Binding}" HorizontalAlignment="Right" />
-                                        <DataTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding}" Value="-1">
-                                                <Setter TargetName="block" Property="Text" Value="Без ограничений" />
-                                            </DataTrigger>
-                                        </DataTemplate.Triggers>
-                                    </DataTemplate>
-                                </ContentPresenter.ContentTemplate>
-                            </ContentPresenter>
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Даты:" Style="{StaticResource PropertyName}" />
+                            <StackPanel Style="{StaticResource PropertiesPanel}">
+                                <DockPanel>
+                                    <TextBlock Text="с даты " Width="60"/>
+                                    <TextBlock Text="{Binding Options.From,Converter={StaticResource DateConverter}}"/>
+                                    <DatePicker SelectedDate="{Binding Options.From}" HorizontalAlignment="Right" />
+                                </DockPanel>
+                                <DockPanel>
+                                    <TextBlock Text="по дату " Width="60"/>
+                                    <TextBlock Text="{Binding Options.To, Converter={StaticResource DateConverter}}"/>
+                                    <DatePicker SelectedDate="{Binding Options.To}" HorizontalAlignment="Right" />
+                                </DockPanel>
+                                <local:IntervalSlider Minimum="0" Maximum="{Binding Options.Difference}" LowerValue="{Binding Options.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding Options.DifferenceTo, Mode=TwoWay}"/>
+                            </StackPanel>
                         </DockPanel>
-                        <Slider Minimum="-1" Maximum="2000" Value="{Binding Options.Limit}" />
-                        
-                        <DockPanel Margin="0,3">
-                            <TextBlock Text="Даты:" Foreground="Gray" />
-                        </DockPanel>
-                        <DockPanel Margin="0,3">
-                            <DockPanel>
-                                <DatePicker SelectedDate="{Binding Options.From}" />
-                                <TextBlock Text="{Binding Options.From,Converter={StaticResource DateConverter}}"/>
-                            </DockPanel>
-                            <DockPanel HorizontalAlignment="Right">
-                                <TextBlock Text="{Binding Options.To, Converter={StaticResource DateConverter}}"/>
-                                <DatePicker SelectedDate="{Binding Options.To}" />
-                            </DockPanel>
-                        </DockPanel>
-                        
-                        <local:IntervalSlider Minimum="0" Maximum="{Binding Options.Difference}" LowerValue="{Binding Options.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding Options.DifferenceTo, Mode=TwoWay}"/>
 
-                        <DockPanel Margin="0,3">
-                            <TextBlock Text="MIME-типы:" Foreground="Gray" />
-                            <TextBox Text="{Binding Options.TypesText}" HorizontalAlignment="Right" TextWrapping="Wrap" />
+
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="MIME-типы:" Style="{StaticResource PropertyName}" />
+                            <TextBox Text="{Binding Options.TypesText}" TextWrapping="Wrap" VerticalAlignment="Center"  />
                         </DockPanel>
-                        <DockPanel Margin="0,3">
-                            <TextBlock Text="Коды ответа:" Foreground="Gray" />
-                            <TextBox Text="{Binding Options.CodesText}" HorizontalAlignment="Right" TextWrapping="Wrap" />
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Коды ответа:" Style="{StaticResource PropertyName}" />
+                            <TextBox Text="{Binding Options.CodesText}" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
 
                     </StackPanel>
-
-                    <DockPanel Margin="0,3">
-                        <TextBlock Text="Статус:" Foreground="Gray" />
-                        <TextBlock Text="{Binding Uploading.Status}" HorizontalAlignment="Right" />
-                    </DockPanel>
-                    <ProgressBar Grid.Row="0" Grid.ColumnSpan="2" Value="{Binding Uploading.Now,Mode=OneWay}" Maximum="{Binding Uploading.Maximum}" Margin="0,1" />
-                    <Grid Margin="0,10">
-                        <Button Grid.Row="1" Grid.ColumnSpan="2" Content="Загрузить" Command="{Binding UploadLinksCommand}" BorderThickness="1" />
-                    </Grid>
+                    <StackPanel Margin="0,10">
+                        <ProgressBar Grid.Row="0" Grid.ColumnSpan="2" Value="{Binding Uploading.Now,Mode=OneWay}" Maximum="{Binding Uploading.Maximum}" Margin="0,1" />
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Статус:" Style="{StaticResource PropertyName}" />
+                            <DockPanel Style="{StaticResource Property}">
+                                <TextBlock Text="{Binding Uploading.Status}" />
+                                <Button Content="Загрузить" Command="{Binding UploadLinksCommand}" Style="{StaticResource ActionButton}" HorizontalAlignment="Right" />
+                            </DockPanel>
+                        </DockPanel>
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
             
@@ -87,24 +91,25 @@
                 <ContentPresenter.ContentTemplate>
                     <DataTemplate>
                         <StackPanel  x:Name="snapshot">
-                            <TextBlock Text="Загруженный снапшот" Style="{DynamicResource Header}" VerticalAlignment="Center"/>
-                            <Separator Margin="0,5" />
-                            <DockPanel Margin="0,3">
-                                <TextBlock Text="Ссылка:" Foreground="Gray" />
-                                <TextBlock Text="{Binding SourceURI}" HorizontalAlignment="Right" />
+
+                            <Border Style="{DynamicResource HeaderPanel}">
+                                <TextBlock Text="Загруженный снапшот" FontSize="18" />
+                            </Border>
+                            <DockPanel Style="{StaticResource Property}">
+                                <TextBlock Text="Ссылка:" Style="{StaticResource PropertyName}" />
+                                <TextBlock Text="{Binding SourceURI}" />
                             </DockPanel>
-                            <DockPanel Margin="0,3">
-                                <TextBlock Text="Получено:" Foreground="Gray" />
-                                <TextBlock Text="{Binding Links.Length}" HorizontalAlignment="Right" />
+                            <DockPanel Style="{StaticResource Property}">
+                                <TextBlock Text="Получено:" Style="{StaticResource PropertyName}"/>
+                                <TextBlock Text="{Binding Links.Length}"  />
                             </DockPanel>
-                            <Grid Margin="0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <Button Grid.Row="2" Grid.Column="0" DataContext="{Binding ElementName=elem,Path=DataContext}" Command="{Binding SaveSnapFileCommand}" Content="Сохранить в файл" Click="BtnSaveFile_Click" BorderThickness="1,1,0,1" />
-                                <Button Grid.Row="2" Grid.Column="1" DataContext="{Binding ElementName=elem,Path=DataContext}" Command="{Binding SetSnapshotCommand}" Content="Перейти к просмотру" Click="BtnSaveFile_Click" BorderThickness="1,1,1,1" />
-                            </Grid>
+                            <DockPanel Style="{StaticResource Property}">
+                                <TextBlock Text="Действия:" Style="{StaticResource PropertyName}"/>
+                                <StackPanel>
+                                    <Button Content="Сохранить в файл"  DataContext="{Binding ElementName=elem,Path=DataContext}" Command="{Binding SaveSnapFileCommand}" Style="{StaticResource ActionButton}"  Click="BtnSaveFile_Click"/>
+                                    <Button Content="Перейти к просмотру" DataContext="{Binding ElementName=elem,Path=DataContext}" Command="{Binding SetSnapshotCommand}" Style="{StaticResource ActionButton}"  Click="BtnSaveFile_Click" />
+                                </StackPanel>
+                            </DockPanel>
                         </StackPanel>
                         <DataTemplate.Triggers>
                             <DataTrigger Binding="{Binding}" Value="{x:Null}">

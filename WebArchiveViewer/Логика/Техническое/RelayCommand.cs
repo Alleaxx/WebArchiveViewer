@@ -17,11 +17,17 @@ namespace WebArchiveViewer
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
         }
+
+        public RelayCommand(Action<object> execute) : this(execute, IsTrue)
+        {
+
+        }
         public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
         {
             this.execute = execute;
             this.canExecute = canExecute;
         }
+
         public bool CanExecute(object parameter)
         {
             return canExecute == null || canExecute(parameter);

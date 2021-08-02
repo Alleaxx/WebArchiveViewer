@@ -1,30 +1,57 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace WebArchiveViewer
 {
     public interface IRulesControl
     {
-        List<IRule> MainRules { get; }
+        IEnumerable<IRule> Rules { get; }
         void AddRules(IRules rules);
-        string CheckLink(ArchiveLink link);
+        string CheckLink(IArchLink link);
     }
     [Serializable]
     public class RulesControl : IRulesControl
     {
-        public event Action<IRule> RuleChanged;
-
-        public List<IRule> MainRules { get; private set; } = new List<IRule>();
         const string Undefined = "???";
+
+
+        [JsonIgnore]
+        public IEnumerable<IRule> Rules => MainRules;
+        public ObservableCollection<GroupRule> MainRules { get; private set; } = new ObservableCollection<GroupRule>();
+
+
+        public RulesControl()
+        {
+            RemoveRuleCommand = new RelayCommand(RemoveRule, NotMain);
+        }
+
+
+        private bool NotMain(object obj) => obj is IRule rule && MainRules.First() != rule;
+        [JsonIgnore]
+        public ICommand RemoveRuleCommand { get; private set; }
+        private void RemoveRule(object obj)
+        {
+            if(obj is IRule ruleToRemove)
+            {
+                foreach (var mainRule in MainRules)
+                {
+                    mainRule.Remove(ruleToRemove);
+                }
+            }
+        }
+
 
         public void AddRules(IRules rules)
         {
-            MainRules.Add(rules.GetMainRule());
+            MainRules.Add(rules.GetMainRule() as GroupRule);
         }
-        public string CheckLink(ArchiveLink link)
+        public string CheckLink(IArchLink link)
         {
             foreach (var rule in MainRules)
             {
@@ -35,6 +62,7 @@ namespace WebArchiveViewer
             return Undefined;
         }
     }
+
     public interface IRules
     {
         IRule GetMainRule();
@@ -115,27 +143,46 @@ namespace WebArchiveViewer
 
 
 
-
     public interface IRule
     {
         string GroupName { get; set; }
-        string IsMatched(ArchiveLink link);
+        string IsMatched(IArchLink link);
+        IRule FindOwner(IRule rule);
+        void Remove(IRule rule);
     }
-    class GroupRule : IRule
+
+    [Serializable]
+    public class GroupRule : IRule
     {
         public string GroupName { get; set; }
         public string FoundText { get; set; }
 
-        public List<IRule> Rules { get; set; }
+        public ObservableCollection<GroupRule> Rules { get; set; }
 
-        public GroupRule(string name, string text, params IRule[] rules)
+        public GroupRule() : this("-","")
+        {
+
+        }
+        public GroupRule(string name, string text, params GroupRule[] rules)
         {
             GroupName = name;
             FoundText = text;
-            Rules = new List<IRule>(rules);
+            Rules = new ObservableCollection<GroupRule>(rules);
+
+            AddRuleCommand = new RelayCommand(AddRule);
         }
 
-        public string IsMatched(ArchiveLink link)
+
+        [JsonIgnore]
+        public ICommand AddRuleCommand { get; private set; }
+        private void AddRule(object obj)
+        {
+            Rules.Insert(0, new GroupRule());
+        }
+
+
+
+        public string IsMatched(IArchLink link)
         {
             if (IsLinkHasText(link))
             {
@@ -155,6 +202,20 @@ namespace WebArchiveViewer
             }
             return null;
         }
-        private bool IsLinkHasText(ArchiveLink link) => link.LinkSource.Contains(FoundText);
+        private bool IsLinkHasText(IArchLink link) => link.LinkSource.Contains(FoundText);
+
+        public IRule FindOwner(IRule rule)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Remove(IRule ruleToRemove)
+        {
+            Rules.Remove(ruleToRemove as GroupRule);
+            foreach (var rule in Rules)
+            {
+                rule.Remove(ruleToRemove);
+            }
+        }
     }
 }

@@ -106,7 +106,7 @@ namespace WebArchiveViewer
         }
 
         //Создание снапшота из полученных данных
-        private SiteSnapshot CreateSnapshotFromJson(string json)
+        private ISnapshot CreateSnapshotFromJson(string json)
         {
             List<List<string>> jsonArr = JsonConvert.DeserializeObject<List<List<string>>>(json);
             List<ArchiveLink> allLinks = new List<ArchiveLink>();
@@ -128,7 +128,7 @@ namespace WebArchiveViewer
                 }
             }
 
-            SiteSnapshot newSnap = new SiteSnapshot()
+            ISnapshot newSnap = new SiteSnapshot()
             {
                 Date = DateTime.Now,
                 SourceURI = Site,
@@ -162,7 +162,7 @@ namespace WebArchiveViewer
 
 
         //Текущий полученный снапшот
-        public SiteSnapshot ReceivedSnapshot
+        public ISnapshot ReceivedSnapshot
         {
             get => receivedSnapshot;
             private set
@@ -171,7 +171,7 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private SiteSnapshot receivedSnapshot;
+        private ISnapshot receivedSnapshot;
         private bool IsSnapshotReceived(object obj) => ReceivedSnapshot != null;
 
 

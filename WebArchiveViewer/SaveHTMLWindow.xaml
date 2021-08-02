@@ -1,125 +1,227 @@
-﻿<Window x:Class="WebArchiveViewer.SaveHTMLWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
+        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="WebArchiveViewer.SaveHTMLWindow"
         mc:Ignorable="d"
-        Title="{Binding Snapshot.SourceURI}"  Height="550" Width="550" Closing="Window_Closing">
+        Title="{Binding Snapshot.SourceURI}" Height="750" Width="550" MaxWidth="550" Closing="Window_Closing">
+    <Window.Resources>
+        <local:MathRoundConverter x:Key="MathRound" />
+    </Window.Resources>
     <Window.DataContext>
-        <local:SaveHTMLView>
-            
-        </local:SaveHTMLView>
+        <local:SaveHTMLView />
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
-        <Menu Grid.Row="0">
-            <MenuItem Header="Начать" Command="{Binding StartDownloadCommand}" />
-            <MenuItem Header="Сохранить" Command="{Binding SaveProgressCommand}" />
-            <MenuItem Header="Завершить" Command="{Binding StopProgressCommand}" />
-        </Menu>
-        <ToolBar Grid.Row="1">
-            <TextBlock Text="{Binding LatencyMs,StringFormat=Задержка: {0}}" Margin="3,0" Foreground="Gray" Width="100"/>
-            <Slider Width="150" Minimum="500" Maximum="10000" Value="{Binding LatencyMs}" IsSnapToTickEnabled="True" TickFrequency="200"/>
-        </ToolBar>
-        <StackPanel Grid.Row="2">
-            <Border BorderThickness="1" BorderBrush="Gainsboro" Padding="3" Margin="3">
-                <StackPanel>
-                    <DockPanel LastChildFill="True" Margin="0,3">
-                        <TextBlock Text="Папка: " Margin="3,0" VerticalAlignment="Center"/>
-                        <Button Command="{Binding SelectSaveFolderCommand}" ToolTip="{Binding FolderWrite}" VerticalAlignment="Center" HorizontalAlignment="Right">
-                            <TextBlock Text="{Binding FolderWrite.Name}" FontSize="11" Foreground="Gray" VerticalAlignment="Center"/>
+        <Expander Grid.Row="0" IsExpanded="False" Template="{StaticResource ExpanderExp}">
+            <Expander.Header>
+                <Border Style="{DynamicResource HeaderPanel}">
+                    <TextBlock Text="Настройка загрузки" FontSize="18" />
+                </Border>
+            </Expander.Header>
+            <StackPanel Grid.Row="0" Margin="25,0,0,0">
+                <DockPanel Style="{StaticResource Property}">
+                    <TextBlock Text="Задержка:" Style="{StaticResource PropertyName}" />
+                    <StackPanel Style="{StaticResource PropertiesPanel}">
+                        <TextBlock Text="{Binding LatencyMs, StringFormat=\{0\} миллисекунд}"  />
+                        <Slider Minimum="500" Maximum="10000" Value="{Binding LatencyMs}" IsSnapToTickEnabled="True" TickFrequency="200"/>
+                    </StackPanel>
+                </DockPanel>
+                <DockPanel Style="{StaticResource Property}">
+                    <TextBlock Text="Папка:" Style="{StaticResource PropertyName}" />
+                    <DockPanel>
+                        <TextBlock Text="{Binding Snapshot.FolderHtmlSaveName}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap"  />
+                        <Button Command="{Binding Snapshot.SelectSaveFolderCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
+                            <TextBlock Text="Изменить" />
                         </Button>
                     </DockPanel>
-                    <DockPanel LastChildFill="True" Margin="0,3">
-                        <TextBlock Text="Режим: " Margin="3,0" VerticalAlignment="Center"/>
-                        <CheckBox VerticalAlignment="Center" HorizontalAlignment="Right">
-                            <TextBlock Text="Загружать только имена: " Margin="3,0" VerticalAlignment="Center"/>
-                        </CheckBox>
-                    </DockPanel>
+                </DockPanel>
+            </StackPanel>
+        </Expander>
+        <Expander Grid.Row="1" IsExpanded="True" Template="{StaticResource ExpanderExp}">
+            <Expander.Header>
+                <Border Style="{DynamicResource HeaderPanel}">
+                    <TextBlock Text="Загрузка" FontSize="18" />
+                </Border>
+            </Expander.Header>
+            <StackPanel Margin="20,0,0,0">
+                <DockPanel Style="{StaticResource Property}">
+                    <TextBlock Text="Действия:" Style="{StaticResource PropertyName}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <!--<ColumnDefinition Width="1*"/>-->
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="Начать" Command="{Binding StartDownloadCommand}" Style="{StaticResource ActionButton}" />
+                        <!--<Button Grid.Column="1" Content="Сохранить" Command="{Binding SaveProgressCommand}" Style="{StaticResource ActionButton}"/>-->
+                        <Button Grid.Column="2" Content="Завершить" Command="{Binding StopProgressCommand}" Style="{StaticResource ActionButton}"/>
+                    </Grid>
+                </DockPanel>
 
-                </StackPanel>
-            </Border>
-            <DockPanel HorizontalAlignment="Center">
-                <TextBlock Text="{Binding LinksLoadedCount}" FontSize="18"/>
-                <TextBlock Text="/" Margin="3,0"  FontSize="18"/>
-                <TextBlock Text="{Binding Snapshot.Links.Length}"  FontSize="18"/>
-                <TextBlock Text="{Binding LinksRemainingList.Count,StringFormat=(осталось {0})}" Margin="3,0" FontStyle="Italic"  FontSize="18"/>
-            </DockPanel>
-            <ProgressBar Value="{Binding LinksLoadedCount}" Maximum="{Binding Snapshot.Links.Length}" Foreground="{Binding PauseState.Color}" Height="12"/>
-            <DockPanel HorizontalAlignment="Center" LastChildFill="False" Margin="0,3">
-                <ToggleButton Content="| |" IsChecked="{Binding IsPaused}" Padding="15,2" Margin="1,0" Background="White"/>
-                <ToggleButton Content=">" IsChecked="{Binding IsPausedInverted}" Padding="15,2" Margin="1,0" Background="White"/>
-            </DockPanel>
-            <DockPanel HorizontalAlignment="Center">
-                <TextBlock Text="Начало: " Margin="3,0" Foreground="Gray"/>
-                <TextBlock Text="{Binding StartDateTime,StringFormat=dd.MM.yyyy HH:mm}" />
-                <TextBlock Text="Сохранение: " Margin="3,0" Foreground="Gray"/>
-                <TextBlock Text="{Binding LastSaveDate,StringFormat=dd.MM.yyyy HH:mm}" />
-            </DockPanel>
-        </StackPanel>
-        
-        <TabControl Grid.Row="3" Margin="0,10">
-            <TabItem>
-                <TabItem.Header>
-                    <DockPanel>
-                        <TextBlock Text="{Binding ActiveLinkRequests.Count,StringFormat=[{0}]}" Margin="3,0"/>
-                        <TextBlock Text="Текущие запросы" />
-                    </DockPanel>
-
-                </TabItem.Header>
-                <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding ActiveLinkRequests}" ItemTemplate="{DynamicResource Request}" />
-                </ScrollViewer>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
-                    <DockPanel>
-                        <TextBlock Text="{Binding ErrorLinkRequests.Count,StringFormat=[{0}]}" Margin="3,0"/>
-                        <TextBlock Text="Ошибочные запросы" />
-                    </DockPanel>
-
-                </TabItem.Header>
-                <ScrollViewer>
-                    <ItemsControl ItemsSource="{Binding ErrorLinkRequests}" ItemTemplate="{DynamicResource Request}" />
-                </ScrollViewer>
-            </TabItem>
-            <TabItem>
-                <TabItem.Header>
-                    <DockPanel>
-                        <TextBlock Text="{Binding FinishedLinkRequests.Count,StringFormat=[{0}]}" Margin="3,0"/>
-                        <TextBlock Text="Завершенные запросы" />
-                    </DockPanel>
-
-                </TabItem.Header>
-                <ScrollViewer VerticalScrollBarVisibility="Auto"  MaxHeight="300">
-                    <!--<ItemsControl ItemsSource="{Binding FinishedLinkRequests}" ItemTemplate="{DynamicResource Request}" />-->
-                </ScrollViewer>
-            </TabItem>
-            <TabControl.Resources>
-                <DataTemplate x:Key="Request" DataType="{x:Type local:LinkState}">
-                    <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="Gainsboro">
+                <DockPanel Style="{StaticResource Property}">
+                    <TextBlock Text="Прогресс:" Style="{StaticResource PropertyName}" />
+                    <StackPanel Style="{StaticResource PropertiesPanel}">
+                        <ProgressBar Value="{Binding LinksLoadedCount, Mode=OneWay}" Maximum="{Binding Snapshot.Links.Length}" Foreground="{Binding PauseState.Color}" Height="6"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <TextBlock Grid.RowSpan="2" Text="{Binding Index}" FontSize="18" FontWeight="Medium" Foreground="Black" Margin="5,0,8,0" VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Link.Link}" Foreground="Blue" FontSize="11"/>
-                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Status}" Foreground="Gray" />
+                            <TextBlock Grid.Column="0" ToolTip="Осталось ссылок" Text="{Binding LinksRemainingList.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Blue"/>
+                            <TextBlock Grid.Column="1" Text="→" Margin="3,0" FontSize="18" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="2" ToolTip="Загружающихся ссылок" Text="{Binding ActiveLinkRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="DarkGoldenrod" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="→" Margin="3,0" FontSize="18" HorizontalAlignment="Center" />
+                            <TextBlock Grid.Column="4" ToolTip="Загруженных ссылок" Text="{Binding LinksLoadedCount, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Green" HorizontalAlignment="Right"/>
                         </Grid>
-                    </Border>
-                </DataTemplate>
-            </TabControl.Resources>
-        </TabControl>
+                        <Grid Margin="0,10,0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource ToggleButtonStyle1}"/>
+                            <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding IsPausedInverted}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource Default}"/>
+                        </Grid>
+                    </StackPanel>
+                </DockPanel>
+
+                <DockPanel Style="{StaticResource Property}">
+                    <TextBlock Text="Сейчас:" Style="{StaticResource PropertyName}" />
+                    <DockPanel>
+                        <TextBlock Text="{Binding LastLink.Index}" />
+                        <TextBlock Text="-" Margin="3,0" />
+                        <TextBlock Text="{Binding LastLink.Name}" />
+                    </DockPanel>
+                </DockPanel>
+
+                <DockPanel Style="{StaticResource Property}">
+                    <TextBlock Text="Ошибки:" Style="{StaticResource PropertyName}" />
+                    <DockPanel>
+                        <TextBlock Text="{Binding ErrorLinkRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="16" Foreground="Red"/>
+                        <TextBlock Text="{Binding Snapshot.Links.Length, StringFormat=из \{0\}}" Margin="3,0"  FontSize="16"/>
+                    </DockPanel>
+                </DockPanel>
+
+                <Expander IsExpanded="True" Template="{StaticResource ExpanderExp}">
+                    <Expander.Header>
+
+                        <Border Style="{DynamicResource HeaderPanel}">
+                            <TextBlock Text="Время" FontSize="18" />
+                        </Border>
+
+                    </Expander.Header>
+                    <StackPanel Margin="20,0,0,0">
+
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Когда:" Style="{StaticResource PropertyName}" />
+                            <StackPanel Style="{StaticResource PropertiesPanel}">
+                                <DockPanel>
+                                    <TextBlock Text="{Binding StartDateTime, StringFormat=HH:mm начало\,}" />
+                                    <DockPanel Margin="4,0">
+                                        <TextBlock Text="{Binding FromStart.TotalMinutes, ConverterParameter=0, Converter={StaticResource MathRound}, StringFormat=\{0\}:}" />
+                                        <TextBlock Text="{Binding FromStart.Seconds, Converter={StaticResource MathRound}, StringFormat=\{0\} прошло}" Margin="1,0"/>
+                                    </DockPanel>
+                                </DockPanel>
+                                <DockPanel>
+                                    <TextBlock Text="{Binding Snapshot.LastSaveDate, StringFormat=HH:mm сохранение}" />
+                                    <Button Command="{Binding SaveProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
+                                        <TextBlock Text="сохранить" />
+                                    </Button>
+                                </DockPanel>
+                            </StackPanel>
+                        </DockPanel>
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Сколько:" Style="{StaticResource PropertyName}" />
+                            <StackPanel Style="{StaticResource PropertiesPanel}">
+
+                                <DockPanel>
+                                    <TextBlock Text="{Binding TimeLeft.TotalMinutes, ConverterParameter=0, Converter={StaticResource MathRound}, StringFormat=\{0\}:}" />
+                                    <TextBlock Text="{Binding TimeLeft.Seconds, Converter={StaticResource MathRound}, StringFormat=\{0\} осталось}" Margin="1,0"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </DockPanel>
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Скорость:" Style="{StaticResource PropertyName}" />
+                            <TextBlock Text="{Binding SpeedLinksPerMinute, Converter={StaticResource MathRound}, StringFormat=~ \{0\} ссылок в минуту}" />
+                        </DockPanel>
+                    </StackPanel>
+                </Expander>
+            </StackPanel>
+        </Expander>
+
+        <Expander Grid.Row="2" IsExpanded="False" Template="{StaticResource ExpanderExp}">
+            <Expander.Header>
+                <Border Style="{DynamicResource HeaderPanel}">
+                    <TextBlock Text="Подробности" FontSize="18" />
+                </Border>
+            </Expander.Header>
+            <TabControl Grid.Row="3" Margin="25,-3,0,0">
+                <TabControl.Resources>
+                    <DataTemplate x:Key="Request" DataType="{x:Type local:LinkState}">
+                        <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="Gainsboro">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.RowSpan="2" Text="{Binding Index}" FontSize="18" FontWeight="Medium" Foreground="Black" Margin="5,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Link.Link}" Foreground="Blue" FontSize="11"/>
+                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Status}" Foreground="Gray" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </TabControl.Resources>
+                <TabItem>
+                    <TabItem.Header>
+                        <DockPanel Margin="0,5">
+                            <TextBlock Text="{Binding ActiveLinkRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                            <TextBlock Text="Текущие запросы" />
+                        </DockPanel>
+                    </TabItem.Header>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding ActiveLinkRequests}" ItemTemplate="{DynamicResource Request}" />
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <DockPanel>
+                            <TextBlock Text="{Binding ErrorLinkRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                            <TextBlock Text="Ошибочные запросы" />
+                        </DockPanel>
+
+                    </TabItem.Header>
+                    <ScrollViewer>
+                        <ItemsControl ItemsSource="{Binding ErrorLinkRequests}" ItemTemplate="{DynamicResource Request}" />
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <DockPanel>
+                            <TextBlock Text="{Binding FinishedLinkRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                            <TextBlock Text="Завершенные запросы" />
+                        </DockPanel>
+
+                    </TabItem.Header>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"  MaxHeight="300">
+                        <!--<ItemsControl ItemsSource="{Binding FinishedLinkRequests}" ItemTemplate="{DynamicResource Request}" />-->
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </Expander>
     </Grid>
 </Window>

@@ -26,7 +26,7 @@
                             <Thumb x:Name="Thumb">
                                 <Thumb.Template>
                                     <ControlTemplate TargetType="Thumb">
-                                        <Rectangle Fill="LightGreen"
+                                        <Rectangle Fill="{StaticResource ActiveLighterColor}"
                                             Stroke="Black"
                                             StrokeThickness="1"
                                             Width="10"

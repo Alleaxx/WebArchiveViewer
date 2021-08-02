@@ -19,9 +19,9 @@ namespace WebArchiveViewer
             UndefinedColor = "black";
             CodeColors = new StatusCodeColor[]
             {
-                new StatusCodeColor(200, "green"),
-                new StatusCodeColor(200, 400, "#FFE2A400"),
-                new StatusCodeColor(400, 1000, "red")
+                new StatusCodeColor(200, "#69ab3c"),
+                new StatusCodeColor(200, 400, "#ab873c"),
+                new StatusCodeColor(400, 1000, "#ab3c3c")
             };
         }
 

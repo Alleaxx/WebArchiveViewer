@@ -9,9 +9,25 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
+    public interface IArchLink
+    {
+        int Index { get; }
+        string Name { get; }
+        string LinkSource { get; }
+        string Category { get; set; }
+        DateTime Date { get; }
+        string StatusCode { get; }
+        string ActualState { get; }
+        string MimeType { get; }
+        string TimeStamp { get; }
+
+
+        RelayCommand LoadNameCommand { get; }
+    }
+
     //Ссылка в веб архиве на сайт
     [Serializable]
-    public class ArchiveLink : NotifyObj
+    public class ArchiveLink : NotifyObj, IArchLink
     {
         public string Name
         {
@@ -34,7 +50,6 @@ namespace WebArchiveViewer
         public string MimeType { get; set; }
         public string StatusCode { get; set; }
 
-        [JsonIgnore]
         public string Category
         {
             get => category;
@@ -61,7 +76,6 @@ namespace WebArchiveViewer
         {
             LoadNameCommand = new RelayCommand(LoadName, IsLoadNameAvailable);
         }
-
 
 
         //Загрузка имени страницы

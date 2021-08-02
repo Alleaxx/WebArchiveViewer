@@ -4,11 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace WebArchiveViewer
 {
     //Разделение списка по страницам
-    class Pager<T> : NotifyObj where T:class
+    public interface IPager<T>
+    {
+        int ElementsPerPage { get; set; }
+        IEnumerable<T> Source { get; }
+        IPage<T> PageNow { get; }
+        IGrouping GroupSelected { get; set; }
+    }
+    public class Pager<T> : NotifyObj, IPager<T> where T:class
     {
         public int ElementsPerPage
         {
@@ -22,11 +30,11 @@ namespace WebArchiveViewer
         }
         private int elementsPerPage = 50;
 
-        public IEnumerable<T> Source { get; set; }
+        public IEnumerable<T> Source { get; private set; }
 
 
-        public int PageMinAmount { get; set; } = 1;
-        public int PageMaxAmount { get; set; }
+        public int PageMinAmount { get; private set; } = 1;
+        public int PageMaxAmount { get; private set; }
 
         public int PageNowNumber
         {
@@ -53,7 +61,7 @@ namespace WebArchiveViewer
         }
         private int pageNowNumber;
 
-        public Page<T> PageNow
+        public IPage<T> PageNow
         {
             get => pageNow;
             set
@@ -62,37 +70,38 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private Page<T> pageNow;
+        private IPage<T> pageNow;
 
 
-        public Option<string> GroupSelected
+        public IGrouping GroupSelected
         {
             get => groupSelected;
             set
             {
                 groupSelected = value;
                 OnPropertyChanged();
-                PageNow.Source.View.GroupDescriptions.Clear();
-                switch (value.Value)
-                {
-                    case "Тип":
-                        PageNow.Source.View.GroupDescriptions.Add(new PropertyGroupDescription("MimeType"));
-                        break;
-                    case "Код":
-                        PageNow.Source.View.GroupDescriptions.Add(new PropertyGroupDescription("StatusCode"));
-                        break;
-                    case "Категория":
-                        PageNow.Source.View.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
-                        break;
-                }
+                SetGrouping(value);
             }
         }
-        private Option<string> groupSelected;
+        private IGrouping groupSelected;
+        private void SetGrouping(IGrouping value)
+        {
+            var descriptions = PageNow.Source.View.GroupDescriptions;
+            descriptions.Clear();
+            string grouping = value.Key;
+            if (!string.IsNullOrEmpty(grouping))
+            {
+                descriptions.Add(new PropertyGroupDescription(grouping));
+            }
+        }
 
-        public Pager(IEnumerable<T> coll, Option<string> group = null)
+
+
+        public Pager(IEnumerable<T> coll, IGrouping group = null)
         {
             NextPageCommand = new RelayCommand(NextPage, IsNextPageAvail);
             PrevPageCommand = new RelayCommand(PrevPage, IsPrevPageAvail);
+            SetPageCommand = new RelayCommand(SetPage);
 
             groupSelected = group;
 
@@ -106,16 +115,26 @@ namespace WebArchiveViewer
             PageNowNumber = 1;
         }
 
-        public int[] PagesAvailable { get; private set; }
+        public int[] PagesAvailable
+        {
+            get => pagesAvailable;
+            private set
+            {
+                pagesAvailable = value;
+                OnPropertyChanged();
+            }
+        }
+        private int[] pagesAvailable;
+
         private bool Updating { get; set; }
         private void UpdatePagesAvailable()
         {
             Updating = true;
-            int size = 5;
-            List<int> arr = new List<int>(size * 2) { pageNowNumber };
+            int size = 10;
+            List<int> arr = new List<int>(size) { pageNowNumber };
 
             int counter = 1;
-            bool spaceExist = arr.Count < 10;
+            bool spaceExist = arr.Count <= size;
             bool pagesExist = arr.Count <= PageMaxAmount - PageMinAmount;
             while(spaceExist && pagesExist)
             {
@@ -127,19 +146,28 @@ namespace WebArchiveViewer
                 if (next <= PageMaxAmount)
                     arr.Add(next);
 
-                spaceExist = arr.Count < 10;
-                pagesExist = arr.Count < PageMaxAmount - PageMinAmount;
+                spaceExist = arr.Count <= 10;
+                pagesExist = arr.Count <= PageMaxAmount - PageMinAmount;
 
                 counter++;
             }
 
             PagesAvailable = arr.ToArray();
-            OnPropertyChanged(nameof(PagesAvailable));
             Updating = false;
         }
 
 
-        public RelayCommand NextPageCommand { get; private set; }
+        public ICommand SetPageCommand { get; private set; }
+        private void SetPage(object obj)
+        {
+            if(obj is int page)
+            {
+                PageNowNumber = page;
+            }
+        }
+
+
+        public ICommand NextPageCommand { get; private set; }
         private void NextPage(object obj)
         {
             PageNowNumber++;
@@ -147,7 +175,7 @@ namespace WebArchiveViewer
         private bool IsNextPageAvail(object obj) => PageNowNumber < PageMaxAmount;
 
 
-        public RelayCommand PrevPageCommand { get; private set; }
+        public ICommand PrevPageCommand { get; private set; }
         private void PrevPage(object obj)
         {
             PageNowNumber--;
@@ -155,17 +183,24 @@ namespace WebArchiveViewer
         private bool IsPrevPageAvail(object obj) => PageNowNumber > PageMinAmount;
     }
 
+
     //"Страница", содержащая определенное число элементов
-    class Page<T> where T:class
+    public interface IPage<T>
     {
-        public readonly int Number;
-        public T[] Elements { get; set; }
-        public CollectionViewSource Source { get; set; }
+        int Number { get; }
+        IEnumerable<T> Elements { get; }
+        CollectionViewSource Source { get; }
+    }
+    public class Page<T> : IPage<T> where T:class
+    {
+        public int Number { get; private set; }
+        public IEnumerable<T> Elements { get; private set; }
+        public CollectionViewSource Source { get; private set; }
 
         public Page(int num,int perPage, IEnumerable<T> source)
         {
             Number = num;
-            Elements = source.Skip((num - 1) * perPage).Take(perPage).ToArray();
+            Elements = source.Skip((num - 1) * perPage).Take(perPage);
             Source = new CollectionViewSource();
             Source.Source = Elements;
         }

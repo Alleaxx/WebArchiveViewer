@@ -10,6 +10,8 @@ namespace WebArchiveViewer
 {
     interface IFileDialog
     {
+        string SelectFolder();
+
         string Save();
         string Save(string name);
         bool SaveFile<T>(string path, T obj);
@@ -34,6 +36,17 @@ namespace WebArchiveViewer
         {
             Extension = defaultExt;
             Filter = filter;
+        }
+
+        public string SelectFolder()
+        {
+            Ookii.Dialogs.Wpf.VistaFolderBrowserDialog dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
+
+            if (dialog.ShowDialog() == true)
+            {
+                return dialog.SelectedPath;
+            }
+            return null;
         }
 
         public string Save() => Save("Имя файла");
@@ -73,7 +86,6 @@ namespace WebArchiveViewer
             }
             return null;
         }
-
         public string OpenReadText(string path)
         {
             using (FileStream fs = new FileStream(path, FileMode.Open))

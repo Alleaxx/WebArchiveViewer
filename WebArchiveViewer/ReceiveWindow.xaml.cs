@@ -14,9 +14,6 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    /// <summary>
-    /// Логика взаимодействия для LoadWindow.xaml
-    /// </summary>
     public partial class LoadWindow : Window
     {
         public LoadWindow()

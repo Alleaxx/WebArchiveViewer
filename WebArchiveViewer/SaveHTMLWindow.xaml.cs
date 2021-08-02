@@ -19,15 +19,18 @@ namespace WebArchiveViewer
     /// </summary>
     public partial class SaveHTMLWindow : Window
     {
-        public SaveHTMLWindow()
+        private SaveHTMLView View { get; set; }
+
+        public SaveHTMLWindow(SaveHTMLView view)
         {
             InitializeComponent();
+            View = view;
+            DataContext = View;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            SaveHTMLView view = DataContext as SaveHTMLView;
-            view.StopProgressCommand?.Execute(null);
+            View.StopProgressCommand?.Execute(null);
         }
     }
 }

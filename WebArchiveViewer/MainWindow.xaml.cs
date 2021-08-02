@@ -26,11 +26,6 @@ namespace WebArchiveViewer
             DataContext = AppView.Ex.Archive;
         }
 
-        private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-
-        }
-
         private void EntryInfo_MouseDown(object sender, MouseButtonEventArgs e)
         {
             FrameworkElement elem = sender as FrameworkElement;
@@ -42,16 +37,11 @@ namespace WebArchiveViewer
             AppView.Ex.Archive.UpdateList();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void Window_Closed(object sender, EventArgs e)
         {
-            LoadWindow window = new LoadWindow();
-            window.ShowDialog();
-        }
-
-        private void SaveHTML_Click(object sender, RoutedEventArgs e)
-        {
-            SaveHTMLWindow w = new SaveHTMLWindow();
-            w.Show();
+            var view = AppView.Ex.Archive;
+            if(view.CloseSnapCommand.CanExecute(null))
+                AppView.Ex.Archive.CloseSnapCommand?.Execute(null);
         }
     }
 }

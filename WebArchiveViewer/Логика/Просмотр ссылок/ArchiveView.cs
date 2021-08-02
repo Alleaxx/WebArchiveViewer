@@ -15,9 +15,17 @@ using Newtonsoft.Json;
 
 namespace WebArchiveViewer
 {
+    public enum SaveMode
+    {
+        allShowed,
+        allFiltered,
+        allNotFiltered,
+        all,
+        alldefault,
+    }
 
     //Представление просмотра ссылок с архива
-    class ArchiveView : NotifyObj
+    public class ArchiveView : NotifyObj
     {
         private IFileDialog FileDialog { get; set; }
 
@@ -54,13 +62,6 @@ namespace WebArchiveViewer
             UpdateCategoriesCommand = new RelayCommand(UpdateCategories, IsSnapshotOpened);
             ToggleCategoriesCommand = new RelayCommand(ToggleCategories, IsSnapshotOpened);
             LoadNamesCommand = new RelayCommand(LoadNames, IsSnapshotOpened);
-
-            CreateRules();
-        }
-        private void CreateRules()
-        {
-            RulesControl = new RulesControl();
-            RulesControl.AddRules(new RumineRules());
         }
 
         public FileInfo OpenedFile
@@ -76,7 +77,7 @@ namespace WebArchiveViewer
 
 
         //Снапшот адреса
-        public SiteSnapshot CurrentSnapshot
+        public ISnapshot CurrentSnapshot
         {
             get => currentSnapshot;
             set
@@ -95,17 +96,27 @@ namespace WebArchiveViewer
                 }
             }
         }
-        private SiteSnapshot currentSnapshot;
-        public void SetSnapshot(SiteSnapshot snapshot)
+        private ISnapshot currentSnapshot;
+        public void SetSnapshot(ISnapshot snapshot)
         {
             CurrentSnapshot = snapshot;
         }
         private void UpdateSnapshot()
         {
-            CategoriesFound = CurrentSnapshot.GetCategories(RulesControl);
-            Options = new ViewOptionsLinks(this, CurrentSnapshot);
+            UpdateCategories(null);
+
+            if (Options != null)
+                Options.Updated -= Options_Updated;
+            Options = new ViewOptionsLinks(CurrentSnapshot);
+            Options.Updated += Options_Updated;
+
             UpdateList();
             Status = "Ссылки загружены";
+        }
+
+        private void Options_Updated()
+        {
+            UpdateList();
         }
 
 
@@ -130,14 +141,6 @@ namespace WebArchiveViewer
 
 
         //Сохранение ссылок в файл
-        private enum SaveMode
-        {
-            allShowed,
-            allFiltered,
-            allNotFiltered,
-            all,
-            alldefault,
-        }
         private void SaveSnapFileExe(object obj)
         {
             SaveMode saveMode = GetSaveMode(obj);
@@ -146,7 +149,7 @@ namespace WebArchiveViewer
             if(path != null)
             {
                 var links = GetSavingLinks(saveMode);
-                var copy = GetSavingCopy(links);
+                var copy = currentSnapshot.GetSavingCopy(links ,options);
                 copy.Save(path);
             }
         }
@@ -165,14 +168,8 @@ namespace WebArchiveViewer
             {
                 case SaveMode.allShowed:
                     return LinksPager.PageNow.Elements;
-                case SaveMode.all:
-                    return CurrentSnapshot.Links;
-                case SaveMode.allFiltered:
-                    return CurrentSnapshot.Links.Where(l => Filter(l));
-                case SaveMode.allNotFiltered:
-                    return CurrentSnapshot.Links.Where(l => !Filter(l));
                 default:
-                    return CurrentSnapshot.Links;
+                    return CurrentSnapshot.GetLinks(saveMode, Filter);
             }
         }
         private string GetSavingPath(SaveMode mode)
@@ -188,24 +185,6 @@ namespace WebArchiveViewer
 
                 return FileDialog.Save($"{linksCount} - {link}");
             }
-        }
-        private SiteSnapshot GetSavingCopy(IEnumerable<ArchiveLink> links)
-        {
-            SiteSnapshot copy = new SiteSnapshot()
-            {
-                SourceURI = CurrentSnapshot.SourceURI,
-                Date = DateTime.Now,
-                ViewOptions = new ViewOptionsGetLinks()
-                {
-                    From = Options.From,
-                    To = Options.To,
-                    Search = Options.Search,
-                    Codes = Options.Codes,
-                    Types = Options.Types,
-                },
-                Links = links.ToArray()
-            };
-            return copy;
         }
         public RelayCommand SaveSnapFileCommand { get; private set; }
 
@@ -236,7 +215,7 @@ namespace WebArchiveViewer
             loading.Start();
             await loading;
         }
-        private void LoadNamesProcess(IEnumerable<ArchiveLink> links)
+        private void LoadNamesProcess(IEnumerable<IArchLink> links)
         {
             var linksArr = links.ToArray();
             int latencyMs = 1000;
@@ -250,22 +229,7 @@ namespace WebArchiveViewer
         }
 
 
-
-
-        public RelayCommand ShowRulesCommand { get; private set; }
-        private void ShowRules(object obj)
-        {
-            RulesWindow window = new RulesWindow(RulesControl);
-            window.ShowDialog();
-        }
-
-        public RelayCommand UpdateCategoriesCommand { get; private set; }
-        private void UpdateCategories(object obj)
-        {
-            CategoriesFound = CurrentSnapshot.GetCategories(RulesControl);
-        }
-
-
+        //Окна загрузки с веб-архива ссылок и HTML
         public RelayCommand LoadLinksCommand { get; private set; }
         private void LoadLinks(object obj)
         {
@@ -276,9 +240,27 @@ namespace WebArchiveViewer
         public RelayCommand SaveHTMLCommand { get; private set; }
         private void SaveHTML(object obj)
         {
-            SaveHTMLWindow w = new SaveHTMLWindow();
+            SaveHTMLView saveHTMLView = new SaveHTMLView(currentSnapshot);
+            SaveHTMLWindow w = new SaveHTMLWindow(saveHTMLView);
             w.Show();
         }
+
+
+        //Обзор правил построения категорий и 
+        public RelayCommand ShowRulesCommand { get; private set; }
+        private void ShowRules(object obj)
+        {
+            RulesWindow window = new RulesWindow(this);
+            window.ShowDialog();
+        }
+
+        public RelayCommand UpdateCategoriesCommand { get; private set; }
+        private void UpdateCategories(object obj)
+        {
+            CategoriesFound = CurrentSnapshot.GetCategories();
+        }
+
+
 
         public RelayCommand ToggleCategoriesCommand { get; private set; }
         private void ToggleCategories(object obj)
@@ -307,7 +289,7 @@ namespace WebArchiveViewer
         }
         private ViewOptionsLinks options;
 
-        public Pager<ArchiveLink> LinksPager
+        public IPager<ArchiveLink> LinksPager
         {
             get => linksPager;
             private set
@@ -316,44 +298,59 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private Pager<ArchiveLink> linksPager;
-        public int LinksFilteredAmount { get; private set; }
+        private IPager<ArchiveLink> linksPager;
+        public int LinksFilteredAmount
+        {
+            get => linksFilteredAmount;
+            private set
+            {
+                linksFilteredAmount = value;
+                OnPropertyChanged();
+            }
+        }
+        private int linksFilteredAmount;
+
 
         //Обновление списка ссылок
         public void UpdateList()
         {
             var links = currentSnapshot.Links.Where(l => Filter(l));
-            if (SortSelected != null)
-            {
-                switch (SortSelected.Value)
-                {
-                    case "Имя":
-                        links = links.OrderBy(l => l.LinkSource);
-                        break;
-                    case "Дата":
-                        links = links.OrderBy(l => l.Date);
-                        break;
-                    case "Тип":
-                        links = links.OrderBy(l => l.MimeType);
-                        break;
-                }
-            }
-
+            links = SortLinks(links, sortSelected);
             LinksFilteredAmount = links.Count();
-            OnPropertyChanged(nameof(LinksFilteredAmount));
 
             LinksPager = new Pager<ArchiveLink>(links, GroupSelected);
         }
+        private IEnumerable<ArchiveLink> SortLinks(IEnumerable<ArchiveLink> links, ISorting sort)
+        {
+            if (sort != null)
+            {
+                switch (sort.Name)
+                {
+                    case "Имя":
+                        return links.OrderBy(l => l.Name);
+                    case "Адрес":
+                        return links.OrderBy(l => l.LinkSource);
+                    case "Дата":
+                        return links.OrderBy(l => l.Date);
+                    case "Тип":
+                        return links.OrderBy(l => l.MimeType);
+                    default:
+                        return links;
+                }
+            }
+            else
+                return links;
+        }
         private bool Filter(object obj)
         {
-            ArchiveLink link = obj as ArchiveLink;
+            IArchLink link = obj as IArchLink;
             if (Options.From.Year > 1990 && (link.Date < Options.From || link.Date > Options.To))
                 return false;
             if (!Options.Codes.ToList().Find(opt => opt.Value == link.StatusCode).Enabled)
                 return false;
             if (!Options.Types.ToList().Find(opt => opt.Value == link.MimeType).Enabled)
                 return false;
-            if (!CategoriesFound.Find(opt => opt.Value == link.Category).Enabled)
+            if (!CategoriesFound.Where(cate => cate.Name == link.Category).First().Enabled)
                 return false;
             if (Options.ShowLoaded.HasValue && ((!Options.ShowLoaded.Value && link.ActualState == "200") || (Options.ShowLoaded.Value && link.ActualState == null)))
                 return false;
@@ -363,12 +360,7 @@ namespace WebArchiveViewer
         }
 
 
-
-        //Сортировка и группировка
-        public IRulesControl RulesControl { get; private set; }
-
-
-        public List<OptionCount<string>> CategoriesFound
+        public IEnumerable<ICategory> CategoriesFound
         {
             get => categoriesFound;
             set
@@ -377,26 +369,29 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private List<OptionCount<string>> categoriesFound;
+        private IEnumerable<ICategory> categoriesFound;
 
-        public List<Option<string>> Groups { get; private set; } = new List<Option<string>>()
+
+        public IEnumerable<IGrouping> Groups { get; private set; } = new IGrouping[]
         {
-            new Option<string>("Тип",false),
-            new Option<string>("Код",false),
-            new Option<string>("Категория",false),
-            new Option<string>("Нет", true)
+            new Grouping("Имя ссылки", "Name", false),
+            new Grouping("Тип","MimeType",false),
+            new Grouping("Код","StatusCode",false),
+            new Grouping("Категория","Category",false),
+            new Grouping("Нет", null, true)
         };
-        public List<Option<string>> Sorts { get; private set; } = new List<Option<string>>()
+        public IEnumerable<ISorting> Sorts { get; private set; } = new ISorting[]
         {
-            new Option<string>("Дата", false),
-            new Option<string>("Имя", false),
-            new Option<string>("Тип", false),
-            new Option<string>("Нет", true)
+            new Sorting("Дата", null, false),
+            new Sorting("Имя", l => l.Name, false),
+            new Sorting("Адрес", l => l.LinkSource, false),
+            new Sorting("Тип", l => l.MimeType, false),
+            new Sorting("Нет", null, true)
         };
 
 
         //Выбранные сортировки и группировки
-        public Option<string> SortSelected
+        public ISorting SortSelected
         {
             get => sortSelected;
             set
@@ -406,10 +401,10 @@ namespace WebArchiveViewer
                 UpdateList();
             }
         }
-        private Option<string> sortSelected;
+        private ISorting sortSelected;
 
 
-        public Option<string> GroupSelected
+        public IGrouping GroupSelected
         {
             get => groupSelected;
             set
@@ -419,6 +414,6 @@ namespace WebArchiveViewer
                 LinksPager.GroupSelected = value;
             }
         }
-        private Option<string> groupSelected;
+        private IGrouping groupSelected;
     }
 }

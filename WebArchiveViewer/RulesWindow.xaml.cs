@@ -14,15 +14,12 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    /// <summary>
-    /// Логика взаимодействия для RulesWindow.xaml
-    /// </summary>
     public partial class RulesWindow : Window
     {
-        public RulesWindow(IRulesControl rulesControl)
+        public RulesWindow(ArchiveView view)
         {
             InitializeComponent();
-            DataContext = rulesControl;
+            DataContext = view;
         }
     }
 }

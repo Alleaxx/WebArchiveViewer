@@ -11,81 +11,62 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace WebArchiveViewer
 {
-    class SaveHTMLView : NotifyObj
+    public class SaveHTMLView : NotifyObj
     {
-        //Инициализация
-        public SaveHTMLView()
+        public SaveHTMLView() : this(AppView.Ex.Archive.CurrentSnapshot)
         {
-            InitCommands();
-            FolderWrite = new DirectoryInfo(@"D:\Users\Allexx\Documents\Румайн\Проекты\История Румине\ProjectArch 2.0");
-            if(AppView.Ex.Archive.CurrentSnapshot != null)
-                Snapshot = AppView.Ex.Archive.CurrentSnapshot;
+
+        }
+        public SaveHTMLView(ISnapshot snapshot) : base()
+        {
+            Snapshot = snapshot as SiteSnapshot;
+            var remainingLinks = snapshot.Links.Where(l => string.IsNullOrEmpty(l.ActualState));
+            LinksRemainingList = new ObservableCollection<ArchiveLink>(remainingLinks);
+            LinksLoadedCount = snapshot.Links.Length - linksRemainingList.Count;
+
+            StartDateTime = DateTime.Now;
+            Snapshot.LastSaveDate = DateTime.Now;
+
+            if (string.IsNullOrEmpty(Snapshot.FolderHtmlSavePath))
+                Snapshot.FolderHtmlSavePath = @"D:\Users\Allexx\Documents\Румайн\Проекты\История Румине\ProjectArch 3.0";
+            if (string.IsNullOrEmpty(Snapshot.FilePath))
+                Snapshot.FilePath = @"D:\Users\Allexx\Documents\Румайн\Проекты\История Румине\ProjectArch 3.0\ПоследниеСсылки.json";
+
             ActiveLinkRequests = new ObservableCollection<LinkState>();
             ErrorLinkRequests = new ObservableCollection<LinkState>();
             FinishedLinkRequests = new ObservableCollection<LinkState>();
         }
-        private void InitCommands()
+        protected override void InitCommands()
         {
-            SelectSaveFolderCommand = new RelayCommand(SelectSaveFolder, obj => !IsStarted);
-            StartDownloadCommand = new RelayCommand(StartDownload, obj =>  !IsStarted);
-            SaveProgressCommand = new RelayCommand(SaveProgress, obj => IsStarted);
-            StopProgressCommand = new RelayCommand(StopProgress, obj => IsStarted);
+            StartDownloadCommand = new RelayCommand(StartDownload, obj => !IsStarted);
+            SaveProgressCommand = new RelayCommand(SaveProgress, obj => IsStarted && !Stopped);
+            StopProgressCommand = new RelayCommand(StopProgress, obj => IsStarted && !Stopped);
         }
 
-        //Задание источника для скачивания
-        public DirectoryInfo FolderWrite
-        {
-            get => folderWrite;
-            set
-            {
-                folderWrite = value;
-                OnPropertyChanged();
-            }
-        }
-        private DirectoryInfo folderWrite;
-        public SiteSnapshot Snapshot
-        {
-            get => snapshot;
-            set
-            {
-                snapshot = value;
-                OnPropertyChanged();
-                LinksRemainingList = new ObservableCollection<ArchiveLink>(value.Links.Where(l => string.IsNullOrEmpty(l.ActualState)));
-                LinksLoadedCount = value.Links.Length - linksRemainingList.Count;
-            }
-        }
-        private SiteSnapshot snapshot;
+
+        public SiteSnapshot Snapshot { get; private set; }
+        public DirectoryInfo FolderWrite => new DirectoryInfo(Snapshot.FolderHtmlSavePath);
 
 
-        public RelayCommand SelectSaveFolderCommand { get; set; }
-        private void SelectSaveFolder(object obj)
-        {
-
-            Ookii.Dialogs.Wpf.VistaFolderBrowserDialog dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
-            
-            if (dialog.ShowDialog() == true)
-            {
-                FolderWrite = new DirectoryInfo(dialog.SelectedPath);
-            }
-        }
 
 
         //Загрузка и запись файлов
         public bool IsStarted
         {
             get => isStarted;
-            set
+            private set
             {
                 isStarted = value;
                 OnPropertyChanged();
             }
         }
         private bool isStarted = false;
-        public DateTime StartDateTime { get; set; }
-        public RelayCommand StartDownloadCommand { get; set; }
+        public DateTime StartDateTime { get; private set; }
+        public ICommand StartDownloadCommand { get; private set; }
         private async void StartDownload(object obj)
         {
             if (!FolderWrite.Exists)
@@ -93,19 +74,23 @@ namespace WebArchiveViewer
                 FolderWrite.Create();
             }
 
-            Task loading = new Task(DownloadingV2);
+            Task loading = new Task(Downloading);
             loading.Start();
             IsStarted = true;
+            OnPropertyChanged(nameof(IsPauseEnabled));
             StartDateTime = DateTime.Now;
             OnPropertyChanged(nameof(StartDateTime));
             await loading;
         }
 
+
+        public TimeSpan FromStart => DateTime.Now - StartDateTime;
+
         //Прогресс загрузки
         public ObservableCollection<ArchiveLink> LinksRemainingList
         {
             get => linksRemainingList;
-            set
+            private set
             {
                 linksRemainingList = value;
                 OnPropertyChanged();
@@ -116,13 +101,29 @@ namespace WebArchiveViewer
         public int LinksLoadedCount
         {
             get => linksLoadedCount;
-            set
+            private set
             {
                 linksLoadedCount = value;
                 OnPropertyChanged();
             }
         }
         private int linksLoadedCount;
+
+        public ArchiveLink LastLink
+        {
+            get => lastLink;
+            private set
+            {
+                lastLink = value;
+                OnPropertyChanged();
+            }
+        }
+        private ArchiveLink lastLink;
+
+
+        public double SpeedLinksPerMinute => LinksLoadedCount / FromStart.TotalMinutes > 0 ? LinksLoadedCount / FromStart.TotalMinutes : 10;
+        public TimeSpan TimeLeft => TimeSpan.FromMinutes(LinksRemainingList.Count / SpeedLinksPerMinute); 
+
 
         //Настройки загрузки
         public int LatencyMs
@@ -135,8 +136,10 @@ namespace WebArchiveViewer
             }
         }
         private int latencyMs = 1500;
+        private int SavingLatency { get; set; } = 10;
 
         //Состояние паузы
+        public bool IsPauseEnabled => IsStarted && !Stopped;
         public bool IsPaused
         {
             get => PauseState.IsPaused;
@@ -159,7 +162,7 @@ namespace WebArchiveViewer
                 IsPaused = !value;
             }
         }
-        public PauseState PauseState { get; set; } = new PauseState(false);
+        public PauseState PauseState { get; private set; } = new PauseState(false);
 
 
         //Загрузка кода страниц:
@@ -178,10 +181,10 @@ namespace WebArchiveViewer
         //- сокращенный адрес ссылки (с возможностью перехода)
         //- текущий статус ссылки
         //- её позиция
-        public ObservableCollection<LinkState> ActiveLinkRequests { get; set; }
-        public ObservableCollection<LinkState> FinishedLinkRequests { get; set; }
-        public ObservableCollection<LinkState> ErrorLinkRequests { get; set; }
-        private void DownloadingV2()
+        public ObservableCollection<LinkState> ActiveLinkRequests { get; private set; }
+        public ObservableCollection<LinkState> FinishedLinkRequests { get; private set; }
+        public ObservableCollection<LinkState> ErrorLinkRequests { get; private set; }
+        private void Downloading()
         {
             ArchiveLink[] links = LinksRemainingList.ToArray();
             for (int i = 0; i < links.Length; )
@@ -190,16 +193,17 @@ namespace WebArchiveViewer
                 if (!IsPaused && ActiveLinkRequests.Count <= 5)
                 {
                     ArchiveLink link = links[i];
-                    Task currentLinkTask = new Task(() => StartRequest(i,link));
+                    Task currentLinkTask = new Task(() => StartRequest(link));
                     currentLinkTask.Start();
                     i++;
-                    if (i % 20 == 0)
+                    if (i % SavingLatency == 0)
                         SaveProgress(null);
                 }
+                UpdateSpeed();
             }
             StopProgress(null);
         }
-        private async void StartRequest(int index,ArchiveLink link)
+        private async void StartRequest(ArchiveLink link)
         {
             //Условное выполнение задачи
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(link.Link);
@@ -216,7 +220,9 @@ namespace WebArchiveViewer
                     // запись в файл
                     using (StreamReader reader = new StreamReader(stream, Encoding.GetEncoding(1251)))
                     {
-                        string fileName = $"{FolderWrite.FullName}\\{link.Index}.html";
+                        string name = GetSaveName(link);
+
+                        string fileName = $"{FolderWrite.FullName}\\{name}.html";
                         using (FileStream fstream = new FileStream(fileName, FileMode.OpenOrCreate))
                         {
                             byte[] array = Encoding.Default.GetBytes(reader.ReadToEnd());
@@ -226,6 +232,7 @@ namespace WebArchiveViewer
                             LinksRemainingList.Remove(link);
                             state.Status = $"Записан в {fileName}";
                             link.ActualState = "200";
+                            LastLink = link;
                             await Application.Current.Dispatcher.BeginInvoke(new Action(() => FinishedLinkRequests.Add(state)));
                             await Application.Current.Dispatcher.BeginInvoke(new Action(() => ActiveLinkRequests.Remove(state)));
                         }
@@ -233,34 +240,52 @@ namespace WebArchiveViewer
                 }
 
             }
-            catch (Exception ex)
+            catch (WebException ex)
             {
                 link.ActualState = "404";
                 state.Status = ex.Message;
                 await Application.Current.Dispatcher.BeginInvoke(new Action(() => ActiveLinkRequests.Remove(state)));
                 await Application.Current.Dispatcher.BeginInvoke(new Action(() => ErrorLinkRequests.Add(state)));
             }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        private string GetSaveName(IArchLink link)
+        {
+            string name = link.Name == ArchiveLink.DefaultName ? $"{link.Index}" : $"{link.TimeStamp} - {link.Index} - {link.Name}";
+            foreach (var invalidChar in Path.GetInvalidFileNameChars())
+            {
+                name = name.Replace(invalidChar, '_');
+            }
+            return name;
         }
 
-        public DateTime LastSaveDate { get; set; }
-        public RelayCommand SaveProgressCommand { get; set; }
+
+        public ICommand SaveProgressCommand { get; private set; }
         private void SaveProgress(object obj)
         {
-            Snapshot.Save(FolderWrite.FullName + "\\temp.json");
-            LastSaveDate = DateTime.Now;
-            OnPropertyChanged(nameof(LastSaveDate));
+            Snapshot.Save(Snapshot.FilePath);
+        }
+        private void UpdateSpeed()
+        {
+            OnPropertyChanged(nameof(FromStart));
+            OnPropertyChanged(nameof(SpeedLinksPerMinute));
+            OnPropertyChanged(nameof(TimeLeft));
         }
 
         private bool Stopped { get; set; }
-        public RelayCommand StopProgressCommand { get; set; }
+        public ICommand StopProgressCommand { get; private set; }
         private void StopProgress(object obj)
         {
             IsPaused = true;
             Stopped = true;
             SaveProgress(null);
+            OnPropertyChanged(nameof(IsPauseEnabled));
         }
     }
-    class PauseState
+    public class PauseState
     {
         public bool IsPaused { get; set; }
         public bool IsPausedInverted => !IsPaused;
@@ -279,7 +304,7 @@ namespace WebArchiveViewer
             }
         }
     }
-    class LinkState : NotifyObj
+    public class LinkState : NotifyObj
     {
         public int Index { get; set; }
         public ArchiveLink Link { get; set; }

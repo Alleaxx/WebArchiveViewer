@@ -16,5 +16,14 @@ namespace WebArchiveViewer
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
+
+        public NotifyObj()
+        {
+            InitCommands();
+        }
+        protected virtual void InitCommands()
+        {
+
+        }
     }
 }
