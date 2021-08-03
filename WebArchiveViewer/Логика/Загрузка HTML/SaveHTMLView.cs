@@ -24,17 +24,16 @@ namespace WebArchiveViewer
         public SaveHTMLView(ISnapshot snapshot) : base()
         {
             Snapshot = snapshot as SiteSnapshot;
-            var remainingLinks = snapshot.Links.Where(l => string.IsNullOrEmpty(l.ActualState));
+            var remainingLinks = snapshot.Links.Where(l => string.IsNullOrEmpty(l.HtmlFilePath));
             LinksRemainingList = new ObservableCollection<ArchiveLink>(remainingLinks);
             LinksLoadedCount = snapshot.Links.Length - linksRemainingList.Count;
+            SavingLatency = GetSavingLatency(snapshot.Links.Length);
 
             StartDateTime = DateTime.Now;
             Snapshot.LastSaveDate = DateTime.Now;
 
-            if (string.IsNullOrEmpty(Snapshot.FolderHtmlSavePath))
-                Snapshot.FolderHtmlSavePath = @"D:\Users\Allexx\Documents\Румайн\Проекты\История Румине\ProjectArch 3.0";
             if (string.IsNullOrEmpty(Snapshot.FilePath))
-                Snapshot.FilePath = @"D:\Users\Allexx\Documents\Румайн\Проекты\История Румине\ProjectArch 3.0\ПоследниеСсылки.json";
+                Snapshot.Save(@"D:\Users\Allexx\Documents\Румайн\Проекты\История Румине\ProjectArch 3.0\ПоследниеСсылки.json");
 
             ActiveLinkRequests = new ObservableCollection<LinkState>();
             ErrorLinkRequests = new ObservableCollection<LinkState>();
@@ -45,6 +44,14 @@ namespace WebArchiveViewer
             StartDownloadCommand = new RelayCommand(StartDownload, obj => !IsStarted);
             SaveProgressCommand = new RelayCommand(SaveProgress, obj => IsStarted && !Stopped);
             StopProgressCommand = new RelayCommand(StopProgress, obj => IsStarted && !Stopped);
+        }
+        private int GetSavingLatency(int count)
+        {
+            int latency = count / 10;
+            int min = 10;
+            if (latency < min)
+                latency = min;
+            return latency;
         }
 
 
@@ -222,16 +229,16 @@ namespace WebArchiveViewer
                     {
                         string name = GetSaveName(link);
 
-                        string fileName = $"{FolderWrite.FullName}\\{name}.html";
-                        using (FileStream fstream = new FileStream(fileName, FileMode.OpenOrCreate))
+                        string filePath = $"{FolderWrite.FullName}\\{name}.html";
+                        using (FileStream fstream = new FileStream(filePath, FileMode.OpenOrCreate))
                         {
                             byte[] array = Encoding.Default.GetBytes(reader.ReadToEnd());
                             await fstream.WriteAsync(array, 0, array.Length);
 
                             LinksLoadedCount++;
                             LinksRemainingList.Remove(link);
-                            state.Status = $"Записан в {fileName}";
-                            link.ActualState = "200";
+                            state.Status = $"Записан в {name}";
+                            link.HtmlFilePath = filePath;
                             LastLink = link;
                             await Application.Current.Dispatcher.BeginInvoke(new Action(() => FinishedLinkRequests.Add(state)));
                             await Application.Current.Dispatcher.BeginInvoke(new Action(() => ActiveLinkRequests.Remove(state)));
@@ -242,7 +249,7 @@ namespace WebArchiveViewer
             }
             catch (WebException ex)
             {
-                link.ActualState = "404";
+                link.HtmlFilePath = null;
                 state.Status = ex.Message;
                 await Application.Current.Dispatcher.BeginInvoke(new Action(() => ActiveLinkRequests.Remove(state)));
                 await Application.Current.Dispatcher.BeginInvoke(new Action(() => ErrorLinkRequests.Add(state)));
@@ -254,7 +261,7 @@ namespace WebArchiveViewer
         }
         private string GetSaveName(IArchLink link)
         {
-            string name = link.Name == ArchiveLink.DefaultName ? $"{link.Index}" : $"{link.TimeStamp} - {link.Index} - {link.Name}";
+            string name = link.Name == ArchiveLink.DefaultName ? $"{link.TimeStamp} - {link.Index}" : $"{link.TimeStamp} - {link.Index} - {link.Name}";
             foreach (var invalidChar in Path.GetInvalidFileNameChars())
             {
                 name = name.Replace(invalidChar, '_');
@@ -266,13 +273,16 @@ namespace WebArchiveViewer
         public ICommand SaveProgressCommand { get; private set; }
         private void SaveProgress(object obj)
         {
-            Snapshot.Save(Snapshot.FilePath);
+            Snapshot.Save();
         }
         private void UpdateSpeed()
         {
-            OnPropertyChanged(nameof(FromStart));
-            OnPropertyChanged(nameof(SpeedLinksPerMinute));
-            OnPropertyChanged(nameof(TimeLeft));
+            if(!IsPaused && !Stopped)
+            {
+                OnPropertyChanged(nameof(FromStart));
+                OnPropertyChanged(nameof(SpeedLinksPerMinute));
+                OnPropertyChanged(nameof(TimeLeft));
+            }
         }
 
         private bool Stopped { get; set; }

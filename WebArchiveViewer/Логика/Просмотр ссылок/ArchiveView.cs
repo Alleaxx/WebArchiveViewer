@@ -21,7 +21,7 @@ namespace WebArchiveViewer
         allFiltered,
         allNotFiltered,
         all,
-        alldefault,
+        alldefaultpath,
     }
 
     //Представление просмотра ссылок с архива
@@ -29,128 +29,81 @@ namespace WebArchiveViewer
     {
         private IFileDialog FileDialog { get; set; }
 
-        public string Status
-        {
-            get => status;
-            set
-            {
-                status = value;
-                OnPropertyChanged();
-            }
-        }
-        private string status;
-
-
         //Инициализация
         public ArchiveView()
         {
-            sortSelected = Sorts.Last();
-            groupSelected = Groups.Last();
             FileDialog = new FileDialog(".json", "JSON-файл (*.json) |*.json");
-
-            Status = "Ожидание списка ссылок";
-
-            LoadLinksCommand = new RelayCommand(LoadLinks, RelayCommand.IsTrue);
-            OpenSnapshotCommand = new RelayCommand(OpenSnapshotFileExe, RelayCommand.IsTrue);
-            SaveSnapFileCommand = new RelayCommand(SaveSnapFileExe, IsSnapshotOpened);
-            CloseSnapCommand = new RelayCommand(CloseSnapExe, IsSnapshotOpened);
-
-            SaveHTMLCommand = new RelayCommand(SaveHTML, IsSnapshotOpened);
-            ClearProgressCommand = new RelayCommand(ClearProgress, IsSnapshotOpened);
-
-            ShowRulesCommand = new RelayCommand(ShowRules, RelayCommand.IsTrue);
-            UpdateCategoriesCommand = new RelayCommand(UpdateCategories, IsSnapshotOpened);
-            ToggleCategoriesCommand = new RelayCommand(ToggleCategories, IsSnapshotOpened);
-            LoadNamesCommand = new RelayCommand(LoadNames, IsSnapshotOpened);
         }
-
-        public FileInfo OpenedFile
+        protected override void InitCommands()
         {
-            get => openedFile;
-            private set
-            {
-                openedFile = value;
-                OnPropertyChanged();
-            }
+            base.InitCommands();
+            OpenArchiveLinksCommand = new RelayCommand(LoadLinks, RelayCommand.IsTrue);
+            OpenSnapshotCommand = new RelayCommand(OpenSnapshotFile, RelayCommand.IsTrue);
+            SaveSnapFileCommand = new RelayCommand(SaveSnapFile, IsSnapshotOpened);
+            CloseSnapCommand = new RelayCommand(CloseSnapshot, IsSnapshotOpened);
         }
-        private FileInfo openedFile;
 
 
-        //Снапшот адреса
         public ISnapshot CurrentSnapshot
         {
             get => currentSnapshot;
             set
             {
+                var oldValue = currentSnapshot;
                 currentSnapshot = value;
                 OnPropertyChanged();
 
                 if (value != null)
                 {
-                    UpdateSnapshot();
+                    var options = value.ViewOptions;
+                    options.LoadCategories(currentSnapshot);
+                    options.Updated += UpdateList;
+                    UpdateList();
                 }
-                else
+                if (oldValue != null && oldValue.ViewOptions != null)
                 {
-                    Options = null;
-                    Status = "Ссылки закрыты";
+                    oldValue.ViewOptions.Updated -= UpdateList;
                 }
             }
         }
         private ISnapshot currentSnapshot;
-        public void SetSnapshot(ISnapshot snapshot)
+        private bool IsSnapshotOpened(object obj) => CurrentSnapshot != null;
+
+
+        //Окна загрузки с веб-архива ссылок и HTML
+        public ICommand OpenArchiveLinksCommand { get; private set; }
+        private void LoadLinks(object obj)
         {
-            CurrentSnapshot = snapshot;
+            LoadWindow window = new LoadWindow();
+            window.ShowDialog();
         }
-        private void UpdateSnapshot()
-        {
-            UpdateCategories(null);
-
-            if (Options != null)
-                Options.Updated -= Options_Updated;
-            Options = new ViewOptionsLinks(CurrentSnapshot);
-            Options.Updated += Options_Updated;
-
-            UpdateList();
-            Status = "Ссылки загружены";
-        }
-
-        private void Options_Updated()
-        {
-            UpdateList();
-        }
-
-
-
 
         //Открытие файла со ссылками
-        private bool IsSnapshotOpened(object obj) => CurrentSnapshot != null;
-        private void OpenSnapshotFileExe(object obj)
+        public ICommand OpenSnapshotCommand { get; private set; }
+        private void OpenSnapshotFile(object obj)
         {
-            string path = FileDialog.Open();
-            if (!string.IsNullOrEmpty(path))
+            var file = FileDialog.Open();
+            if (file != null && file.Exists)
             {
-                CurrentSnapshot = FileDialog.OpenReadJson<SiteSnapshot>(path);
-
-                Status = "Ссылки из файла";
-                OpenedFile = new FileInfo(path);
+                string path = file.FullName;
+                var snapshot = FileDialog.OpenReadJson<SiteSnapshot>(path);
+                snapshot.FilePath = path;
+                snapshot.ViewOptions.UpdateForSnapshot(snapshot);
+                CurrentSnapshot = snapshot;
             }
         }
-        public RelayCommand OpenSnapshotCommand { get; private set; }
-
-
 
 
         //Сохранение ссылок в файл
-        private void SaveSnapFileExe(object obj)
+        public ICommand SaveSnapFileCommand { get; private set; }
+        private void SaveSnapFile(object obj)
         {
             SaveMode saveMode = GetSaveMode(obj);
             string path = GetSavingPath(saveMode);
 
             if(path != null)
             {
-                var links = GetSavingLinks(saveMode);
-                var copy = currentSnapshot.GetSavingCopy(links ,options);
-                copy.Save(path);
+                CurrentSnapshot.Save(saveMode, path);
             }
         }
 
@@ -162,133 +115,36 @@ namespace WebArchiveViewer
             return saveMode;
 
         }
-        private IEnumerable<ArchiveLink> GetSavingLinks(SaveMode saveMode)
-        {
-            switch (saveMode)
-            {
-                case SaveMode.allShowed:
-                    return LinksPager.PageNow.Elements;
-                default:
-                    return CurrentSnapshot.GetLinks(saveMode, Filter);
-            }
-        }
         private string GetSavingPath(SaveMode mode)
         {
-            if (mode == SaveMode.alldefault)
+            if (mode == SaveMode.alldefaultpath)
             {
-                return OpenedFile.FullName;
+                return CurrentSnapshot.File.FullName;
             }
             else
             {
                 int linksCount = currentSnapshot.Links.Length;
                 string link = currentSnapshot.SourceURI;
 
-                return FileDialog.Save($"{linksCount} - {link}");
+                var file = FileDialog.Save($"{linksCount} - {link}");
+                if (file != null && file.Exists)
+                    return file.FullName;
+                else
+                    return null;
             }
         }
-        public RelayCommand SaveSnapFileCommand { get; private set; }
 
-
-        public RelayCommand CloseSnapCommand { get; private set; }
-        private void CloseSnapExe(object obj)
+        
+        //Закрыть снапшот
+        public ICommand CloseSnapCommand { get; private set; }
+        private void CloseSnapshot(object obj)
         {
             CurrentSnapshot = null;
             LinksPager = null;
         }
-        
-        
-        public RelayCommand ClearProgressCommand { get; private set; }
-        private void ClearProgress(object obj)
-        {
-            foreach (var link in CurrentSnapshot.Links)
-            {
-                link.ActualState = null;
-            }
-        }
-        
-        
-        public RelayCommand LoadNamesCommand { get; private set; }
-        private async void LoadNames(object obj)
-        {
-            var links = CurrentSnapshot.Links.Where(l => l.LoadNameCommand.CanExecute(null) && l.Name == ArchiveLink.DefaultName);
-            Task loading = new Task(() => LoadNamesProcess(links));
-            loading.Start();
-            await loading;
-        }
-        private void LoadNamesProcess(IEnumerable<IArchLink> links)
-        {
-            var linksArr = links.ToArray();
-            int latencyMs = 1000;
-
-            for (int i = 0; i < linksArr.Length; i++)
-            {
-                var link = linksArr[i];
-                System.Threading.Thread.Sleep(latencyMs);
-                link.LoadNameCommand.Execute(null);
-            }
-        }
 
 
-        //Окна загрузки с веб-архива ссылок и HTML
-        public RelayCommand LoadLinksCommand { get; private set; }
-        private void LoadLinks(object obj)
-        {
-            LoadWindow window = new LoadWindow();
-            window.ShowDialog();
-        }
-
-        public RelayCommand SaveHTMLCommand { get; private set; }
-        private void SaveHTML(object obj)
-        {
-            SaveHTMLView saveHTMLView = new SaveHTMLView(currentSnapshot);
-            SaveHTMLWindow w = new SaveHTMLWindow(saveHTMLView);
-            w.Show();
-        }
-
-
-        //Обзор правил построения категорий и 
-        public RelayCommand ShowRulesCommand { get; private set; }
-        private void ShowRules(object obj)
-        {
-            RulesWindow window = new RulesWindow(this);
-            window.ShowDialog();
-        }
-
-        public RelayCommand UpdateCategoriesCommand { get; private set; }
-        private void UpdateCategories(object obj)
-        {
-            CategoriesFound = CurrentSnapshot.GetCategories();
-        }
-
-
-
-        public RelayCommand ToggleCategoriesCommand { get; private set; }
-        private void ToggleCategories(object obj)
-        {
-            bool newState = !CategoriesFound.First().Enabled;
-            foreach (var cate in CategoriesFound)
-            {
-                cate.Enabled = newState;
-            }
-            UpdateList();
-        }
-
-
-
-
-
-        //Опции просмотра снапшота
-        public ViewOptionsLinks Options
-        {
-            get => options;
-            private set
-            {
-                options = value;
-                OnPropertyChanged();
-            }
-        }
-        private ViewOptionsLinks options;
-
+        //Список отображаемых ссылок
         public IPager<ArchiveLink> LinksPager
         {
             get => linksPager;
@@ -299,121 +155,17 @@ namespace WebArchiveViewer
             }
         }
         private IPager<ArchiveLink> linksPager;
-        public int LinksFilteredAmount
-        {
-            get => linksFilteredAmount;
-            private set
-            {
-                linksFilteredAmount = value;
-                OnPropertyChanged();
-            }
-        }
-        private int linksFilteredAmount;
-
-
-        //Обновление списка ссылок
         public void UpdateList()
         {
-            var links = currentSnapshot.Links.Where(l => Filter(l));
-            links = SortLinks(links, sortSelected);
-            LinksFilteredAmount = links.Count();
-
-            LinksPager = new Pager<ArchiveLink>(links, GroupSelected);
-        }
-        private IEnumerable<ArchiveLink> SortLinks(IEnumerable<ArchiveLink> links, ISorting sort)
-        {
-            if (sort != null)
+            if(currentSnapshot != null)
             {
-                switch (sort.Name)
-                {
-                    case "Имя":
-                        return links.OrderBy(l => l.Name);
-                    case "Адрес":
-                        return links.OrderBy(l => l.LinkSource);
-                    case "Дата":
-                        return links.OrderBy(l => l.Date);
-                    case "Тип":
-                        return links.OrderBy(l => l.MimeType);
-                    default:
-                        return links;
-                }
-            }
-            else
-                return links;
-        }
-        private bool Filter(object obj)
-        {
-            IArchLink link = obj as IArchLink;
-            if (Options.From.Year > 1990 && (link.Date < Options.From || link.Date > Options.To))
-                return false;
-            if (!Options.Codes.ToList().Find(opt => opt.Value == link.StatusCode).Enabled)
-                return false;
-            if (!Options.Types.ToList().Find(opt => opt.Value == link.MimeType).Enabled)
-                return false;
-            if (!CategoriesFound.Where(cate => cate.Name == link.Category).First().Enabled)
-                return false;
-            if (Options.ShowLoaded.HasValue && ((!Options.ShowLoaded.Value && link.ActualState == "200") || (Options.ShowLoaded.Value && link.ActualState == null)))
-                return false;
-            if (!string.IsNullOrEmpty(Options.Search) && !link.LinkSource.Contains(Options.Search) && !link.Name.Contains(Options.Search))
-                return false;
-            return true;
-        }
+                var options = CurrentSnapshot.ViewOptions;
+                var links = options.GetFilteredLinks(currentSnapshot);
+                links = options.ListView.SortLinks(currentSnapshot);
+                options.LinksFilteredAmount = links.Count();
 
-
-        public IEnumerable<ICategory> CategoriesFound
-        {
-            get => categoriesFound;
-            set
-            {
-                categoriesFound = value;
-                OnPropertyChanged();
+                LinksPager = new Pager<ArchiveLink>(links, options.ListView.GroupSelected);
             }
         }
-        private IEnumerable<ICategory> categoriesFound;
-
-
-        public IEnumerable<IGrouping> Groups { get; private set; } = new IGrouping[]
-        {
-            new Grouping("Имя ссылки", "Name", false),
-            new Grouping("Тип","MimeType",false),
-            new Grouping("Код","StatusCode",false),
-            new Grouping("Категория","Category",false),
-            new Grouping("Нет", null, true)
-        };
-        public IEnumerable<ISorting> Sorts { get; private set; } = new ISorting[]
-        {
-            new Sorting("Дата", null, false),
-            new Sorting("Имя", l => l.Name, false),
-            new Sorting("Адрес", l => l.LinkSource, false),
-            new Sorting("Тип", l => l.MimeType, false),
-            new Sorting("Нет", null, true)
-        };
-
-
-        //Выбранные сортировки и группировки
-        public ISorting SortSelected
-        {
-            get => sortSelected;
-            set
-            {
-                sortSelected = value;
-                OnPropertyChanged();
-                UpdateList();
-            }
-        }
-        private ISorting sortSelected;
-
-
-        public IGrouping GroupSelected
-        {
-            get => groupSelected;
-            set
-            {
-                groupSelected = value;
-                OnPropertyChanged();
-                LinksPager.GroupSelected = value;
-            }
-        }
-        private IGrouping groupSelected;
     }
 }

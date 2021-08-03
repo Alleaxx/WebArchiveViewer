@@ -10,14 +10,14 @@ namespace WebArchiveViewer
 {
     interface IFileDialog
     {
-        string SelectFolder();
+        DirectoryInfo SelectFolder();
 
-        string Save();
-        string Save(string name);
+        FileInfo Save();
+        FileInfo Save(string name);
         bool SaveFile<T>(string path, T obj);
 
 
-        string Open();
+        FileInfo Open();
         string OpenReadText(string path);
         T OpenReadJson<T>(string path);
     }
@@ -38,19 +38,19 @@ namespace WebArchiveViewer
             Filter = filter;
         }
 
-        public string SelectFolder()
+        public DirectoryInfo SelectFolder()
         {
             Ookii.Dialogs.Wpf.VistaFolderBrowserDialog dialog = new Ookii.Dialogs.Wpf.VistaFolderBrowserDialog();
 
             if (dialog.ShowDialog() == true)
             {
-                return dialog.SelectedPath;
+                return new DirectoryInfo(dialog.SelectedPath);
             }
             return null;
         }
 
-        public string Save() => Save("Имя файла");
-        public string Save(string name)
+        public FileInfo Save() => Save("Имя файла");
+        public FileInfo Save(string name)
         {
             Microsoft.Win32.SaveFileDialog dialog = new Microsoft.Win32.SaveFileDialog();
             dialog.FileName = name;
@@ -64,12 +64,12 @@ namespace WebArchiveViewer
 
             if (dialog.ShowDialog() == true)
             {
-                return dialog.FileName;
+                return new FileInfo(dialog.FileName);
             }
             return null;
         }
 
-        public string Open()
+        public FileInfo Open()
         {
             Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
 
@@ -82,7 +82,7 @@ namespace WebArchiveViewer
 
             if (dialog.ShowDialog() == true)
             {
-                return dialog.FileName;
+                return new FileInfo(dialog.FileName);
             }
             return null;
         }

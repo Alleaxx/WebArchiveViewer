@@ -17,9 +17,10 @@ namespace WebArchiveViewer
         string Category { get; set; }
         DateTime Date { get; }
         string StatusCode { get; }
-        string ActualState { get; }
         string MimeType { get; }
         string TimeStamp { get; }
+
+        string HtmlFilePath { get; }
 
 
         RelayCommand LoadNameCommand { get; }
@@ -61,16 +62,16 @@ namespace WebArchiveViewer
         }
         private string category = "Общее";
 
-        public string ActualState
+        public string HtmlFilePath
         {
-            get => actualState;
+            get => htmlFilePath;
             set
             {
-                actualState = value;
+                htmlFilePath = value;
                 OnPropertyChanged();
             }
         }
-        private string actualState;
+        private string htmlFilePath;
 
         public ArchiveLink()
         {

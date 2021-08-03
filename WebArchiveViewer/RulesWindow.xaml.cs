@@ -16,10 +16,19 @@ namespace WebArchiveViewer
 {
     public partial class RulesWindow : Window
     {
-        public RulesWindow(ArchiveView view)
+        public RulesWindow(RulesControl rulesControl)
         {
             InitializeComponent();
-            DataContext = view;
+            DataContext = rulesControl;
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            var snap = AppView.Ex.Archive.CurrentSnapshot as SiteSnapshot;
+            ICommand command = snap.UpdateCategoriesCommand;
+
+            if(command.CanExecute(null))
+                command.Execute(null);
         }
     }
 }

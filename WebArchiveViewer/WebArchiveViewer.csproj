@@ -66,9 +66,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Конвертеры\Round.cs" />
+    <Compile Include="Логика\Получение ссылок\RequestCreator.cs" />
     <Compile Include="Логика\Снапшот\ArchiveLink.cs" />
+    <Compile Include="Логика\Снапшот\CodeTypesCates.cs" />
+    <Compile Include="Логика\Снапшот\SortsGroups.cs" />
+    <Compile Include="Логика\Техническое\DateRange.cs" />
     <Compile Include="Логика\Техническое\FileDialog.cs" />
-    <Compile Include="Логика\Option.cs" />
     <Compile Include="Конвертеры\Date.cs" />
     <Compile Include="Конвертеры\StatusCode.cs" />
     <Compile Include="Логика\Техническое\NotifyObj.cs" />
@@ -96,7 +99,7 @@
     </Compile>
     <Compile Include="Логика\Получение ссылок\ArchiveReceiveView.cs" />
     <Compile Include="Логика\Просмотр ссылок\ArchiveView.cs" />
-    <Compile Include="Логика\Снапшот\LinkViewOptions.cs" />
+    <Compile Include="Логика\Снапшот\ViewOptions.cs" />
     <Compile Include="Логика\Техническое\RelayCommand.cs" />
     <Compile Include="Логика\Снапшот\SiteSnapshot.cs" />
     <Page Include="Элементы\IntervalSlider.xaml">

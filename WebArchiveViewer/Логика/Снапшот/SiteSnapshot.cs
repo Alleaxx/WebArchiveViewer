@@ -16,29 +16,32 @@ namespace WebArchiveViewer
 {
     public interface ISnapshot
     {
+        FileInfo File { get; }
+
         string SourceURI { get; }
-        DateTime Date { get; }
-        ViewOptionsGetLinks ViewOptions { get; set; }
+        DateTime ReceivingDate { get; }
         ArchiveLink[] Links { get; }
         RulesControl RulesControl { get; }
+
+
+        void Save();
         void Save(string path);
+        void Save(string path, IEnumerable<ArchiveLink> links);
+        void Save(SaveMode mode,string path);
+
+
         IEnumerable<ICategory> GetCategories();
-
-
-        IEnumerable<ArchiveLink> GetLinks(SaveMode mode, Predicate<object> Filter);
-        ISnapshot GetSavingCopy(IEnumerable<ArchiveLink> links, ViewOptionsLinks Options);
+        ViewOptions ViewOptions { get; }
     }
 
     //Сайт со ссылками из архива на указанную дату
     [Serializable]
     public class SiteSnapshot : NotifyObj, ISnapshot
     {
-        public string FilePath { get; set; }
-        public string FileName { get; set; }
-
+        //Сведения о файлах
         public string FolderHtmlSavePath
         {
-            get => folderHtmlSavePath;
+            get => folderHtmlSavePath ?? $"{Directory.GetCurrentDirectory()}\\Ссылки";
             set
             {
                 folderHtmlSavePath = value;
@@ -47,13 +50,15 @@ namespace WebArchiveViewer
             }
         }
         private string folderHtmlSavePath;
+        [JsonIgnore]
+        public string FolderHtmlSaveName => new DirectoryInfo(FolderHtmlSavePath).Name;
 
         [JsonIgnore]
-        public string FolderHtmlSaveName => string.IsNullOrEmpty(FolderHtmlSavePath) ? null : new DirectoryInfo(FolderHtmlSavePath).Name;
-
-
-        public string SourceURI { get; set; }
-        public DateTime Date { get; set; }
+        public string FilePath { get; set; }
+        [JsonIgnore]
+        public FileInfo File => string.IsNullOrEmpty(FilePath) ? null : new FileInfo(FilePath);
+        [JsonIgnore]
+        public string Status => string.IsNullOrEmpty(FilePath) ? "Снапшот из архива, не сохранен" : "Снапшот сохранен";
         public DateTime LastSaveDate
         {
             get => lastSaveDate;
@@ -65,9 +70,40 @@ namespace WebArchiveViewer
         }
         private DateTime lastSaveDate;
 
-        public ViewOptionsGetLinks ViewOptions { get; set; }
-        public ArchiveLink[] Links { get; set; }
+
+        [JsonIgnore]
+        public ICommand SelectSaveFolderCommand { get; private set; }
+        private void SelectFolderSave(object obj)
+        {
+            IFileDialog dialog = new FileDialog();
+            var folder = dialog.SelectFolder();
+            if (folder != null && folder.Exists)
+            {
+                FolderHtmlSavePath = folder.FullName;
+            }
+        }
+
+        [JsonIgnore]
+        public ICommand SaveHTMLCommand { get; private set; }
+        private void SaveHTML(object obj)
+        {
+            SaveHTMLView saveHTMLView = new SaveHTMLView(this);
+            SaveHTMLWindow w = new SaveHTMLWindow(saveHTMLView);
+            w.Show();
+        }
+
+
+
+
+        //Сведения о запросе
+        public string Request { get; set; }
+        public string SourceURI { get; set; }
+        public DateTime ReceivingDate { get; set; }
+
+
+        public ViewOptions ViewOptions { get; set; }
         public RulesControl RulesControl { get; set; }
+        public ArchiveLink[] Links { get; set; }
 
 
 
@@ -76,79 +112,104 @@ namespace WebArchiveViewer
         {
 
         }
+        public SiteSnapshot(string request, string source, IEnumerable<ArchiveLink> links) : this()
+        {
+            ReceivingDate = DateTime.Now;
+            Request = request;
+            SourceURI = source;
+            Links = links.ToArray();
+            ViewOptions = new ViewOptions(this);
+        }
         protected override void InitCommands()
         {
-            OpenLinkCommand = new RelayCommand(OpenLink);
+            OpenLinkCommand = new RelayCommand(OpenLink, IsCorrectLink);
             SelectSaveFolderCommand = new RelayCommand(SelectFolderSave);
+
+            SaveHTMLCommand = new RelayCommand(SaveHTML);
+            UpdateCategoriesCommand = new RelayCommand(UpdateCategories);
+            LoadNamesCommand = new RelayCommand(LoadNames);
+            ClearProgressCommand = new RelayCommand(ClearProgress);
         }
 
 
         [JsonIgnore]
         public ICommand OpenLinkCommand { get; private set; }
+        private bool IsCorrectLink(object obj) => obj is string link && !string.IsNullOrEmpty(link);
         private void OpenLink(object obj)
         {
-            if (obj is string link && link.StartsWith("http"))
+            if (obj is string link)
             {
                 System.Diagnostics.Process.Start(link);
             }
         }
 
+
         [JsonIgnore]
-        public ICommand SelectSaveFolderCommand { get; private set; }
-        private void SelectFolderSave(object obj)
+        public ICommand ClearProgressCommand { get; private set; }
+        private void ClearProgress(object obj)
         {
-            IFileDialog dialog = new FileDialog();
-            string path = dialog.SelectFolder();
-            if (!string.IsNullOrEmpty(path))
+            foreach (var link in Links)
             {
-                FolderHtmlSavePath = path;
+                link.HtmlFilePath = null;
             }
         }
 
-        
-        public IEnumerable<ArchiveLink> GetLinks(SaveMode mode, Predicate<object> Filter)
+        [JsonIgnore]
+        public ICommand LoadNamesCommand { get; private set; }
+        private async void LoadNames(object obj)
         {
-            switch (mode)
+            var links = Links.Where(l => l.LoadNameCommand.CanExecute(null) && l.Name == ArchiveLink.DefaultName);
+            Task loading = new Task(() => LoadNamesProcess(links));
+            loading.Start();
+            await loading;
+        }
+        private void LoadNamesProcess(IEnumerable<IArchLink> links)
+        {
+            var linksArr = links.ToArray();
+            int latencyMs = 1000;
+
+            for (int i = 0; i < linksArr.Length; i++)
             {
-                case SaveMode.all:
-                    return Links;
-                case SaveMode.allFiltered:
-                    return Links.Where(l => Filter(l));
-                case SaveMode.allNotFiltered:
-                    return Links.Where(l => !Filter(l));
-                default:
-                    return Links;
+                var link = linksArr[i];
+                System.Threading.Thread.Sleep(latencyMs);
+                link.LoadNameCommand.Execute(null);
             }
         }
-        public ISnapshot GetSavingCopy(IEnumerable<ArchiveLink> links,ViewOptionsLinks Options)
+
+
+        [JsonIgnore]
+        public ICommand UpdateCategoriesCommand { get; private set; }
+        private void UpdateCategories(object obj)
         {
-            ISnapshot copy = new SiteSnapshot()
-            {
-                FolderHtmlSavePath = folderHtmlSavePath,
-                SourceURI = SourceURI,
-                Date = DateTime.Now,
-                ViewOptions = new ViewOptionsGetLinks()
-                {
-                    From = Options.From,
-                    To = Options.To,
-                    Search = Options.Search,
-                    Codes = Options.Codes,
-                    Types = Options.Types,
-                },
-                RulesControl = RulesControl,
-                Links = links.ToArray()
-            };
-            return copy;
+            ViewOptions.LoadCategories(this);
+        }
+
+
+        public void Save()
+        {
+            Save(FilePath, Links);
         }
         public void Save(string path)
         {
+            Save(path, Links);
+        }
+        public void Save(SaveMode mode,string path)
+        {
+            var links = ViewOptions.GetFilteredLinks(this, mode);
+            Save(path, links);
+        }
+        public void Save(string path, IEnumerable<ArchiveLink> links)
+        {
             FilePath = path;
-            FileName = new FileInfo(path).Name;
             LastSaveDate = DateTime.Now;
 
+            var copy = MemberwiseClone() as SiteSnapshot;
+            copy.Links = links.ToArray();
+
             IFileDialog fileDialog = new FileDialog();
-            fileDialog.SaveFile(path, this);
+            fileDialog.SaveFile(path, copy);
         }
+
 
         private void UpdateLinkCategories()
         {
@@ -160,7 +221,7 @@ namespace WebArchiveViewer
         } 
         public IEnumerable<ICategory> GetCategories()
         {
-            CheckRules();
+            CreateRulesIfNull();
 
             var categoriesFound = new List<ICategory>();
             UpdateLinkCategories();
@@ -178,7 +239,7 @@ namespace WebArchiveViewer
             return categoriesFound;
         }
 
-        private void CheckRules()
+        private void CreateRulesIfNull()
         {
             if (RulesControl == null)
             {
@@ -186,5 +247,10 @@ namespace WebArchiveViewer
                 RulesControl.AddRules(new RumineRules());
             }
         }
+    }
+
+    public class SaveData
+    {
+
     }
 }

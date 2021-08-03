@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
         mc:Ignorable="d"
-        Title="Загрузка с веб-архива" Height="600" Width="450">
+        Title="Загрузка с веб-архива" Height="700" Width="450">
     <Window.DataContext>
         <local:ArchiveReceiveView />
     </Window.DataContext>
@@ -26,53 +26,90 @@
                     <StackPanel>
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="Ссылка:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
-                            <TextBox Text="{Binding Site}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <TextBox Text="{Binding RequestCreator.Site.Value}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Поиск:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
+                            <ComboBox ItemsSource="{Binding RequestCreator.MatchType.Types}" SelectedItem="{Binding RequestCreator.MatchType.Selected}" VerticalAlignment="Center">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" ToolTip="{Binding Description}" />
+                                            <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </DockPanel>
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Вывод:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
+                            <DockPanel IsEnabled="False">
+                                <RadioButton GroupName="output" IsChecked="{Binding RequestCreator.Output.JSON}" VerticalAlignment="Center">
+                                    <TextBlock Text="JSON-массив" />
+                                </RadioButton>
+                                <RadioButton GroupName="output" IsChecked="{Binding RequestCreator.Output.Usual}" VerticalAlignment="Center" Margin="5,0">
+                                    <TextBlock Text="Строки" />
+                                </RadioButton>
+                            </DockPanel>
                         </DockPanel>
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="Лимит:" Style="{StaticResource PropertyName}" />
                             <StackPanel Style="{StaticResource PropertiesPanel}">
-                                <ContentPresenter Content="{Binding Options.Limit}">
+                                <ContentPresenter Content="{Binding RequestCreator.Limit}">
                                     <ContentPresenter.ContentTemplate>
-                                        <DataTemplate>
-                                            <TextBlock x:Name="block" Text="{Binding}" />
+                                        <DataTemplate DataType="{x:Type local:RequestLimit}">
+                                            <TextBlock x:Name="block" Text="{Binding Amount}" />
                                             <DataTemplate.Triggers>
-                                                <DataTrigger Binding="{Binding}" Value="-1">
+                                                <DataTrigger Binding="{Binding Amount}" Value="-1">
                                                     <Setter TargetName="block" Property="Text" Value="Без ограничений" />
                                                 </DataTrigger>
                                             </DataTemplate.Triggers>
                                         </DataTemplate>
                                     </ContentPresenter.ContentTemplate>
                                 </ContentPresenter>
-                                <Slider Minimum="-1" Maximum="2000" Value="{Binding Options.Limit}" />
+                                <Slider Minimum="{Binding RequestCreator.Limit.Min}" Maximum="{Binding RequestCreator.Limit.Max}" Value="{Binding RequestCreator.Limit.Amount}" />
                             </StackPanel>
                         </DockPanel>
+
                         <DockPanel Style="{StaticResource Property}">
-                            <TextBlock Text="Даты:" Style="{StaticResource PropertyName}" />
+                            <StackPanel VerticalAlignment="Top">
+                                <TextBlock Text="Даты:" Style="{StaticResource PropertyName}" />
+                                <ToggleButton IsChecked="{Binding RequestCreator.Dates.Enabled}" ToolTip="Ограничивать по датам?" BorderThickness="0" HorizontalContentAlignment="Left" Margin="15,0">
+                                    <TextBlock Text="вкл" Padding="15,0,0,0" />
+                                </ToggleButton>
+                            </StackPanel>
                             <StackPanel Style="{StaticResource PropertiesPanel}">
                                 <DockPanel>
                                     <TextBlock Text="с даты " Width="60"/>
-                                    <TextBlock Text="{Binding Options.From,Converter={StaticResource DateConverter}}"/>
-                                    <DatePicker SelectedDate="{Binding Options.From}" HorizontalAlignment="Right" />
+                                    <TextBlock Text="{Binding RequestCreator.Dates.Range.From,Converter={StaticResource DateConverter}}"/>
+                                    <DockPanel HorizontalAlignment="Right">
+                                        <DatePicker SelectedDate="{Binding RequestCreator.Dates.Range.From}" HorizontalAlignment="Right" />
+                                    </DockPanel>
                                 </DockPanel>
                                 <DockPanel>
                                     <TextBlock Text="по дату " Width="60"/>
-                                    <TextBlock Text="{Binding Options.To, Converter={StaticResource DateConverter}}"/>
-                                    <DatePicker SelectedDate="{Binding Options.To}" HorizontalAlignment="Right" />
+                                    <TextBlock Text="{Binding RequestCreator.Dates.Range.To, Converter={StaticResource DateConverter}}"/>
+                                    <DockPanel HorizontalAlignment="Right">
+                                        <DatePicker SelectedDate="{Binding RequestCreator.Dates.Range.To}" HorizontalAlignment="Right" />
+                                    </DockPanel>
                                 </DockPanel>
-                                <local:IntervalSlider Minimum="0" Maximum="{Binding Options.Difference}" LowerValue="{Binding Options.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding Options.DifferenceTo, Mode=TwoWay}"/>
+                                <local:IntervalSlider Minimum="0" Maximum="{Binding RequestCreator.Dates.Range.Difference}" LowerValue="{Binding RequestCreator.Dates.Range.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding RequestCreator.Dates.Range.DifferenceTo, Mode=TwoWay}"/>
                             </StackPanel>
                         </DockPanel>
 
 
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="MIME-типы:" Style="{StaticResource PropertyName}" />
-                            <TextBox Text="{Binding Options.TypesText}" TextWrapping="Wrap" VerticalAlignment="Center"  />
+                            <TextBox Text="{Binding RequestCreator.Types.FiltersString}" TextWrapping="Wrap" VerticalAlignment="Center"  />
                         </DockPanel>
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="Коды ответа:" Style="{StaticResource PropertyName}" />
-                            <TextBox Text="{Binding Options.CodesText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                            <TextBox Text="{Binding RequestCreator.Codes.FiltersString}" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
-
+                        <DockPanel Style="{StaticResource Property}">
+                            <TextBlock Text="Запрос:" Style="{StaticResource PropertyName}" />
+                            <Button Content="Скопировать в буфер обмена" ToolTip="{Binding RequestString}" Command="{Binding CopyRequestCommand}" CommandParameter="{Binding RequestString}" Style="{StaticResource ActionButton}" HorizontalAlignment="Right" />
+                        </DockPanel>
                     </StackPanel>
                     <StackPanel Margin="0,10">
                         <ProgressBar Grid.Row="0" Grid.ColumnSpan="2" Value="{Binding Uploading.Now,Mode=OneWay}" Maximum="{Binding Uploading.Maximum}" Margin="0,1" />

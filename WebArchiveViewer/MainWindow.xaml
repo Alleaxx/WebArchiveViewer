@@ -24,19 +24,18 @@
         <Menu IsMainMenu="True" Padding="3,6" FontSize="14" VerticalAlignment="Top" Background="WhiteSmoke" BorderThickness="0,0,0,1" BorderBrush="Gainsboro">
             <MenuItem Header="Открыть">
                 <MenuItem Header="Файл" Command="{Binding OpenSnapshotCommand}" />
-                <MenuItem Header="Веб-архив" Command="{Binding LoadLinksCommand}"  />
+                <MenuItem Header="Веб-архив" Command="{Binding OpenArchiveLinksCommand}"  />
             </MenuItem>
 
             <MenuItem x:Name="SaveHTML" Header="Загрузить">
-                <MenuItem Header="HTML" Command="{Binding SaveHTMLCommand}" />
+                <MenuItem Header="HTML" Command="{Binding CurrentSnapshot.SaveHTMLCommand}" />
             </MenuItem>
 
-            <MenuItem Header="Сохранить" Command="{Binding SaveSnapFileCommand}" CommandParameter="alldefault" />
+            <MenuItem Header="Сохранить" Command="{Binding SaveSnapFileCommand}" CommandParameter="alldefaultpath" />
             <MenuItem Header="Сохранить как">
                 <MenuItem Header="Все ссылки" Command="{Binding SaveSnapFileCommand}" CommandParameter="all" />
                 <MenuItem Header="Все ссылки по условию" Command="{Binding SaveSnapFileCommand}" CommandParameter="allFiltered"/>
                 <MenuItem Header="Все ссылки кроме по условию" Command="{Binding SaveSnapFileCommand}" CommandParameter="allNotFiltered"/>
-                <MenuItem Header="Все ссылки из показанного списка" Command="{Binding SaveSnapFileCommand}" CommandParameter="allShowed"/>
             </MenuItem>
 
             <MenuItem Header="Закрыть" Command="{Binding CloseSnapCommand}" />
@@ -75,17 +74,17 @@
                                     </Grid.RowDefinitions>
                                     <StackPanel Grid.Row="0" Margin="15,5">
                                         <TextBlock Text="Поиск" Style="{DynamicResource Header}" ToolTip="Производится по оригинальной ссылке и имени" />
-                                        <TextBox Text="{Binding Options.Search}" BorderThickness="1" Margin="0,5"/>
+                                        <TextBox Text="{Binding CurrentSnapshot.ViewOptions.Search}" BorderThickness="1" Margin="0,5"/>
                                     </StackPanel>
-                                    <Border Grid.Row="1" BorderBrush="Gainsboro" BorderThickness="0,1" Padding="15,10">
+                                    <Border Grid.Row="1" BorderBrush="Gainsboro" BorderThickness="0,1" Padding="15,10" DataContext="{Binding CurrentSnapshot.ViewOptions}">
                                         <StackPanel>
                                             <DockPanel Style="{StaticResource Property}">
                                                 <TextBlock Text="Сортировка"  Style="{DynamicResource PropertyName}" />
-                                                <ComboBox ItemsSource="{Binding Sorts}" SelectedItem="{Binding SortSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center"/>
+                                                <ComboBox ItemsSource="{Binding ListView.Sorts}" SelectedItem="{Binding ListView.SortSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center"/>
                                             </DockPanel>
                                             <DockPanel Style="{StaticResource Property}">
                                                 <TextBlock Text="Группировка"  Style="{DynamicResource PropertyName}" />
-                                                <ComboBox ItemsSource="{Binding Groups}" SelectedItem="{Binding GroupSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center" />
+                                                <ComboBox ItemsSource="{Binding ListView.Groups}" SelectedItem="{Binding ListView.GroupSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center" />
                                             </DockPanel>
                                         </StackPanel>
                                     </Border>
@@ -93,14 +92,14 @@
                                     <StackPanel Grid.Row="2" Margin="15,5">
                                         <WrapPanel HorizontalAlignment="Center">
                                             <TextBlock Text="Категории"  Style="{DynamicResource Header}" />
-                                            <Button Command="{Binding ShowRulesCommand}" ToolTip="Показать правила построения категорий" Content="[ ? ]" Margin="4,0" Padding="1,0" BorderThickness="0"  />
-                                            <Button Command="{Binding ToggleCategoriesCommand}" ToolTip="Переключить видимость всех категорий" Content="[ ~ ]" Margin="1,0" Padding="1,0" BorderThickness="0"  />
+                                            <Button Command="{Binding CurrentSnapshot.RulesControl.ShowRulesCommand}" ToolTip="Показать правила построения категорий" Content="[ ? ]" Margin="4,0" Padding="1,0" BorderThickness="0"  />
+                                            <Button Command="{Binding CurrentSnapshot.ViewOptions.ToggleCategoriesCommand}" ToolTip="Переключить видимость всех категорий" Content="[ ~ ]" Margin="1,0" Padding="1,0" BorderThickness="0"  />
                                         </WrapPanel>
                                     </StackPanel>
                                     <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="15,5">
-                                        <ItemsControl ItemsSource="{Binding CategoriesFound}" >
+                                        <ItemsControl ItemsSource="{Binding CurrentSnapshot.ViewOptions.Categories}" >
                                             <ItemsControl.ItemTemplate>
-                                                <DataTemplate DataType="{x:Type local:Category}">
+                                                <DataTemplate>
                                                     <ToggleButton IsChecked="{Binding Enabled}" Click="ToggleButton_Click" Padding="15,0" HorizontalContentAlignment="Stretch" Margin="1" BorderThickness="0,0,0,1">
                                                         <DockPanel Margin="0,1">
                                                             <TextBlock Text="{Binding Name}"/>
@@ -112,12 +111,19 @@
                                         </ItemsControl>
                                     </ScrollViewer>
                                     <Border Grid.Row="4" BorderThickness="0,1,0,0" BorderBrush="Gainsboro" Padding="15,5">
-                                        <DockPanel Margin="0,3">
-                                            <TextBlock Text="Папка:" ToolTip="Место сохранения HTML-файлов" />
-                                            <Button Command="{Binding CurrentSnapshot.SelectSaveFolderCommand}" BorderThickness="0,0,0,1" Padding="5,0" HorizontalAlignment="Right" ToolTip="{Binding CurrentSnapshot.FolderHtmlSavePath}">
+                                        <StackPanel Margin="0,3">
+                                            <TextBlock Text="Действия:" />
+                                            <Button Command="{Binding CurrentSnapshot.LoadNamesCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
+                                                <TextBlock Text="Загрузить имена страниц" />
+                                            </Button>
+                                            <Button Command="{Binding CurrentSnapshot.ClearProgressCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
+                                                <TextBlock Text="Обнулить процесс загрузки" />
+                                            </Button>
+                                            <TextBlock Text="Папка сохранения HTML:" />
+                                            <Button Command="{Binding CurrentSnapshot.SelectSaveFolderCommand}" Padding="5,0" ToolTip="{Binding CurrentSnapshot.FolderHtmlSavePath}" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="{Binding CurrentSnapshot.FolderHtmlSaveName,TargetNullValue=нет папки}" />
                                             </Button>
-                                        </DockPanel>
+                                        </StackPanel>
                                     </Border>
                                 </Grid>
 
@@ -153,7 +159,7 @@
                                             <TextBlock Text="ссылок" Margin="5,0" />
                                         </DockPanel>
                                         <DockPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                            <TextBlock FontSize="18" Text="{Binding LinksFilteredAmount}" VerticalAlignment="Center" Margin="5,0" />
+                                            <TextBlock FontSize="18" Text="{Binding CurrentSnapshot.ViewOptions.LinksFilteredAmount}" VerticalAlignment="Center" Margin="5,0" />
                                             <TextBlock FontSize="18" Text="/" VerticalAlignment="Center" Margin="5,0"/>
                                             <TextBlock FontSize="18" Text="{Binding CurrentSnapshot.Links.Length}" VerticalAlignment="Center" Margin="5,0" />
                                         </DockPanel>
@@ -170,10 +176,10 @@
                                             </Grid.RowDefinitions>
                                             <DockPanel Margin="0,0,5,0" Grid.Column="0">
                                                 <TextBlock Text="Коды:" Margin="5,0"/>
-                                                <ItemsControl ItemsSource="{Binding Options.Codes}" VerticalAlignment="Center">
+                                                <ItemsControl ItemsSource="{Binding CurrentSnapshot.ViewOptions.Codes}" VerticalAlignment="Center">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <ToggleButton Content="{Binding Value}" IsChecked="{Binding Enabled}" Click="ToggleButton_Click" Padding="15,0,8,0" Margin="1,0"/>
+                                                            <ToggleButton Content="{Binding Code}" IsChecked="{Binding Enabled}" Click="ToggleButton_Click" Padding="15,0,8,0" Margin="1,0"/>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
                                                     <ItemsControl.ItemsPanel>
@@ -185,10 +191,10 @@
                                             </DockPanel>
                                             <DockPanel Margin="5,0" Grid.Column="1">
                                                 <TextBlock Text="Типы:" Margin="5,0"/>
-                                                <ItemsControl ItemsSource="{Binding Options.Types}" VerticalAlignment="Center">
+                                                <ItemsControl ItemsSource="{Binding CurrentSnapshot.ViewOptions.Types}" VerticalAlignment="Center">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <ToggleButton Content="{Binding Value}" IsChecked="{Binding Enabled}" Click="ToggleButton_Click" Padding="15,0,8,0" Margin="1,0"/>
+                                                            <ToggleButton Content="{Binding Type}" IsChecked="{Binding Enabled}" Click="ToggleButton_Click" Padding="15,0,8,0" Margin="1,0"/>
                                                         </DataTemplate>
                                                     </ItemsControl.ItemTemplate>
                                                     <ItemsControl.ItemsPanel>
@@ -289,7 +295,7 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <DockPanel>
                                                     <TextBlock Text="Категория" />
-                                                    <Button Command="{Binding UpdateCategoriesCommand}" ToolTip="Обновить категории у всех ссылок" Margin="4,0" Padding="1,0" BorderThickness="0" >
+                                                    <Button Command="{Binding CurrentSnapshot.UpdateCategoriesCommand}" ToolTip="Обновить категории у всех ссылок" Margin="4,0" Padding="1,0" BorderThickness="0" >
                                                         <TextBlock Text="[ @ ]" FontSize="11" Foreground="Gray" />
                                                     </Button>
                                                 </DockPanel>
@@ -306,10 +312,6 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <DockPanel>
                                                     <TextBlock Text="Имя" />
-                                                    <Button Command="{Binding LoadNamesCommand}" ToolTip="Получить от веб-архива имена страниц" Margin="4,0" Padding="1,0" BorderThickness="0" >
-                                                        <TextBlock Text="[ Получить ]" FontSize="11" Foreground="Gray" />
-                                                    </Button>
-
                                                 </DockPanel>
                                             </GridViewColumn>
                                             <GridViewColumn>
@@ -331,16 +333,21 @@
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <DockPanel>
-                                                            <TextBlock Text="{Binding ActualState}"/>
-                                                        </DockPanel>
+                                                        <Button x:Name="load" Command="{Binding DataContext.CurrentSnapshot.OpenLinkCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}" CommandParameter="{Binding HtmlFilePath}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
+                                                            <TextBlock x:Name="text" Text="файл" FontSize="14" Foreground="Black" />
+                                                        </Button>
+                                                        <DataTemplate.Triggers>
+                                                            <DataTrigger Binding="{Binding HtmlFilePath}" Value="{x:Null}">
+                                                                <Setter TargetName="text" Property="Text" Value="нет" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding HtmlFilePath}" Value="">
+                                                                <Setter TargetName="text" Property="Text" Value="нет" />
+                                                            </DataTrigger>
+                                                        </DataTemplate.Triggers>
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                                 <DockPanel>
                                                     <TextBlock Text="Загрузка" />
-                                                    <Button Command="{Binding ClearProgressCommand}" ToolTip="Обнулить процесс загрузки" Margin="4,0" Padding="1,0" BorderThickness="0" >
-                                                        <TextBlock Text="[ Обнулить ]" FontSize="11" Foreground="Gray" />
-                                                    </Button>
                                                 </DockPanel>
                                             </GridViewColumn>
                                             <GridViewColumn>
@@ -390,23 +397,32 @@
 
                             <DockPanel Grid.Column="2" Grid.Row="2">
                                 <DockPanel DockPanel.Dock="Left" Margin="5,0">
-                                    <DatePicker SelectedDate="{Binding Options.From}" />
-                                    <TextBlock Text="{Binding Options.From, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
+                                    <DatePicker SelectedDate="{Binding CurrentSnapshot.ViewOptions.DateRange.From}" />
+                                    <TextBlock Text="{Binding CurrentSnapshot.ViewOptions.DateRange.From, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
                                 </DockPanel>
                                 <DockPanel DockPanel.Dock="Right" Margin="5,0">
-                                    <TextBlock Text="{Binding Options.To, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
-                                    <DatePicker SelectedDate="{Binding Options.To}" />
+                                    <TextBlock Text="{Binding CurrentSnapshot.ViewOptions.DateRange.To, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
+                                    <DatePicker SelectedDate="{Binding CurrentSnapshot.ViewOptions.DateRange.To}" />
                                 </DockPanel>
-                                <local:IntervalSlider Minimum="0" Maximum="{Binding Options.Difference}" LowerValue="{Binding Options.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding Options.DifferenceTo, Mode=TwoWay}"/>
+                                <local:IntervalSlider Minimum="0" Maximum="{Binding CurrentSnapshot.ViewOptions.DateRange.Difference}" LowerValue="{Binding CurrentSnapshot.ViewOptions.DateRange.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding CurrentSnapshot.ViewOptions.DateRange.DifferenceTo, Mode=TwoWay}"/>
 
                             </DockPanel>
 
                             <StatusBar Grid.Row="3" Grid.Column="2" Background="WhiteSmoke" BorderThickness="0,1,0,0" Padding="0,5" BorderBrush="Gainsboro" >
-                                <TextBlock Text="{Binding Status}" Margin="5,0"/>
-                                <TextBlock Text="{Binding OpenedFile.Name, StringFormat=\{0\}, TargetNullValue=Файл не открыт}" Margin="5,0"/>
+                                <TextBlock Text="{Binding CurrentSnapshot.Status}" Margin="5,0"/>
+                                <TextBlock Text="{Binding CurrentSnapshot.File.Name, StringFormat=\{0\}, TargetNullValue=Файл не открыт}" Margin="5,0"/>
                                 <TextBlock Text="{Binding CurrentSnapshot.Links.Length, Mode=OneWay, StringFormat=Всего: \{0\}, TargetNullValue=-}" Margin="5,0"/>
-                                <TextBlock Text="{Binding LinksFilteredAmount, Mode=OneWay, StringFormat=По условию: \{0\}, TargetNullValue=-}" Margin="5,0"/>
+                                <TextBlock Text="{Binding CurrentSnapshot.ViewOptions.LinksFilteredAmount, Mode=OneWay, StringFormat=По условию: \{0\}, TargetNullValue=-}" Margin="5,0"/>
                                 <TextBlock Text="{Binding LinksPager.PageNow.Source.Source.Count, Mode=OneWay, StringFormat=Показано: \{0\}, TargetNullValue=-}" Margin="5,0"/>
+
+                                <Border Margin="10,0" Padding="10,0" BorderThickness="1,0,0,0" BorderBrush="Gainsboro">
+                                    <DockPanel>
+                                        <TextBlock Text="Открыть:" />
+                                        <Button Command="{Binding CurrentSnapshot.OpenLinkCommand}" Content="файл" CommandParameter="{Binding CurrentSnapshot.FilePath}" Margin="4,0" />
+                                        <Button Command="{Binding CurrentSnapshot.OpenLinkCommand}" Content="папку хранения файла" CommandParameter="{Binding CurrentSnapshot.File.DirectoryName}" Margin="4,0" />
+                                        <Button Command="{Binding CurrentSnapshot.OpenLinkCommand}" Content="папку сохранения html" CommandParameter="{Binding CurrentSnapshot.FolderHtmlSavePath}"  />
+                                    </DockPanel>
+                                </Border>
                             </StatusBar>
 
                         </Grid>
@@ -423,7 +439,7 @@
                                     <Button Grid.Column="0" Command="{Binding OpenSnapshotCommand}" BorderThickness="1,1,0,1">
                                         <TextBlock Text="Сохраненный файл" FontSize="20" />
                                     </Button>
-                                    <Button Grid.Column="1" Command="{Binding LoadLinksCommand}">
+                                    <Button Grid.Column="1" Command="{Binding OpenArchiveLinksCommand}">
                                         <TextBlock Text="Веб-архив" FontSize="20" />
                                     </Button>
 

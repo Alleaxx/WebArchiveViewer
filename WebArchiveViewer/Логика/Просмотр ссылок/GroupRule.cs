@@ -16,7 +16,7 @@ namespace WebArchiveViewer
         string CheckLink(IArchLink link);
     }
     [Serializable]
-    public class RulesControl : IRulesControl
+    public class RulesControl : NotifyObj, IRulesControl
     {
         const string Undefined = "???";
 
@@ -28,7 +28,12 @@ namespace WebArchiveViewer
 
         public RulesControl()
         {
+        }
+        protected override void InitCommands()
+        {
+            base.InitCommands();
             RemoveRuleCommand = new RelayCommand(RemoveRule, NotMain);
+            ShowRulesCommand = new RelayCommand(ShowRules);
         }
 
 
@@ -45,6 +50,15 @@ namespace WebArchiveViewer
                 }
             }
         }
+
+        [JsonIgnore]
+        public ICommand ShowRulesCommand { get; private set; }
+        private void ShowRules(object obj)
+        {
+            RulesWindow window = new RulesWindow(this);
+            window.ShowDialog();
+        }
+
 
 
         public void AddRules(IRules rules)
