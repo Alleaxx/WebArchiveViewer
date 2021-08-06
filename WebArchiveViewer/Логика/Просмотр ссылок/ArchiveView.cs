@@ -74,7 +74,8 @@ namespace WebArchiveViewer
         public ICommand OpenArchiveLinksCommand { get; private set; }
         private void LoadLinks(object obj)
         {
-            LoadWindow window = new LoadWindow();
+            ArchiveReceiveView view = new ArchiveReceiveView(CurrentSnapshot);
+            LoadWindow window = new LoadWindow(view);
             window.ShowDialog();
         }
 
@@ -127,7 +128,7 @@ namespace WebArchiveViewer
                 string link = currentSnapshot.SourceURI;
 
                 var file = FileDialog.Save($"{linksCount} - {link}");
-                if (file != null && file.Exists)
+                if (file != null)
                     return file.FullName;
                 else
                     return null;
@@ -161,7 +162,7 @@ namespace WebArchiveViewer
             {
                 var options = CurrentSnapshot.ViewOptions;
                 var links = options.GetFilteredLinks(currentSnapshot);
-                links = options.ListView.SortLinks(currentSnapshot);
+                links = options.ListView.SortLinks(links);
                 options.LinksFilteredAmount = links.Count();
 
                 LinksPager = new Pager<ArchiveLink>(links, options.ListView.GroupSelected);

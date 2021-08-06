@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
-    interface IFileDialog
+    public interface IFileDialog
     {
         DirectoryInfo SelectFolder();
 
@@ -22,7 +22,7 @@ namespace WebArchiveViewer
         T OpenReadJson<T>(string path);
     }
 
-    class FileDialog : IFileDialog
+    public class FileDialog : IFileDialog
     {
         private string DefaultDirectory { get; set; }
         private string Extension { get; set; }

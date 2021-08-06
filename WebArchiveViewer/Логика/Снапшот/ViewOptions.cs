@@ -132,9 +132,12 @@ namespace WebArchiveViewer
 
         public void UpdateForSnapshot(ISnapshot snap)
         {
-            LoadDates(snap);
-            LoadCodesTypes(snap);
-            LoadCategories(snap);
+            if(snap.Links.Count() > 0)
+            {
+                LoadDates(snap);
+                LoadCodesTypes(snap);
+                LoadCategories(snap);
+            }
         }
         private void LoadDates(ISnapshot snap)
         {

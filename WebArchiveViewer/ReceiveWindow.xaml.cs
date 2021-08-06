@@ -16,10 +16,10 @@ namespace WebArchiveViewer
 {
     public partial class LoadWindow : Window
     {
-        public LoadWindow()
+        public LoadWindow(ArchiveReceiveView view)
         {
             InitializeComponent();
-            DataContext = AppView.Ex.Receiving;
+            DataContext = view;
         }
 
         private void BtnSaveFile_Click(object sender, RoutedEventArgs e)

@@ -13,6 +13,7 @@ namespace WebArchiveViewer
 
         public IEnumerable<IGrouping> Groups { get; private set; } = new IGrouping[]
         {
+            new Grouping("Ссылка", "LinkSource", false),
             new Grouping("Имя ссылки", "Name", false),
             new Grouping("Тип","MimeType",false),
             new Grouping("Код","StatusCode",false),
@@ -63,9 +64,8 @@ namespace WebArchiveViewer
             Updated?.Invoke();
         }
 
-        public IEnumerable<ArchiveLink> SortLinks(ISnapshot snapshot)
+        public IEnumerable<ArchiveLink> SortLinks(IEnumerable<ArchiveLink> links)
         {
-            var links = snapshot.Links;
             var sort = SortSelected;
 
             if (sort != null)

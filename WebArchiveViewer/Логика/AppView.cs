@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
-    class AppView
+    public class AppView
     {
         public static AppView Ex
         {
@@ -19,12 +19,10 @@ namespace WebArchiveViewer
         }
         private static AppView ex;
 
-        public ArchiveReceiveView Receiving { get; private set; }
         public ArchiveView Archive { get; private set; }
 
         private AppView()
         {
             Archive = new ArchiveView();
-            Receiving = new ArchiveReceiveView();
         }
     }}

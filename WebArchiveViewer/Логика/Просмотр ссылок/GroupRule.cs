@@ -14,6 +14,7 @@ namespace WebArchiveViewer
         IEnumerable<IRule> Rules { get; }
         void AddRules(IRules rules);
         string CheckLink(IArchLink link);
+        string CheckLink(string link);
     }
     [Serializable]
     public class RulesControl : NotifyObj, IRulesControl
@@ -67,6 +68,10 @@ namespace WebArchiveViewer
         }
         public string CheckLink(IArchLink link)
         {
+            return CheckLink(link.LinkSource);
+        }
+        public string CheckLink(string link)
+        {
             foreach (var rule in MainRules)
             {
                 var matchResult = rule.IsMatched(link);
@@ -81,7 +86,16 @@ namespace WebArchiveViewer
     {
         IRule GetMainRule();
     }
-    class RumineRules : IRules
+    public class DefaultRules : IRules
+    {
+        private IRule MainRule { get; set; }
+        public DefaultRules(string name)
+        {
+            MainRule = new GroupRule(name, "");
+        }
+        public IRule GetMainRule() => MainRule;
+    }
+    public class RumineRules : IRules
     {
         public IRule GetMainRule()
         {
@@ -160,6 +174,7 @@ namespace WebArchiveViewer
     public interface IRule
     {
         string GroupName { get; set; }
+        string IsMatched(string link);
         string IsMatched(IArchLink link);
         IRule FindOwner(IRule rule);
         void Remove(IRule rule);
@@ -198,7 +213,11 @@ namespace WebArchiveViewer
 
         public string IsMatched(IArchLink link)
         {
-            if (IsLinkHasText(link))
+            return IsMatched(link.LinkSource);
+        }
+        public string IsMatched(string link)
+        {
+            if (link.Contains(FoundText))
             {
                 if (Rules.Count == 0)
                 {
@@ -216,7 +235,6 @@ namespace WebArchiveViewer
             }
             return null;
         }
-        private bool IsLinkHasText(IArchLink link) => link.LinkSource.Contains(FoundText);
 
         public IRule FindOwner(IRule rule)
         {

@@ -12,34 +12,50 @@ namespace WebArchiveViewer
 {
 
     //Загрузка ссылок с веб-архива
-    class ArchiveReceiveView : NotifyObj
+    public class ArchiveReceiveView : NotifyObj
     {
         public ArchiveReceiveView()
         {
             FileDialog = new FileDialog();
-            RequestCreator = new ArhiveRequestCreator();
+            RequestArchiveCreator = new ArchiveRequestCreator();
 
             Uploading = new ProcessProgress("Ожидание старта загрузки", 10);
+        }
+        public ArchiveReceiveView(ISnapshot snapshot) : this()
+        {
+            if(snapshot != null)
+            {
+                RequestArchiveCreator.Site.Value = snapshot.SourceURI;
+                RequestArchiveCreator.Dates.Range.From = snapshot.ViewOptions.DateRange.From;
+                RequestArchiveCreator.Dates.Range.To = snapshot.ViewOptions.DateRange.To;
+                RequestArchiveCreator.Limit.Amount = snapshot.Links.Length;
+            }
         }
         protected override void InitCommands()
         {
             base.InitCommands();
-            UploadLinksCommand = new RelayCommand(UploadLinkExe, IsUploadingAvailable);
-            SaveSnapFileCommand = new RelayCommand(SaveSnapFile, IsSnapshotReceived);
-            SetSnapshotCommand = new RelayCommand(SetSnapshotSource, IsSnapshotReceived);
+            UploadLinksCommand = new RelayCommand(UploadLinksExe, IsUploadingAvailable);
+            SaveSnapFileCommand = new RelayCommand(SaveSnapFile, IsNotEmptySnapshotReceived);
+            SetSnapshotCommand = new RelayCommand(SetSnapshotSource, IsNotEmptySnapshotReceived);
             CopyRequestCommand = new RelayCommand(CopyRequest);
         }
 
 
         //Сайт и настройки получения
-        public IArhiveRequest RequestCreator { get; private set; }
+        public IRequestCreator RequestCreator => RequestDefaultCreator ?? RequestArchiveCreator;
+        public IRequestCreator RequestDefaultCreator { get; set; }
+        public IArhiveRequest RequestArchiveCreator { get; private set; }
         private IFileDialog FileDialog { get; set; }
 
 
         //Процесс получения ссылки
-        private bool IsUploadingAvailable(object obj) => !string.IsNullOrEmpty(RequestCreator.Site.RequestString) && !Uploading.InProgress;
+        private bool IsUploadingAvailable(object obj) => (!string.IsNullOrEmpty(RequestCreator.GetRequest())) && !Uploading.InProgress;
         public ICommand UploadLinksCommand { get; private set; }
-        private async void UploadLinkExe(object obj)
+        private async void UploadLinksExe(object obj)
+        {
+            await UploadLinks();
+        }
+        public async Task<ISnapshot> UploadLinks()
         {
             Uploading.SetStatus("Создание запроса", 1);
             WebRequest request = WebRequest.Create(RequestString);
@@ -54,6 +70,7 @@ namespace WebArchiveViewer
             ReceivedSnapshot = await Task.Run(() => CreateSnapshotFromJson(responceText));
 
             Uploading.SetStatus("Загрузка завершена...", Uploading.Maximum);
+            return ReceivedSnapshot;
         }
 
 
@@ -100,8 +117,8 @@ namespace WebArchiveViewer
                     allLinks.Add(newEntry);
                 }
             }
-
-            ISnapshot newSnap = new SiteSnapshot(RequestString, RequestCreator.Site.Value, allLinks);
+            string source = RequestArchiveCreator.Site.Value;
+            ISnapshot newSnap = new SiteSnapshot(RequestString, source, allLinks);
             return newSnap;
         }
         private ArchiveLink CreateLinkFromJsonString(int counter, List<string> stringList)
@@ -140,7 +157,7 @@ namespace WebArchiveViewer
             }
         }
         private ISnapshot receivedSnapshot;
-        private bool IsSnapshotReceived(object obj) => ReceivedSnapshot != null;
+        private bool IsNotEmptySnapshotReceived(object obj) => ReceivedSnapshot != null && ReceivedSnapshot.Links.Length > 0;
 
 
         //Сохранение полученного снапшота в файл
@@ -151,6 +168,8 @@ namespace WebArchiveViewer
             {
                 string path = file.FullName;
                 ReceivedSnapshot.Save(path);
+                AppView.Ex.Archive.CurrentSnapshot = ReceivedSnapshot;
+                ClearStatus();
             }
         }
         public ICommand SaveSnapFileCommand { get; private set; }
@@ -172,7 +191,7 @@ namespace WebArchiveViewer
         }
     }
 
-    class ProcessProgress : NotifyObj
+    public class ProcessProgress : NotifyObj
     {
         public bool InProgress => Now > 0 && Now < Maximum;
 

@@ -6,33 +6,54 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
-    interface IRequestCreator
+    public interface IRequestCreator
     {
         string GetRequest();
         string Request { get; }
     }
-    interface IArhiveRequest : IRequestCreator
+    public class DefaultRequestCreator : NotifyObj, IRequestCreator
+    {
+        public string GetRequest() => Request;
+        public string Request
+        {
+            get => request;
+            set
+            {
+                request = value;
+                OnPropertyChanged();
+            }
+        }
+        private string request;
+        public DefaultRequestCreator(string request)
+        {
+            Request = request;
+        }
+    }
+
+
+
+    public interface IArhiveRequest : IRequestCreator
     {
         IRequestPart Site { get; }
         IRequestPart Output { get; }
-        IRequestPart MatchType { get; }
-        IRequestPart Limit { get; }
-        IRequestPart Dates { get; }
-        IRequestPart Codes { get; }
-        IRequestPart Types { get; }
+        MatchTypes MatchType { get; }
+        RequestLimit Limit { get; }
+        RequestDates Dates { get; }
+        RequestCodes Codes { get; }
+        RequestTypes Types { get; }
     }
-    class ArhiveRequestCreator : IArhiveRequest
+    public class ArchiveRequestCreator : IArhiveRequest
     {
         public IRequestPart Site { get; private set; }
         public IRequestPart Output { get; private set; }
-        public IRequestPart MatchType { get; private set; }
-        public IRequestPart Dates { get; private set; }
-        public IRequestPart Limit { get; private set; }
-        public IRequestPart Codes { get; private set; }
-        public IRequestPart Types { get; private set; }
-        public IRequestPart Search { get; private set; }
+        public MatchTypes MatchType { get; private set; }
+        public RequestDates Dates { get; private set; }
+        public RequestLimit Limit { get; private set; }
+        public RequestCodes Codes { get; private set; }
+        public RequestTypes Types { get; private set; }
+        public RequestSearch Search { get; private set; }
 
-        public ArhiveRequestCreator()
+        public ArchiveRequestCreator()
         {
             Site = new RequestSite();
             Output = new RequestOutput();
@@ -59,16 +80,21 @@ namespace WebArchiveViewer
             string limit = Limit.RequestString;
 
             string filters = $"{Codes.RequestString}{Types.RequestString}{Search.RequestString}";
+
+            if (string.IsNullOrEmpty(site))
+                return "";
+
+
             return $"{WebArhiveSearch}{site}{matchType}{json}{limit}{dates}{filters}";
         }
     }
 
 
 
-    interface IRequestPart
+    public interface IRequestPart
     {
         string Name { get; }
-        string Value { get; }
+        string Value { get; set; }
         string RequestString { get; }
         bool Inverted { get; set; }
     }
@@ -238,7 +264,7 @@ namespace WebArchiveViewer
         private string PrefixFrom { get; set; } = "from";
         private string PrefixTo { get; set; } = "to";
 
-        public override string RequestString => $"{RequestFrom}{RequestTo}";
+        public override string RequestString => Enabled ? $"{RequestFrom}{RequestTo}" : "";
         private string RequestFrom => $"{PrefixChar}{PrefixFrom}={Range.From.ToString(DateFormat)}";
         private string RequestTo => $"{PrefixChar}{PrefixTo}={Range.To.ToString(DateFormat)}";
 
