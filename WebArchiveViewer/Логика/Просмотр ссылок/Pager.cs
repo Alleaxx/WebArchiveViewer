@@ -9,12 +9,15 @@ using System.Windows.Input;
 namespace WebArchiveViewer
 {
     //Разделение списка по страницам
-    public interface IPager<T>
+    public interface IPager
     {
         int ElementsPerPage { get; set; }
+        IGrouping GroupSelected { get; set; }
+    }
+    public interface IPager<T> : IPager
+    {
         IEnumerable<T> Source { get; }
         IPage<T> PageNow { get; }
-        IGrouping GroupSelected { get; set; }
     }
     public class Pager<T> : NotifyObj, IPager<T> where T:class
     {
@@ -97,17 +100,24 @@ namespace WebArchiveViewer
 
 
 
-        public Pager(IEnumerable<T> coll, IGrouping group = null)
+        public Pager(IEnumerable<T> coll, IGrouping group, IPager prevPager)
         {
-            NextPageCommand = new RelayCommand(NextPage, IsNextPageAvail);
-            PrevPageCommand = new RelayCommand(PrevPage, IsPrevPageAvail);
-            SetPageCommand = new RelayCommand(SetPage);
-
+            if(prevPager != null)
+            {
+                elementsPerPage = prevPager.ElementsPerPage;
+            }
             groupSelected = group;
 
             Source = coll;
             Recount();
         }
+        protected override void InitCommands()
+        {
+            NextPageCommand = new RelayCommand(NextPage, IsNextPageAvail);
+            PrevPageCommand = new RelayCommand(PrevPage, IsPrevPageAvail);
+            SetPageCommand = new RelayCommand(SetPage);
+        }
+
         private void Recount()
         {
             PageMaxAmount = Convert.ToInt32(Math.Ceiling((double)Source.Count() / ElementsPerPage));

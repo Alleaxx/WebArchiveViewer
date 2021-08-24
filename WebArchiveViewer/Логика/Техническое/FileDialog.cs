@@ -24,6 +24,8 @@ namespace WebArchiveViewer
 
     public class FileDialog : IFileDialog
     {
+        public override string ToString() => $"Файловый диалог: {Extension ?? "без четкого расширения"}";
+
         private string DefaultDirectory { get; set; }
         private string Extension { get; set; }
         private string Filter { get; set; }

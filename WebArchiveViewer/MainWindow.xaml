@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="WebArchiveViewer.MainWindow"
-        mc:Ignorable="d"
+        mc:Ignorable="d" 
         Title="Исследователь Веб-Архива" Height="800" Width="1280" Closed="Window_Closed">
     <Window.Resources>
         <local:DateTextConverter x:Key="DateConverter" />
@@ -23,19 +23,19 @@
 
         <Menu IsMainMenu="True" Padding="3,6" FontSize="14" VerticalAlignment="Top" Background="WhiteSmoke" BorderThickness="0,0,0,1" BorderBrush="Gainsboro">
             <MenuItem Header="Открыть">
-                <MenuItem Header="Файл" Command="{Binding OpenSnapshotCommand}" />
-                <MenuItem Header="Веб-архив" Command="{Binding OpenArchiveLinksCommand}"  />
+                <MenuItem Header="Файл" Command="{Binding Receiver.FileLoader.LoadCommand}" />
+                <MenuItem Header="Веб-архив" Command="{Binding Receiver.ArchiveLoader.LoadCommand}"  />
             </MenuItem>
 
             <MenuItem x:Name="SaveHTML" Header="Загрузить">
                 <MenuItem Header="HTML" Command="{Binding CurrentSnapshot.SaveHTMLCommand}" />
             </MenuItem>
 
-            <MenuItem Header="Сохранить" Command="{Binding SaveSnapFileCommand}" CommandParameter="alldefaultpath" />
+            <MenuItem Header="Сохранить" Command="{Binding CurrentSnapshot.SaveSnapFileCommand}" CommandParameter="AllDefaultPath" />
             <MenuItem Header="Сохранить как">
-                <MenuItem Header="Все ссылки" Command="{Binding SaveSnapFileCommand}" CommandParameter="all" />
-                <MenuItem Header="Все ссылки по условию" Command="{Binding SaveSnapFileCommand}" CommandParameter="allFiltered"/>
-                <MenuItem Header="Все ссылки кроме по условию" Command="{Binding SaveSnapFileCommand}" CommandParameter="allNotFiltered"/>
+                <MenuItem Header="Все ссылки" Command="{Binding CurrentSnapshot.SaveSnapFileCommand}" CommandParameter="All" />
+                <MenuItem Header="Все ссылки по условию" Command="{Binding CurrentSnapshot.SaveSnapFileCommand}" CommandParameter="AllFiltered"/>
+                <MenuItem Header="Все ссылки кроме по условию" Command="{Binding CurrentSnapshot.SaveSnapFileCommand}" CommandParameter="AllNotFiltered"/>
             </MenuItem>
 
             <MenuItem Header="Закрыть" Command="{Binding CloseSnapCommand}" />
@@ -96,19 +96,37 @@
                                             <Button Command="{Binding CurrentSnapshot.ViewOptions.ToggleCategoriesCommand}" ToolTip="Переключить видимость всех категорий" Content="[ ~ ]" Margin="1,0" Padding="1,0" BorderThickness="0"  />
                                         </WrapPanel>
                                     </StackPanel>
-                                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="15,5">
-                                        <ItemsControl ItemsSource="{Binding CurrentSnapshot.ViewOptions.Categories}" >
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <ToggleButton IsChecked="{Binding Enabled}" Click="ToggleButton_Click" Padding="15,0" HorizontalContentAlignment="Stretch" Margin="1" BorderThickness="0,0,0,1">
+                                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="0,5">
+                                        <TreeView ItemsSource="{Binding CurrentSnapshot.ViewOptions.Categories}" BorderThickness="0">
+                                            <TreeView.ItemTemplate>
+                                                <HierarchicalDataTemplate ItemsSource="{Binding InnerCates}">
+                                                    <ToggleButton x:Name="btn" IsChecked="{Binding Enabled}"  Click="ToggleButton_Click" Padding="15,0" HorizontalContentAlignment="Stretch" Margin="1" BorderThickness="0,0,0,1">
                                                         <DockPanel Margin="0,1">
-                                                            <TextBlock Text="{Binding Name}"/>
-                                                            <TextBlock Text="{Binding ItemsAmount}" HorizontalAlignment="Right"/>
+                                                            <TextBlock Text="{Binding Name}" FontSize="12"/>
+                                                            <DockPanel HorizontalAlignment="Right">
+                                                                <TextBlock Text="{Binding ItemsAmount}" FontSize="10"/>
+                                                                <TextBlock Text="/" Margin="3,0" FontSize="10"/>
+                                                                <TextBlock Text="{Binding ItemsTotal}" FontSize="10"/>
+                                                            </DockPanel>
                                                         </DockPanel>
                                                     </ToggleButton>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+                                                </HierarchicalDataTemplate>
+                                            </TreeView.ItemTemplate>
+                                            <TreeView.Resources>
+                                                <Style TargetType="{x:Type TreeViewItem}">
+                                                    <Style.Resources>
+                                                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                                                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+                                                        <Style TargetType="{x:Type Border}">
+                                                            <Setter Property="Grid.ColumnSpan" Value="2" />
+                                                        </Style>
+                                                    </Style.Resources>
+                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                    <Setter Property="FontWeight" Value="Normal" />
+
+                                                </Style>
+                                            </TreeView.Resources>
+                                        </TreeView>
                                     </ScrollViewer>
                                     <Border Grid.Row="4" BorderThickness="0,1,0,0" BorderBrush="Gainsboro" Padding="15,5">
                                         <StackPanel Margin="0,3">
@@ -119,10 +137,40 @@
                                             <Button Command="{Binding CurrentSnapshot.ClearProgressCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="Обнулить процесс загрузки" />
                                             </Button>
-                                            <TextBlock Text="Папка сохранения HTML:" />
-                                            <Button Command="{Binding CurrentSnapshot.SelectSaveFolderCommand}" Padding="5,0" ToolTip="{Binding CurrentSnapshot.FolderHtmlSavePath}" Style="{StaticResource ActionButton}">
-                                                <TextBlock Text="{Binding CurrentSnapshot.FolderHtmlSaveName,TargetNullValue=нет папки}" />
-                                            </Button>
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition />
+                                                    <ColumnDefinition />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Row="1" Text="Открыть" />
+                                                <TextBlock Grid.Row="2" Text="Изменить" />
+                                                <TextBlock Grid.Column="1" Text="Ссылки" TextAlignment="Center"/>
+                                                <TextBlock Grid.Column="2" Text="HTML" TextAlignment="Center"/>
+                                                <Grid Grid.Column="1" Grid.Row="1" Margin="4,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button Grid.Column="0" Command="{Binding CurrentSnapshot.OpenLinkCommand}" CommandParameter="{Binding CurrentSnapshot.FilePath}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                                                        <TextBlock Text="Файл" FontSize="12"/>
+                                                    </Button>
+                                                    <Button Grid.Column="1" Command="{Binding CurrentSnapshot.OpenLinkCommand}" CommandParameter="{Binding CurrentSnapshot.Info.File.DirectoryName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                                                        <TextBlock Text="Папка" FontSize="12"/>
+                                                    </Button>
+                                                </Grid>
+                                                <Button Grid.Row="2" Grid.Column="2" Command="{Binding CurrentSnapshot.SelectSaveFolderCommand}" Padding="5,2" ToolTip="{Binding CurrentSnapshot.FolderHtmlSavePath}" Style="{StaticResource ActionButton}" BorderThickness="0">
+                                                    <TextBlock Text="{Binding CurrentSnapshot.FolderHtmlSavePath,TargetNullValue=нет}" FontSize="12"/>
+                                                </Button>
+                                                <Button Grid.Row="1" Grid.Column="2" Command="{Binding CurrentSnapshot.OpenLinkCommand}" CommandParameter="{Binding CurrentSnapshot.FolderHtmlSavePath}" Padding="5,2"  Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                                                    <TextBlock Text="Папка" FontSize="12"/>
+                                                </Button>
+                                            </Grid>
                                         </StackPanel>
                                     </Border>
                                 </Grid>
@@ -149,12 +197,13 @@
                                             <TextBlock Text="{Binding LinksPager.PageMaxAmount}"/>
                                             <TextBlock Text="по" Margin="5,0" />
                                             <ComboBox SelectedItem="{Binding LinksPager.ElementsPerPage}">
-                                                <System:Int32>25</System:Int32>
                                                 <System:Int32>50</System:Int32>
                                                 <System:Int32>100</System:Int32>
                                                 <System:Int32>250</System:Int32>
                                                 <System:Int32>500</System:Int32>
                                                 <System:Int32>2000</System:Int32>
+                                                <System:Int32>5000</System:Int32>
+                                                <System:Int32>10000</System:Int32>
                                             </ComboBox>
                                             <TextBlock Text="ссылок" Margin="5,0" />
                                         </DockPanel>
@@ -350,14 +399,6 @@
                                                     <TextBlock Text="Загрузка" />
                                                 </DockPanel>
                                             </GridViewColumn>
-                                            <GridViewColumn>
-                                                <TextBlock Text="Просмотр" />
-                                                <GridViewColumn.CellTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Text="{Binding MimeType}" FontSize="11" Foreground="Gray" />
-                                                    </DataTemplate>
-                                                </GridViewColumn.CellTemplate>
-                                            </GridViewColumn>
                                         </GridView>
                                     </ListView.View>
                                     <ListView.GroupStyle>
@@ -409,25 +450,16 @@
                             </DockPanel>
 
                             <StatusBar Grid.Row="3" Grid.Column="2" Background="WhiteSmoke" BorderThickness="0,1,0,0" Padding="0,5" BorderBrush="Gainsboro" >
-                                <TextBlock Text="{Binding CurrentSnapshot.Status}" Margin="5,0"/>
-                                <TextBlock Text="{Binding CurrentSnapshot.File.Name, StringFormat=\{0\}, TargetNullValue=Файл не открыт}" Margin="5,0"/>
+                                <TextBlock Text="{Binding CurrentSnapshot.Info.Status}" Margin="5,0"/>
+                                <TextBlock Text="{Binding CurrentSnapshot.Info.File.Name, StringFormat=\{0\}, TargetNullValue=Файл не открыт}" Margin="5,0"/>
                                 <TextBlock Text="{Binding CurrentSnapshot.Links.Length, Mode=OneWay, StringFormat=Всего: \{0\}, TargetNullValue=-}" Margin="5,0"/>
                                 <TextBlock Text="{Binding CurrentSnapshot.ViewOptions.LinksFilteredAmount, Mode=OneWay, StringFormat=По условию: \{0\}, TargetNullValue=-}" Margin="5,0"/>
                                 <TextBlock Text="{Binding LinksPager.PageNow.Source.Source.Count, Mode=OneWay, StringFormat=Показано: \{0\}, TargetNullValue=-}" Margin="5,0"/>
-
-                                <Border Margin="10,0" Padding="10,0" BorderThickness="1,0,0,0" BorderBrush="Gainsboro">
-                                    <DockPanel>
-                                        <TextBlock Text="Открыть:" />
-                                        <Button Command="{Binding CurrentSnapshot.OpenLinkCommand}" Content="файл" CommandParameter="{Binding CurrentSnapshot.FilePath}" Margin="4,0" />
-                                        <Button Command="{Binding CurrentSnapshot.OpenLinkCommand}" Content="папку хранения файла" CommandParameter="{Binding CurrentSnapshot.File.DirectoryName}" Margin="4,0" />
-                                        <Button Command="{Binding CurrentSnapshot.OpenLinkCommand}" Content="папку сохранения html" CommandParameter="{Binding CurrentSnapshot.FolderHtmlSavePath}"  />
-                                    </DockPanel>
-                                </Border>
                             </StatusBar>
 
                         </Grid>
 
-                        <Grid x:Name="nosnapshot" Visibility="Collapsed">
+                        <Grid x:Name="nosnapshot" Visibility="Collapsed" DataContext="{Binding Receiver}">
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <TextBlock Text="Ссылки не загружены" FontSize="36" HorizontalAlignment="Center" />
                                 <TextBlock Text="Достать их можно следующими способами" FontSize="24" Foreground="Gray" Margin="0,10" />
@@ -436,10 +468,10 @@
                                         <ColumnDefinition />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Command="{Binding OpenSnapshotCommand}" BorderThickness="1,1,0,1">
+                                    <Button Grid.Column="0" Command="{Binding FileLoader.LoadCommand}" BorderThickness="1,1,0,1">
                                         <TextBlock Text="Сохраненный файл" FontSize="20" />
                                     </Button>
-                                    <Button Grid.Column="1" Command="{Binding OpenArchiveLinksCommand}">
+                                    <Button Grid.Column="1" Command="{Binding ArchiveLoader.LoadCommand}">
                                         <TextBlock Text="Веб-архив" FontSize="20" />
                                     </Button>
 

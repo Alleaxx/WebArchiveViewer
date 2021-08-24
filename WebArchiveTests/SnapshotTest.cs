@@ -78,7 +78,7 @@ namespace WebArchiveTests
         public void FilterCode()
         {
             SnapExample.ViewOptions.Codes[0].Enabled = false;
-            Assert.AreEqual(1, SnapExample.ViewOptions.GetFilteredLinks(SnapExample).Count(), "Фильтр по кодам работает некорректно");
+            Assert.AreEqual(1, SnapExample.ViewOptions.GetFilteredLinks().Count(), "Фильтр по кодам работает некорректно");
         }
 
         //Проверка фильтрации по поиску
@@ -86,7 +86,7 @@ namespace WebArchiveTests
         public void FilterSearch()
         {
             SnapExample.ViewOptions.Search = "такой строки там нет";
-            Assert.AreEqual(0, SnapExample.ViewOptions.GetFilteredLinks(SnapExample).Count(), "Фильтр по строке поиска работает некорректно");
+            Assert.AreEqual(0, SnapExample.ViewOptions.GetFilteredLinks().Count(), "Фильтр по строке поиска работает некорректно");
         }
 
         //Проверка выставления категории

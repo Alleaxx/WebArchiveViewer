@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,17 +17,12 @@ namespace WebArchiveViewer
         string Type { get; }
         bool Enabled { get; set; }
     }
-    public interface ICategory
-    {
-        string Name { get; }
-        int ItemsAmount { get; set; }
-        bool Enabled { get; set; }
-    }
+
 
 
     public class Option : NotifyObj
     {
-        public bool Enabled
+        public virtual bool Enabled
         {
             get => enabled;
             set
@@ -55,27 +51,6 @@ namespace WebArchiveViewer
     }
 
 
-    public class Category : Option, ICategory
-    {
-        public string Name { get; private set; }
-        public int ItemsAmount
-        {
-            get => itemsAmount;
-            set
-            {
-                itemsAmount = value;
-                OnPropertyChanged();
-            }
-        }
-        private int itemsAmount;
 
-
-        public Category(string name)
-        {
-            Name = name;
-            ItemsAmount = 1;
-            Enabled = true;
-        }
-    }
 
 }

@@ -14,29 +14,15 @@ using System.Windows.Input;
 
 namespace WebArchiveViewer
 {
-    public interface ISnapshot
+    public class Snapshot : NotifyObj
     {
-        FileInfo File { get; }
+        public Snapshot()
+        {
 
-        string SourceURI { get; }
-        DateTime ReceivingDate { get; }
-        ArchiveLink[] Links { get; }
-        RulesControl RulesControl { get; }
-
-
-        void Save();
-        void Save(string path);
-        void Save(string path, IEnumerable<ArchiveLink> links);
-        void Save(SaveMode mode,string path);
-
-
-        IEnumerable<ICategory> GetCategories();
-        ViewOptions ViewOptions { get; }
+        }
     }
-
     //Сайт со ссылками из архива на указанную дату
-    [Serializable]
-    public class SiteSnapshot : NotifyObj, ISnapshot
+    public class SiteSnapshot : Snapshot
     {
         //Сведения о файлах
         public string FolderHtmlSavePath
@@ -46,19 +32,16 @@ namespace WebArchiveViewer
             {
                 folderHtmlSavePath = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(FolderHtmlSaveName));
             }
         }
         private string folderHtmlSavePath;
-        [JsonIgnore]
-        public string FolderHtmlSaveName => new DirectoryInfo(FolderHtmlSavePath).Name;
+        public string FilePath { get; set; }
+
 
         [JsonIgnore]
-        public string FilePath { get; set; }
-        [JsonIgnore]
-        public FileInfo File => string.IsNullOrEmpty(FilePath) ? null : new FileInfo(FilePath);
-        [JsonIgnore]
-        public string Status => string.IsNullOrEmpty(FilePath) ? "Снапшот из архива, не сохранен" : "Снапшот сохранен";
+        public SnapshotInfo Info { get; private set; }
+
+
         public DateTime LastSaveDate
         {
             get => lastSaveDate;
@@ -110,7 +93,7 @@ namespace WebArchiveViewer
 
         public SiteSnapshot()
         {
-
+            Info = new SnapshotInfo(this);
         }
         public SiteSnapshot(string request, string source, IEnumerable<ArchiveLink> links) : this()
         {
@@ -124,6 +107,7 @@ namespace WebArchiveViewer
         {
             OpenLinkCommand = new RelayCommand(OpenLink, IsCorrectLink);
             SelectSaveFolderCommand = new RelayCommand(SelectFolderSave);
+            SaveSnapFileCommand = new RelayCommand(SaveSnapFile);
 
             SaveHTMLCommand = new RelayCommand(SaveHTML);
             UpdateCategoriesCommand = new RelayCommand(UpdateCategories);
@@ -185,6 +169,47 @@ namespace WebArchiveViewer
         }
 
 
+        //Сохранение
+        [JsonIgnore]
+        public ICommand SaveSnapFileCommand { get; private set; }
+        private void SaveSnapFile(object obj)
+        {
+            SaveMode saveMode = GetSaveMode(obj);
+            string path = GetSavingPath(saveMode);
+
+            if (path != null)
+            {
+                Save(saveMode, path);
+            }
+
+            //Из object в режим сохранения
+            SaveMode GetSaveMode(object objMode)
+            {
+                SaveMode modeS = SaveMode.AllShowed;
+                if (objMode != null && Enum.TryParse(objMode.ToString(), out SaveMode mode))
+                    modeS = mode;
+                return modeS;
+            }
+        }
+        private string GetSavingPath(SaveMode mode)
+        {
+            if (mode == SaveMode.AllDefaultPath && !string.IsNullOrEmpty(FilePath))
+            {
+                return FilePath;
+            }
+            else
+            {
+                int linksCount = Links.Length;
+
+                var file = new FileDialog().Save($"Снапшот - {linksCount}");
+                if (file != null)
+                    return file.FullName;
+                else
+                    return null;
+            }
+        }
+
+
         public void Save()
         {
             Save(FilePath, Links);
@@ -195,7 +220,7 @@ namespace WebArchiveViewer
         }
         public void Save(SaveMode mode,string path)
         {
-            var links = ViewOptions.GetFilteredLinks(this, mode);
+            var links = ViewOptions.GetFilteredLinks(mode);
             Save(path, links);
         }
         public void Save(string path, IEnumerable<ArchiveLink> links)
@@ -211,6 +236,7 @@ namespace WebArchiveViewer
         }
 
 
+        //Категории, их обновление
         private void UpdateLinkCategories()
         {
             foreach (IArchLink link in Links)
@@ -219,25 +245,35 @@ namespace WebArchiveViewer
                 link.Category = cateName;
             }
         } 
-        public IEnumerable<ICategory> GetCategories()
+        public CategoriesInfo GetCategories()
         {
             CreateRulesIfNull();
-
-            var categoriesFound = new List<ICategory>();
             UpdateLinkCategories();
 
+            var cates = RulesControl.MainRules.Select(r => new Category(r)).ToList();
+            var cateDictionary = Category.GetDictionary(cates);
+
+            CountElementsInCates(cates, cateDictionary);
+            cates.ForEach(c => c.RemoveNullInnerCates());
+
+            return new CategoriesInfo(cates, cateDictionary);
+        }
+        private void CountElementsInCates(List<Category> categories, Dictionary<string, ICategory> dictionary)
+        {
             foreach (IArchLink link in Links)
             {
                 string cateName = link.Category;
-                ICategory cate = categoriesFound.Find(o => o.Name == cateName);
 
-                if (cate == null)
-                    categoriesFound.Add(new Category(cateName));
-                else if (cate != null)
-                    cate.ItemsAmount++;
+                if (!dictionary.ContainsKey(cateName))
+                {
+                    var newCate = new Category(cateName);
+                    dictionary.Add(newCate.Name, newCate);
+                    categories.Add(newCate);
+                }
+                dictionary[cateName].ItemsAmount++;
             }
-            return categoriesFound;
         }
+
 
         private void CreateRulesIfNull()
         {
@@ -249,8 +285,19 @@ namespace WebArchiveViewer
         }
     }
 
-    public class SaveData
+    public class SnapshotInfo
     {
+        public override string ToString() => $"Информация, {Status}";
 
+        public FileInfo File => new FileInfo(Snapshot.FilePath);
+
+
+        public string Status => string.IsNullOrEmpty(Snapshot.FilePath) ? "Снапшот из архива, не сохранен" : "Снапшот сохранен";
+
+        public SiteSnapshot Snapshot { get; private set; }
+        public SnapshotInfo(SiteSnapshot snapshot)
+        {
+            Snapshot = snapshot;
+        }
     }
 }

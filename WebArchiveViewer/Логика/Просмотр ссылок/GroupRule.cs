@@ -27,9 +27,6 @@ namespace WebArchiveViewer
         public ObservableCollection<GroupRule> MainRules { get; private set; } = new ObservableCollection<GroupRule>();
 
 
-        public RulesControl()
-        {
-        }
         protected override void InitCommands()
         {
             base.InitCommands();
@@ -104,6 +101,15 @@ namespace WebArchiveViewer
                     new GroupRule("Главная страница", "/index.php"),
                     new GroupRule("Главная страница 2.0", "/main"),
                     new GroupRule("Выходная ссылка", "/out?a"),
+                    new GroupRule("Форум", "forum",
+                        new GroupRule("Форумная тема", "showtopic"),
+                        new GroupRule("Раздел форума", "categories"),
+                        new GroupRule("Создание темы", "newtopic"),
+                        new GroupRule("Поиск на форуме", "search"),
+                        new GroupRule("Отслеживаемые темы", "watched"),
+                        new GroupRule("Загрузки форума", "uploads"),
+                        new GroupRule("Создание сообщения", "new_post"),
+                        new GroupRule("Симпатии поста", "like_all")),
                     new GroupRule("Раздел: бездна", "bezdna"),
                     new GroupRule("Раздел: читы", "cheats"),
                     new GroupRule("Раздел: Клиенты", "klienty-minecraft"),
@@ -155,16 +161,7 @@ namespace WebArchiveViewer
                     new GroupRule("Репутация", "/reputation"),
                     new GroupRule("Раздел: сиды", "/seeds"),
                     new GroupRule("Шаблоны", "/templates"),
-                    new GroupRule("Раздел: достопримечательности", "/dostoprimechatelnosty-nashego-servera"),
-                    new GroupRule("Форум", "forum",
-                        new GroupRule("Форумная тема", "showtopic"),
-                        new GroupRule("Раздел форума", "categories"),
-                        new GroupRule("Создание темы", "newtopic"),
-                        new GroupRule("Поиск на форуме", "search"),
-                        new GroupRule("Отслеживаемые темы", "watched"),
-                        new GroupRule("Загрузки форума", "uploads"),
-                        new GroupRule("Создание сообщения", "new_post"),
-                        new GroupRule("Симпатии поста", "like_all"))));
+                    new GroupRule("Раздел: достопримечательности", "/dostoprimechatelnosty-nashego-servera")));
             return rumineRule;
         }
     }
@@ -235,7 +232,6 @@ namespace WebArchiveViewer
             }
             return null;
         }
-
         public IRule FindOwner(IRule rule)
         {
             throw new NotImplementedException();

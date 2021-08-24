@@ -66,10 +66,19 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Конвертеры\Round.cs" />
-    <Compile Include="Логика\Получение ссылок\RequestCreator.cs" />
+    <Compile Include="Логика\Загрузка HTML\ClientHtmlLoader.cs" />
+    <Compile Include="Логика\Загрузка HTML\HtmlLoader.cs" />
+    <Compile Include="Логика\Получение ссылок\ArchiveLoader.cs" />
+    <Compile Include="Логика\Получение ссылок\FileLoader.cs" />
+    <Compile Include="Логика\Получение ссылок\Запрос\RequestCreator.cs" />
+    <Compile Include="Логика\Получение ссылок\SnapshotReceiver.cs" />
+    <Compile Include="Логика\Получение ссылок\Запрос\RequestParts.cs" />
+    <Compile Include="Логика\Просмотр ссылок\SaveMode.cs" />
     <Compile Include="Логика\Снапшот\ArchiveLink.cs" />
-    <Compile Include="Логика\Снапшот\CodeTypesCates.cs" />
-    <Compile Include="Логика\Снапшот\SortsGroups.cs" />
+    <Compile Include="Логика\Снапшот\CategoriesInfo.cs" />
+    <Compile Include="Логика\Снапшот\Category.cs" />
+    <Compile Include="Логика\Снапшот\Опции\CodeTypesCates.cs" />
+    <Compile Include="Логика\Снапшот\Опции\SortsGroups.cs" />
     <Compile Include="Логика\Техническое\DateRange.cs" />
     <Compile Include="Логика\Техническое\FileDialog.cs" />
     <Compile Include="Конвертеры\Date.cs" />
@@ -97,9 +106,8 @@
     <Compile Include="Элементы\IntervalSelector.xaml.cs">
       <DependentUpon>IntervalSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Логика\Получение ссылок\ArchiveReceiveView.cs" />
     <Compile Include="Логика\Просмотр ссылок\ArchiveView.cs" />
-    <Compile Include="Логика\Снапшот\ViewOptions.cs" />
+    <Compile Include="Логика\Снапшот\Опции\ViewOptions.cs" />
     <Compile Include="Логика\Техническое\RelayCommand.cs" />
     <Compile Include="Логика\Снапшот\SiteSnapshot.cs" />
     <Page Include="Элементы\IntervalSlider.xaml">

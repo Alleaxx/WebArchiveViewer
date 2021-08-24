@@ -31,17 +31,28 @@
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Задержка:" Style="{StaticResource PropertyName}" />
                     <StackPanel Style="{StaticResource PropertiesPanel}">
-                        <TextBlock Text="{Binding LatencyMs, StringFormat=\{0\} миллисекунд}"  />
-                        <Slider Minimum="500" Maximum="10000" Value="{Binding LatencyMs}" IsSnapToTickEnabled="True" TickFrequency="200"/>
+                        <TextBlock Text="{Binding Options.LatencyMs, StringFormat=\{0\} миллисекунд}"  />
+                        <Slider Minimum="500" Maximum="10000" Value="{Binding Options.LatencyMs}" IsSnapToTickEnabled="True" TickFrequency="200"/>
                     </StackPanel>
                 </DockPanel>
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Папка:" Style="{StaticResource PropertyName}" />
                     <DockPanel>
-                        <TextBlock Text="{Binding Snapshot.FolderHtmlSaveName}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap"  />
+                        <TextBlock Text="{Binding Snapshot.FolderHtmlSavePath}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
                         <Button Command="{Binding Snapshot.SelectSaveFolderCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                             <TextBlock Text="Изменить" />
                         </Button>
+                    </DockPanel>
+                </DockPanel>
+                <DockPanel Style="{StaticResource Property}">
+                    <TextBlock Text="Что загружать:" Style="{StaticResource PropertyName}" />
+                    <DockPanel VerticalAlignment="Center">
+                        <CheckBox IsChecked="True">
+                            <TextBlock Text="Имена страниц" />
+                        </CheckBox>
+                        <CheckBox IsChecked="True" Margin="5,0">
+                            <TextBlock Text="HTML" />
+                        </CheckBox>
                     </DockPanel>
                 </DockPanel>
                 <DockPanel Style="{StaticResource Property}">
@@ -78,7 +89,17 @@
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Прогресс:" Style="{StaticResource PropertyName}" />
                     <StackPanel Style="{StaticResource PropertiesPanel}">
-                        <ProgressBar Value="{Binding LinksLoadedCount, Mode=OneWay}" Maximum="{Binding Snapshot.Links.Length}" Foreground="{Binding PauseState.Color}" Height="6"/>
+                        <ProgressBar Value="{Binding LinksLoadedCount, Mode=OneWay}" Maximum="{Binding Snapshot.Links.Length}" Height="6">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PauseState.IsPaused}" Value="true">
+                                            <Setter Property="Foreground" Value="DarkGray" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
                         <Grid Margin="25,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*" />
@@ -87,9 +108,9 @@
                                 <ColumnDefinition Width="1*"/>
                                 <ColumnDefinition Width="1*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" ToolTip="Осталось ссылок" Text="{Binding LinksRemainingList.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Blue"/>
+                            <TextBlock Grid.Column="0" ToolTip="Осталось ссылок" Text="{Binding LinksRemaining.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Blue"/>
                             <TextBlock Grid.Column="1" Text="→" Margin="3,0" FontSize="18" HorizontalAlignment="Center" />
-                            <TextBlock Grid.Column="2" ToolTip="Загружающихся ссылок" Text="{Binding ActiveLinkRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="DarkGoldenrod" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" ToolTip="Загружающихся ссылок" Text="{Binding ActiveRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="DarkGoldenrod" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="3" Text="→" Margin="3,0" FontSize="18" HorizontalAlignment="Center" />
                             <TextBlock Grid.Column="4" ToolTip="Загруженных ссылок" Text="{Binding LinksLoadedCount, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Green" HorizontalAlignment="Right"/>
                         </Grid>
@@ -98,8 +119,8 @@
                                 <ColumnDefinition Width="1*" />
                                 <ColumnDefinition Width="1*" />
                             </Grid.ColumnDefinitions>
-                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource ToggleButtonStyle1}"/>
-                            <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding IsPausedInverted}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource Default}"/>
+                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource ToggleButtonStyle1}"/>
+                            <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding PauseState.IsPlayed}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource Default}"/>
                         </Grid>
                     </StackPanel>
                 </DockPanel>
@@ -116,9 +137,10 @@
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Ошибки:" Style="{StaticResource PropertyName}" />
                     <DockPanel>
-                        <TextBlock Text="{Binding ErrorLinkRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="16" Foreground="Red"/>
+                        <TextBlock Text="{Binding ErrorRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="16" Foreground="Red"/>
                         <TextBlock Text="{Binding Snapshot.Links.Length, StringFormat=из \{0\}}" Margin="3,0"  FontSize="16"/>
                     </DockPanel>
+                    
                 </DockPanel>
 
                 <Expander IsExpanded="True" Template="{StaticResource ExpanderExp}">
@@ -176,20 +198,15 @@
             </Expander.Header>
             <TabControl Grid.Row="3" Margin="25,-3,0,0">
                 <TabControl.Resources>
-                    <DataTemplate x:Key="Request" DataType="{x:Type local:LinkState}">
-                        <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="Gainsboro">
+                    <DataTemplate x:Key="Request" DataType="{x:Type local:ClientHTMLoader}">
+                        <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="WhiteSmoke">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <TextBlock Grid.RowSpan="2" Text="{Binding Index}" FontSize="18" FontWeight="Medium" Foreground="Black" Margin="5,0,8,0" VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Link.Link}" Foreground="Blue" FontSize="11"/>
-                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Status}" Foreground="Gray" />
+                                <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Link.Index}" FontSize="12" Margin="4,0"/>
+                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Status}" FontSize="9" Foreground="Gray" TextWrapping="Wrap" Margin="5,0" VerticalAlignment="Center"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -197,36 +214,36 @@
                 <TabItem>
                     <TabItem.Header>
                         <DockPanel Margin="0,5">
-                            <TextBlock Text="{Binding ActiveLinkRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
-                            <TextBlock Text="Текущие запросы" />
+                            <TextBlock Text="{Binding ActiveRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                            <TextBlock Text="Текущие" />
                         </DockPanel>
                     </TabItem.Header>
                     <ScrollViewer>
-                        <ItemsControl ItemsSource="{Binding ActiveLinkRequests}" ItemTemplate="{DynamicResource Request}" />
+                        <ItemsControl ItemsSource="{Binding ActiveRequests}" ItemTemplate="{DynamicResource Request}" />
                     </ScrollViewer>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <DockPanel>
-                            <TextBlock Text="{Binding ErrorLinkRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
-                            <TextBlock Text="Ошибочные запросы" />
+                            <TextBlock Text="{Binding ErrorRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                            <TextBlock Text="Ошибочные" />
                         </DockPanel>
 
                     </TabItem.Header>
                     <ScrollViewer>
-                        <ItemsControl ItemsSource="{Binding ErrorLinkRequests}" ItemTemplate="{DynamicResource Request}" />
+                        <ItemsControl ItemsSource="{Binding ErrorRequests}" ItemTemplate="{DynamicResource Request}" />
                     </ScrollViewer>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <DockPanel>
-                            <TextBlock Text="{Binding FinishedLinkRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
-                            <TextBlock Text="Завершенные запросы" />
+                            <TextBlock Text="{Binding SuccessfullRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                            <TextBlock Text="Завершенные" />
                         </DockPanel>
 
                     </TabItem.Header>
                     <ScrollViewer VerticalScrollBarVisibility="Auto"  MaxHeight="300">
-                        <!--<ItemsControl ItemsSource="{Binding FinishedLinkRequests}" ItemTemplate="{DynamicResource Request}" />-->
+                        <ItemsControl ItemsSource="{Binding SuccessfullRequests}" ItemTemplate="{DynamicResource Request}" />
                     </ScrollViewer>
                 </TabItem>
             </TabControl>

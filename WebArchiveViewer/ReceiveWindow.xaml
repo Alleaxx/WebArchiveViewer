@@ -4,16 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
-        mc:Ignorable="d"
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance {x:Type local:ArchiveSnapLoader }}"
         Title="Загрузка с веб-архива" Height="700" Width="450">
-    <Window.DataContext>
-        <local:ArchiveReceiveView />
-    </Window.DataContext>
     <Window.Resources>
         <local:DateTextConverter x:Key="DateConverter" />
-
-
-        
     </Window.Resources>
 
     <ScrollViewer x:Name="elem" VerticalScrollBarVisibility="Auto">
@@ -78,7 +72,7 @@
                                     <TextBlock Text="вкл" Padding="15,0,0,0" />
                                 </ToggleButton>
                             </StackPanel>
-                            <StackPanel Style="{StaticResource PropertiesPanel}">
+                            <StackPanel>
                                 <DockPanel>
                                     <TextBlock Text="с даты " Width="60"/>
                                     <TextBlock Text="{Binding RequestCreator.Dates.Range.From,Converter={StaticResource DateConverter}}"/>
@@ -94,6 +88,15 @@
                                     </DockPanel>
                                 </DockPanel>
                                 <local:IntervalSlider Minimum="0" Maximum="{Binding RequestCreator.Dates.Range.Difference}" LowerValue="{Binding RequestCreator.Dates.Range.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding RequestCreator.Dates.Range.DifferenceTo, Mode=TwoWay}"/>
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel" BasedOn="{StaticResource PropertiesPanel}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RequestCreator.Dates.Enabled}" Value="false">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
                             </StackPanel>
                         </DockPanel>
 
@@ -108,7 +111,12 @@
                         </DockPanel>
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="Запрос:" Style="{StaticResource PropertyName}" />
-                            <Button Content="Скопировать в буфер обмена" ToolTip="{Binding RequestString}" Command="{Binding CopyRequestCommand}" CommandParameter="{Binding RequestString}" Style="{StaticResource ActionButton}" HorizontalAlignment="Right" />
+                            <Button Content="Скопировать в буфер обмена" ToolTip="{Binding RequestString}" Command="{Binding CopyRequestCommand}" CommandParameter="{Binding RequestString}" HorizontalAlignment="Right">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ActionButton}">
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </DockPanel>
                     </StackPanel>
                     <StackPanel Margin="0,10">
@@ -116,6 +124,34 @@
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="Статус:" Style="{StaticResource PropertyName}" />
                             <DockPanel Style="{StaticResource Property}">
+                                <Rectangle Fill="Gainsboro" Stroke="Gray" Height="10" Width="10" Margin="5,0" RenderTransformOrigin="0.5,0.5">
+                                    <Rectangle.RenderTransform>
+                                        <RotateTransform x:Name="noFreeze" />
+                                    </Rectangle.RenderTransform>
+                                    <Rectangle.Style>
+                                        <Style TargetType="Rectangle">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Uploading.InProgress}" Value="true">
+                                                    <Setter Property="Fill" Value="green" />
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard TargetProperty="(RenderTransform).(RotateTransform.Angle)">
+                                                                <DoubleAnimation To="360" RepeatBehavior="Forever" Duration="0:0:1" />
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                    <DataTrigger.ExitActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard TargetProperty="(RenderTransform).(RotateTransform.Angle)">
+                                                                <DoubleAnimation To="0"  Duration="0:0:0.1" />
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.ExitActions>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Rectangle.Style>
+                                </Rectangle>
                                 <TextBlock Text="{Binding Uploading.Status}" />
                                 <Button Content="Загрузить" Command="{Binding UploadLinksCommand}" Style="{StaticResource ActionButton}" HorizontalAlignment="Right" />
                             </DockPanel>
@@ -124,7 +160,7 @@
                 </StackPanel>
             </StackPanel>
             
-            <ContentPresenter Content="{Binding ReceivedSnapshot}" Margin="5,20">
+            <ContentPresenter Content="{Binding Snapshot}" Margin="5,20">
                 <ContentPresenter.ContentTemplate>
                     <DataTemplate>
                         <StackPanel  x:Name="snapshot">
@@ -143,7 +179,7 @@
                             <DockPanel Style="{StaticResource Property}">
                                 <TextBlock Text="Действия:" Style="{StaticResource PropertyName}"/>
                                 <StackPanel>
-                                    <Button Content="Сохранить в файл"  DataContext="{Binding ElementName=elem,Path=DataContext}" Command="{Binding SaveSnapFileCommand}" Style="{StaticResource ActionButton}"  Click="BtnSaveFile_Click"/>
+                                    <Button Content="Сохранить в файл" Command="{Binding SaveSnapFileCommand}" CommandParameter="All" Style="{StaticResource ActionButton}"  Click="BtnSaveFile_Click"/>
                                     <Button Content="Перейти к просмотру" DataContext="{Binding ElementName=elem,Path=DataContext}" Command="{Binding SetSnapshotCommand}" Style="{StaticResource ActionButton}"  Click="BtnSaveFile_Click" />
                                 </StackPanel>
                             </DockPanel>

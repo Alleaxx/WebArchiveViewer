@@ -12,7 +12,8 @@ namespace WebArchiveViewer
     public interface IArchLink
     {
         int Index { get; }
-        string Name { get; }
+        string Name { get; set; }
+        string Link { get; }
         string LinkSource { get; }
         string Category { get; set; }
         DateTime Date { get; }
@@ -20,14 +21,12 @@ namespace WebArchiveViewer
         string MimeType { get; }
         string TimeStamp { get; }
 
-        string HtmlFilePath { get; }
+        string HtmlFilePath { get; set; }
 
 
         RelayCommand LoadNameCommand { get; }
     }
 
-    //Ссылка в веб архиве на сайт
-    [Serializable]
     public class ArchiveLink : NotifyObj, IArchLink
     {
         public string Name
@@ -75,32 +74,38 @@ namespace WebArchiveViewer
 
         public ArchiveLink()
         {
-            LoadNameCommand = new RelayCommand(LoadName, IsLoadNameAvailable);
-        }
 
+        }
+        protected override void InitCommands()
+        {
+            base.InitCommands();
+            LoadNameCommand = new RelayCommand(LoadNameAsync, IsLoadNameAvailable);
+        }
 
         //Загрузка имени страницы
-        private WebClient Client { get; set; }
         private string[] ForbiddenCodes = new string[] { "404", "502", "302" };
-        private bool IsLoadNameAvailable(object obj) => Client == null && !ForbiddenCodes.Contains(StatusCode);
+        private bool IsLoadNameAvailable(object obj) => !ForbiddenCodes.Contains(StatusCode);
         [JsonIgnore]
         public RelayCommand LoadNameCommand { get; private set; }
-        private void LoadName(object obj)
+        private async void LoadNameAsync(object obj)
         {
-            Client = new WebClient();
-            Client.DownloadStringCompleted += Client_LoadCompleted;
-            Client.DownloadStringAsync(new Uri(Link));
+            try
+            {
+                WebClient client = new WebClient();
+                string html = await client.DownloadStringTaskAsync(new Uri(Link));
+                Name = await Task.Run(() => GetTitleFromHtml(html));
+            }
+            catch (WebException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
-        private void Client_LoadCompleted(object sender, DownloadStringCompletedEventArgs e)
+        public static string GetTitleFromHtml(string html)
         {
-            Client.DownloadStringCompleted -= Client_LoadCompleted;
-            if(e.Error == null)
-            {
-                string source = e.Result;
-                Name = Regex.Match(source, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>", RegexOptions.IgnoreCase).Groups["Title"].Value;
-            }
-            Client = null;
+            string name = Regex.Match(html, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
+                RegexOptions.IgnoreCase).Groups["Title"].Value;
+            return name;
         }
     }
 

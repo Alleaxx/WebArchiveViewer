@@ -11,40 +11,29 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
-using Newtonsoft.Json;
-
 namespace WebArchiveViewer
 {
-    public enum SaveMode
-    {
-        allShowed,
-        allFiltered,
-        allNotFiltered,
-        all,
-        alldefaultpath,
-    }
 
     //Представление просмотра ссылок с архива
     public class ArchiveView : NotifyObj
     {
-        private IFileDialog FileDialog { get; set; }
+        public override string ToString() => $"Просмотр снапшота - {CurrentSnapshot}";
 
         //Инициализация
         public ArchiveView()
         {
-            FileDialog = new FileDialog(".json", "JSON-файл (*.json) |*.json");
+            Receiver = new SnapshotReceiver(this);
         }
         protected override void InitCommands()
         {
             base.InitCommands();
-            OpenArchiveLinksCommand = new RelayCommand(LoadLinks, RelayCommand.IsTrue);
-            OpenSnapshotCommand = new RelayCommand(OpenSnapshotFile, RelayCommand.IsTrue);
-            SaveSnapFileCommand = new RelayCommand(SaveSnapFile, IsSnapshotOpened);
             CloseSnapCommand = new RelayCommand(CloseSnapshot, IsSnapshotOpened);
         }
 
 
-        public ISnapshot CurrentSnapshot
+        //Снапшот и его получение
+        public SnapshotReceiver Receiver { get; private set; }
+        public SiteSnapshot CurrentSnapshot
         {
             get => currentSnapshot;
             set
@@ -56,87 +45,22 @@ namespace WebArchiveViewer
                 if (value != null)
                 {
                     var options = value.ViewOptions;
-                    options.LoadCategories(currentSnapshot);
-                    options.Updated += UpdateList;
+                    options.OnUpdated += UpdateList;
                     UpdateList();
                 }
                 if (oldValue != null && oldValue.ViewOptions != null)
                 {
-                    oldValue.ViewOptions.Updated -= UpdateList;
+                    oldValue.ViewOptions.OnUpdated -= UpdateList;
                 }
             }
         }
-        private ISnapshot currentSnapshot;
+        private SiteSnapshot currentSnapshot;
         private bool IsSnapshotOpened(object obj) => CurrentSnapshot != null;
 
 
-        //Окна загрузки с веб-архива ссылок и HTML
-        public ICommand OpenArchiveLinksCommand { get; private set; }
-        private void LoadLinks(object obj)
-        {
-            ArchiveReceiveView view = new ArchiveReceiveView(CurrentSnapshot);
-            LoadWindow window = new LoadWindow(view);
-            window.ShowDialog();
-        }
-
-        //Открытие файла со ссылками
-        public ICommand OpenSnapshotCommand { get; private set; }
-        private void OpenSnapshotFile(object obj)
-        {
-            var file = FileDialog.Open();
-            if (file != null && file.Exists)
-            {
-                string path = file.FullName;
-                var snapshot = FileDialog.OpenReadJson<SiteSnapshot>(path);
-                snapshot.FilePath = path;
-                snapshot.ViewOptions.UpdateForSnapshot(snapshot);
-                CurrentSnapshot = snapshot;
-            }
-        }
-
-
-        //Сохранение ссылок в файл
-        public ICommand SaveSnapFileCommand { get; private set; }
-        private void SaveSnapFile(object obj)
-        {
-            SaveMode saveMode = GetSaveMode(obj);
-            string path = GetSavingPath(saveMode);
-
-            if(path != null)
-            {
-                CurrentSnapshot.Save(saveMode, path);
-            }
-        }
-
-        private SaveMode GetSaveMode(object obj)
-        {
-            SaveMode saveMode = SaveMode.allShowed;
-            if (obj != null && Enum.TryParse(obj.ToString(), out SaveMode mode))
-                saveMode = mode;
-            return saveMode;
-
-        }
-        private string GetSavingPath(SaveMode mode)
-        {
-            if (mode == SaveMode.alldefaultpath)
-            {
-                return CurrentSnapshot.File.FullName;
-            }
-            else
-            {
-                int linksCount = currentSnapshot.Links.Length;
-                string link = currentSnapshot.SourceURI;
-
-                var file = FileDialog.Save($"{linksCount} - {link}");
-                if (file != null)
-                    return file.FullName;
-                else
-                    return null;
-            }
-        }
 
         
-        //Закрыть снапшот
+        //Закрытие
         public ICommand CloseSnapCommand { get; private set; }
         private void CloseSnapshot(object obj)
         {
@@ -161,11 +85,11 @@ namespace WebArchiveViewer
             if(currentSnapshot != null)
             {
                 var options = CurrentSnapshot.ViewOptions;
-                var links = options.GetFilteredLinks(currentSnapshot);
-                links = options.ListView.SortLinks(links);
-                options.LinksFilteredAmount = links.Count();
+                var filteredLinks = options.GetFilteredLinks();
+                filteredLinks = options.ListView.SortLinks(filteredLinks);
+                options.LinksFilteredAmount = filteredLinks.Count();
 
-                LinksPager = new Pager<ArchiveLink>(links, options.ListView.GroupSelected);
+                LinksPager = new Pager<ArchiveLink>(filteredLinks, options.ListView.GroupSelected, LinksPager);
             }
         }
     }

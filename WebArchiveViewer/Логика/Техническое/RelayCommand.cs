@@ -9,6 +9,9 @@ namespace WebArchiveViewer
 {
     public class RelayCommand : ICommand
     {
+        public override string ToString() => $"Команда {(canExecute == IsTrue ? "с условием" : ", активна всегда")}";
+
+
         private Action<object> execute;
         private Func<object, bool> canExecute;
  

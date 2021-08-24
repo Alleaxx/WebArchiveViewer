@@ -18,7 +18,7 @@ namespace WebArchiveTests
         [TestMethod]
         public void NullRequestAvailable()
         {
-            ArchiveReceiveView receiving = new ArchiveReceiveView();
+            ArchiveSnapLoader receiving = new ArchiveSnapLoader();
             receiving.RequestDefaultCreator = new DefaultRequestCreator("");
             bool executeAvailable = receiving.UploadLinksCommand.CanExecute(null);
             Assert.IsFalse(executeAvailable, "Команда загрузки ссылок доступна при нулевом прямом запросе");
@@ -33,14 +33,14 @@ namespace WebArchiveTests
         [TestMethod]
         public async Task LoadDirectSnapshot()
         {
-            ArchiveReceiveView receiving = new ArchiveReceiveView();
+            ArchiveSnapLoader receiving = new ArchiveSnapLoader();
             receiving.RequestDefaultCreator = new DefaultRequestCreator("http://web.archive.org/cdx/search/cdx?url=https://www.noob-club.ru/&matchType=prefix&output=json&limit=59&from=20170209100353&to=20170831025157");
 
             var command = receiving.UploadLinksCommand;
             bool executeAvailable = command.CanExecute(null);
             Assert.AreEqual(true, executeAvailable, "Команда загрузки ссылок недоступна");
 
-            ISnapshot snapshot = await receiving.UploadLinks();
+            SiteSnapshot snapshot = await receiving.UploadLinks(null);
             Assert.AreEqual(59, snapshot.Links.Length, "Возвращено неверное количество ссылок");
             Assert.AreEqual(2, snapshot.ViewOptions.Codes.Length, "Возвращено неверное количество кодов ответа");
             Assert.AreEqual(1, snapshot.ViewOptions.Types.Length, "Возвращено неверное количество mime-типов");
@@ -50,7 +50,7 @@ namespace WebArchiveTests
         [TestMethod]
         public async Task LoadSnapshot()
         {
-            ArchiveReceiveView receiving = new ArchiveReceiveView();
+            ArchiveSnapLoader receiving = new ArchiveSnapLoader();
             var creator = receiving.RequestArchiveCreator;
             creator.Site.Value = "http://ru-minecraft.ru/forum";
             creator.Limit.Amount = 100;
@@ -61,7 +61,7 @@ namespace WebArchiveTests
             bool executeAvailable = command.CanExecute(null);
             Assert.AreEqual(true, executeAvailable, "Команда загрузки ссылок недоступна");
 
-            ISnapshot snapshot = await receiving.UploadLinks();
+            SiteSnapshot snapshot = await receiving.UploadLinks(null);
             Assert.AreEqual(100, snapshot.Links.Length, "Возвращено неверное количество ссылок");
             Assert.AreEqual(2, snapshot.ViewOptions.Codes.Length, "Возвращено неверное количество кодов ответа");
             Assert.AreEqual(1, snapshot.ViewOptions.Types.Length, "Возвращено неверное количество mime-типов");
@@ -74,7 +74,7 @@ namespace WebArchiveTests
         [TestMethod]
         public async Task LoadEmpty()
         {
-            ArchiveReceiveView receiving = new ArchiveReceiveView();
+            ArchiveSnapLoader receiving = new ArchiveSnapLoader();
             var creator = receiving.RequestArchiveCreator;
             creator.Site.Value = "http://ru-minecraft.ru/forum";
             creator.Limit.Amount = 2;
@@ -84,7 +84,7 @@ namespace WebArchiveTests
             bool executeAvailable = command.CanExecute(null);
             Assert.AreEqual(true, executeAvailable, "Команда загрузки ссылок недоступна");
 
-            ISnapshot snapshot = await receiving.UploadLinks();
+            SiteSnapshot snapshot = await receiving.UploadLinks(null);
             Assert.AreEqual(0, snapshot.Links.Length, "В пустом снапшоте из архива не 0 ссылок");
             Assert.AreEqual(receiving.SetSnapshotCommand.CanExecute(null), false, "Можно просмотреть пустой возвращенный снапшот");
         }

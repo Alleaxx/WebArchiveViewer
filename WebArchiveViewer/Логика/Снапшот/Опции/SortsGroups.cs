@@ -9,7 +9,7 @@ namespace WebArchiveViewer
     //Сортировки-группировки
     public class ListViewOptions : NotifyObj
     {
-        public event Action Updated;
+        public event Action OnUpdated;
 
         public IEnumerable<IGrouping> Groups { get; private set; } = new IGrouping[]
         {
@@ -61,7 +61,7 @@ namespace WebArchiveViewer
 
         private void Update()
         {
-            Updated?.Invoke();
+            OnUpdated?.Invoke();
         }
 
         public IEnumerable<ArchiveLink> SortLinks(IEnumerable<ArchiveLink> links)
@@ -73,13 +73,13 @@ namespace WebArchiveViewer
                 switch (sort.Name)
                 {
                     case "Имя":
-                        return links.OrderBy(l => l.Name);
+                        return links.AsParallel().OrderBy(l => l.Name).ToArray();
                     case "Адрес":
-                        return links.OrderBy(l => l.LinkSource);
+                        return links.AsParallel().OrderBy(l => l.LinkSource).ToArray();
                     case "Дата":
-                        return links.OrderBy(l => l.Date);
+                        return links.AsParallel().OrderBy(l => l.Date).ToArray();
                     case "Тип":
-                        return links.OrderBy(l => l.MimeType);
+                        return links.AsParallel().OrderBy(l => l.MimeType).ToArray();
                     default:
                         return links;
                 }
