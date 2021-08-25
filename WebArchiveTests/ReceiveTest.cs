@@ -67,7 +67,7 @@ namespace WebArchiveTests
             Assert.AreEqual(1, snapshot.ViewOptions.Types.Length, "Возвращено неверное количество mime-типов");
 
             var rules = snapshot.RulesControl;
-            Assert.AreEqual(true, rules != null && rules.MainRules.Count > 0, "Нет правил формирования категорий");
+            Assert.AreEqual(true, rules != null && rules.Rule == null, "Нет правил формирования категорий");
         }
 
         //Загрузить пустой снапшот

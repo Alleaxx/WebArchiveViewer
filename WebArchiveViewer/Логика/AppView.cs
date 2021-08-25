@@ -8,16 +8,9 @@ namespace WebArchiveViewer
 {
     public class AppView
     {
-        public static AppView Ex
-        {
-            get
-            {
-                if(ex == null)
-                    ex = new AppView();
-                return ex;
-            }
-        }
-        private static AppView ex;
+        private static readonly AppView ex = new AppView();
+        public static AppView Ex => ex;
+
 
         public ArchiveView Archive { get; private set; }
 

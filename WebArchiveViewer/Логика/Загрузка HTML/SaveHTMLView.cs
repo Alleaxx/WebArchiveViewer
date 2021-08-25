@@ -154,7 +154,8 @@ namespace WebArchiveViewer
         }
         private async void LoadLinkAsync(IArchLink link)
         {
-            var loader = new ClientHTMLoader(FolderWrite.FullName, link);
+            var options = new LoadHtmlOptions(FolderWrite.FullName) { SavingHtml = true, LoadingName = true };
+            var loader = new ClientHTMLoader(link, options);
             ExeInDispatcher(() => ActiveRequests.Add(loader));;
 
             bool loadSuccessfull = await loader.LoadHtml();

@@ -1,102 +1,23 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace WebArchiveViewer
 {
-    public interface IRulesControl
-    {
-        IEnumerable<IRule> Rules { get; }
-        void AddRules(IRules rules);
-        string CheckLink(IArchLink link);
-        string CheckLink(string link);
-    }
-    [Serializable]
-    public class RulesControl : NotifyObj, IRulesControl
-    {
-        const string Undefined = "???";
-
-
-        [JsonIgnore]
-        public IEnumerable<IRule> Rules => MainRules;
-        public ObservableCollection<GroupRule> MainRules { get; private set; } = new ObservableCollection<GroupRule>();
-
-
-        protected override void InitCommands()
-        {
-            base.InitCommands();
-            RemoveRuleCommand = new RelayCommand(RemoveRule, NotMain);
-            ShowRulesCommand = new RelayCommand(ShowRules);
-        }
-
-
-        private bool NotMain(object obj) => obj is IRule rule && MainRules.First() != rule;
-        [JsonIgnore]
-        public ICommand RemoveRuleCommand { get; private set; }
-        private void RemoveRule(object obj)
-        {
-            if(obj is IRule ruleToRemove)
-            {
-                foreach (var mainRule in MainRules)
-                {
-                    mainRule.Remove(ruleToRemove);
-                }
-            }
-        }
-
-        [JsonIgnore]
-        public ICommand ShowRulesCommand { get; private set; }
-        private void ShowRules(object obj)
-        {
-            RulesWindow window = new RulesWindow(this);
-            window.ShowDialog();
-        }
-
-
-
-        public void AddRules(IRules rules)
-        {
-            MainRules.Add(rules.GetMainRule() as GroupRule);
-        }
-        public string CheckLink(IArchLink link)
-        {
-            return CheckLink(link.LinkSource);
-        }
-        public string CheckLink(string link)
-        {
-            foreach (var rule in MainRules)
-            {
-                var matchResult = rule.IsMatched(link);
-                if (matchResult != null)
-                    return matchResult;
-            }
-            return Undefined;
-        }
-    }
-
     public interface IRules
     {
-        IRule GetMainRule();
+        IEnumerable<GroupRule> GetRules();
     }
-    public class DefaultRules : IRules
-    {
-        private IRule MainRule { get; set; }
-        public DefaultRules(string name)
-        {
-            MainRule = new GroupRule(name, "");
-        }
-        public IRule GetMainRule() => MainRule;
-    }
+
+    //Стандартные правила Румайновских ссылок
     public class RumineRules : IRules
     {
-        public IRule GetMainRule()
+        public override string ToString() => $"Румайнерские правила ссылок";
+        public IEnumerable<GroupRule> GetRules()
         {
-            var rumineRule = new GroupRule("Все", "",
+            var rumineRule =
                 new GroupRule("Румине", "ru-minecraft.ru",
                     new GroupRule("Главная страница", "/index.php"),
                     new GroupRule("Главная страница 2.0", "/main"),
@@ -161,89 +82,9 @@ namespace WebArchiveViewer
                     new GroupRule("Репутация", "/reputation"),
                     new GroupRule("Раздел: сиды", "/seeds"),
                     new GroupRule("Шаблоны", "/templates"),
-                    new GroupRule("Раздел: достопримечательности", "/dostoprimechatelnosty-nashego-servera")));
-            return rumineRule;
+                    new GroupRule("Раздел: достопримечательности", "/dostoprimechatelnosty-nashego-servera"));
+            return new GroupRule[1] { rumineRule };
         }
     }
 
-
-
-    public interface IRule
-    {
-        string GroupName { get; set; }
-        string IsMatched(string link);
-        string IsMatched(IArchLink link);
-        IRule FindOwner(IRule rule);
-        void Remove(IRule rule);
-    }
-
-    [Serializable]
-    public class GroupRule : IRule
-    {
-        public string GroupName { get; set; }
-        public string FoundText { get; set; }
-
-        public ObservableCollection<GroupRule> Rules { get; set; }
-
-        public GroupRule() : this("-","")
-        {
-
-        }
-        public GroupRule(string name, string text, params GroupRule[] rules)
-        {
-            GroupName = name;
-            FoundText = text;
-            Rules = new ObservableCollection<GroupRule>(rules);
-
-            AddRuleCommand = new RelayCommand(AddRule);
-        }
-
-
-        [JsonIgnore]
-        public ICommand AddRuleCommand { get; private set; }
-        private void AddRule(object obj)
-        {
-            Rules.Insert(0, new GroupRule());
-        }
-
-
-
-        public string IsMatched(IArchLink link)
-        {
-            return IsMatched(link.LinkSource);
-        }
-        public string IsMatched(string link)
-        {
-            if (link.Contains(FoundText))
-            {
-                if (Rules.Count == 0)
-                {
-                    return GroupName;
-                }
-                else
-                {
-                    foreach (IRule rule in Rules)
-                    {
-                        if (rule.IsMatched(link) is string res && !string.IsNullOrEmpty(res))
-                            return res;
-                    }
-                }
-                return GroupName;
-            }
-            return null;
-        }
-        public IRule FindOwner(IRule rule)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remove(IRule ruleToRemove)
-        {
-            Rules.Remove(ruleToRemove as GroupRule);
-            foreach (var rule in Rules)
-            {
-                rule.Remove(ruleToRemove);
-            }
-        }
-    }
 }

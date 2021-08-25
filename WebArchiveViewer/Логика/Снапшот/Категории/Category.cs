@@ -18,10 +18,12 @@ namespace WebArchiveViewer
         ICategory FindCategory(string name);
         void RemoveNullInnerCates();
         ICategory[] InnerCates { get; }
-        IEnumerable<ICategory> AllInnerCates();
+        IEnumerable<ICategory> GetAllInnerCates();
     }
     public class Category : Option, ICategory
     {
+        public override string ToString() => $"Категория {Name}: {ItemsAmount} | {ItemsInner} | {ItemsTotal}";
+
         public string Name { get; private set; }
 
         public override bool Enabled
@@ -100,12 +102,12 @@ namespace WebArchiveViewer
         }
 
 
-        public IEnumerable<ICategory> AllInnerCates()
+        public IEnumerable<ICategory> GetAllInnerCates()
         {
             List<ICategory> cates = new List<ICategory>();
             foreach (var cate in InnerCates)
             {
-                var inner = cate.AllInnerCates();
+                var inner = cate.GetAllInnerCates();
                 cates.Add(cate);
                 cates.AddRange(inner);
             }
@@ -117,7 +119,8 @@ namespace WebArchiveViewer
             List<ICategory> categories = new List<ICategory>();
             foreach (var cate in cates)
             {
-                categories.AddRange(cate.AllInnerCates());
+                categories.Add(cate);
+                categories.AddRange(cate.GetAllInnerCates());
             }
 
             Dictionary<string, ICategory> dictinary = new Dictionary<string, ICategory>();

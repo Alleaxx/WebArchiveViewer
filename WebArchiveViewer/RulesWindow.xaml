@@ -46,7 +46,7 @@
                 </DockPanel>--><!--
             </DockPanel>-->
         </Border>
-        <TreeView Grid.Row="2" ItemsSource="{Binding MainRules}" BorderThickness="0">
+        <TreeView Grid.Row="2" ItemsSource="{Binding Rules}" BorderThickness="0">
             <TreeView.Resources>
                 <HierarchicalDataTemplate ItemsSource="{Binding Rules}" DataType="{x:Type local:GroupRule}">
                     <DockPanel Margin="0,2">

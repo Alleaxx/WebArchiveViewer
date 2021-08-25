@@ -210,7 +210,7 @@ namespace WebArchiveViewer
         public Page(int num,int perPage, IEnumerable<T> source)
         {
             Number = num;
-            Elements = source.Skip((num - 1) * perPage).Take(perPage);
+            Elements = source.Skip((num - 1) * perPage).Take(perPage).ToArray();
             Source = new CollectionViewSource();
             Source.Source = Elements;
         }

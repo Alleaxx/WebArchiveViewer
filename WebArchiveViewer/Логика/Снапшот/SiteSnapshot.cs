@@ -14,32 +14,13 @@ using System.Windows.Input;
 
 namespace WebArchiveViewer
 {
-    public class Snapshot : NotifyObj
-    {
-        public Snapshot()
-        {
 
-        }
-    }
-    //Сайт со ссылками из архива на указанную дату
+    //Расширенная версия снапшота 
     public class SiteSnapshot : Snapshot
     {
-        //Сведения о файлах
-        public string FolderHtmlSavePath
-        {
-            get => folderHtmlSavePath ?? $"{Directory.GetCurrentDirectory()}\\Ссылки";
-            set
-            {
-                folderHtmlSavePath = value;
-                OnPropertyChanged();
-            }
-        }
-        private string folderHtmlSavePath;
-        public string FilePath { get; set; }
+        public FileInfo File => string.IsNullOrEmpty(FilePath) ? null : new FileInfo(FilePath);
+        public string Status => string.IsNullOrEmpty(FilePath) ? "Снапшот из архива, не сохранен" : "Снапшот сохранен";
 
-
-        [JsonIgnore]
-        public SnapshotInfo Info { get; private set; }
 
 
         public DateTime LastSaveDate
@@ -54,7 +35,6 @@ namespace WebArchiveViewer
         private DateTime lastSaveDate;
 
 
-        [JsonIgnore]
         public ICommand SelectSaveFolderCommand { get; private set; }
         private void SelectFolderSave(object obj)
         {
@@ -66,7 +46,6 @@ namespace WebArchiveViewer
             }
         }
 
-        [JsonIgnore]
         public ICommand SaveHTMLCommand { get; private set; }
         private void SaveHTML(object obj)
         {
@@ -77,23 +56,9 @@ namespace WebArchiveViewer
 
 
 
-
-        //Сведения о запросе
-        public string Request { get; set; }
-        public string SourceURI { get; set; }
-        public DateTime ReceivingDate { get; set; }
-
-
-        public ViewOptions ViewOptions { get; set; }
-        public RulesControl RulesControl { get; set; }
-        public ArchiveLink[] Links { get; set; }
-
-
-
-
         public SiteSnapshot()
         {
-            Info = new SnapshotInfo(this);
+
         }
         public SiteSnapshot(string request, string source, IEnumerable<ArchiveLink> links) : this()
         {
@@ -116,7 +81,6 @@ namespace WebArchiveViewer
         }
 
 
-        [JsonIgnore]
         public ICommand OpenLinkCommand { get; private set; }
         private bool IsCorrectLink(object obj) => obj is string link && !string.IsNullOrEmpty(link);
         private void OpenLink(object obj)
@@ -128,7 +92,6 @@ namespace WebArchiveViewer
         }
 
 
-        [JsonIgnore]
         public ICommand ClearProgressCommand { get; private set; }
         private void ClearProgress(object obj)
         {
@@ -138,7 +101,6 @@ namespace WebArchiveViewer
             }
         }
 
-        [JsonIgnore]
         public ICommand LoadNamesCommand { get; private set; }
         private async void LoadNames(object obj)
         {
@@ -161,7 +123,6 @@ namespace WebArchiveViewer
         }
 
 
-        [JsonIgnore]
         public ICommand UpdateCategoriesCommand { get; private set; }
         private void UpdateCategories(object obj)
         {
@@ -170,7 +131,6 @@ namespace WebArchiveViewer
 
 
         //Сохранение
-        [JsonIgnore]
         public ICommand SaveSnapFileCommand { get; private set; }
         private void SaveSnapFile(object obj)
         {
@@ -212,27 +172,26 @@ namespace WebArchiveViewer
 
         public void Save()
         {
-            Save(FilePath, Links);
+            SaveAsync(FilePath, Links);
         }
         public void Save(string path)
         {
-            Save(path, Links);
+            SaveAsync(path, Links);
         }
         public void Save(SaveMode mode,string path)
         {
             var links = ViewOptions.GetFilteredLinks(mode);
-            Save(path, links);
+            SaveAsync(path, links);
         }
-        public void Save(string path, IEnumerable<ArchiveLink> links)
+        public async void SaveAsync(string path, IEnumerable<ArchiveLink> links)
         {
             FilePath = path;
             LastSaveDate = DateTime.Now;
 
-            var copy = MemberwiseClone() as SiteSnapshot;
-            copy.Links = links.ToArray();
+            var copy = new Snapshot(this);
 
             IFileDialog fileDialog = new FileDialog();
-            fileDialog.SaveFile(path, copy);
+            await Task.Run(() => fileDialog.SaveFile(path, copy));
         }
 
 
@@ -241,8 +200,8 @@ namespace WebArchiveViewer
         {
             foreach (IArchLink link in Links)
             {
-                string cateName = RulesControl.CheckLink(link);
-                link.Category = cateName;
+                string category = RulesControl.CheckLink(link);
+                link.Category = category;
             }
         } 
         public CategoriesInfo GetCategories()
@@ -250,11 +209,15 @@ namespace WebArchiveViewer
             CreateRulesIfNull();
             UpdateLinkCategories();
 
-            var cates = RulesControl.MainRules.Select(r => new Category(r)).ToList();
+            var mainRule = RulesControl.Rule;
+            var cates = RulesControl.Rules.Select(r => new Category(r)).ToList();
             var cateDictionary = Category.GetDictionary(cates);
 
             CountElementsInCates(cates, cateDictionary);
-            cates.ForEach(c => c.RemoveNullInnerCates());
+            foreach (var cate in cates)
+            {
+                cate.RemoveNullInnerCates();
+            }
 
             return new CategoriesInfo(cates, cateDictionary);
         }
@@ -282,22 +245,6 @@ namespace WebArchiveViewer
                 RulesControl = new RulesControl();
                 RulesControl.AddRules(new RumineRules());
             }
-        }
-    }
-
-    public class SnapshotInfo
-    {
-        public override string ToString() => $"Информация, {Status}";
-
-        public FileInfo File => new FileInfo(Snapshot.FilePath);
-
-
-        public string Status => string.IsNullOrEmpty(Snapshot.FilePath) ? "Снапшот из архива, не сохранен" : "Снапшот сохранен";
-
-        public SiteSnapshot Snapshot { get; private set; }
-        public SnapshotInfo(SiteSnapshot snapshot)
-        {
-            Snapshot = snapshot;
         }
     }
 }

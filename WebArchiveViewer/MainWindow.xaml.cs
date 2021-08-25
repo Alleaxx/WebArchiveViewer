@@ -20,10 +20,12 @@ namespace WebArchiveViewer
     /// </summary>
     public partial class MainWindow : Window
     {
+        private ArchiveView View { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = AppView.Ex.Archive;
+            View = AppView.Ex.Archive;
+            DataContext = View;
         }
 
         private void EntryInfo_MouseDown(object sender, MouseButtonEventArgs e)
@@ -34,14 +36,14 @@ namespace WebArchiveViewer
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            AppView.Ex.Archive.UpdateList();
+            View.UpdateList();
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            var view = AppView.Ex.Archive;
-            if(view.CloseSnapCommand.CanExecute(null))
-                AppView.Ex.Archive.CloseSnapCommand?.Execute(null);
+            var closeCommand = View.CloseSnapCommand;
+            if(closeCommand.CanExecute(null))
+                closeCommand?.Execute(null);
         }
     }
 }

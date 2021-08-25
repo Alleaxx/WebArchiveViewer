@@ -24,7 +24,7 @@ namespace WebArchiveViewer
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            var snap = AppView.Ex.Archive.CurrentSnapshot as SiteSnapshot;
+            var snap = AppView.Ex.Archive.CurrentSnapshot;
             ICommand command = snap.UpdateCategoriesCommand;
 
             if(command.CanExecute(null))

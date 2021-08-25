@@ -15,11 +15,11 @@ namespace WebArchiveTests
         public void MatchSimpleTest()
         {
             string link = "http://ru-minecraft.ru/forum/showtopic-10000";
-            IRule rule1 = new GroupRule("Правило true", "forum");
+            GroupRule rule1 = new GroupRule("Правило true", "forum");
             string result1 = rule1.IsMatched(link);
             Assert.AreEqual("Правило true", result1, "Правило не работает");
 
-            IRule rule2 = new GroupRule("Правило false", "fomur");
+            GroupRule rule2 = new GroupRule("Правило false", "fomur");
             string result2 = rule2.IsMatched(link);
             Assert.IsTrue(string.IsNullOrEmpty(result2), "Правило не работает");
         }
@@ -29,7 +29,7 @@ namespace WebArchiveTests
         public void MatchInnerTest()
         {
             string link = "http://ru-minecraft.ru/forum/showtopic-10000";
-            IRule main = new GroupRule("Румайн", "ru-minecraft.ru",
+            GroupRule main = new GroupRule("Румайн", "ru-minecraft.ru",
                 new GroupRule("Форум", "forum",
                     new GroupRule("Тема", "showtopic")));
 
@@ -44,7 +44,7 @@ namespace WebArchiveTests
         [TestMethod]
         public void CheckCategorisation()
         {
-            IRulesControl control = new RulesControl();
+            RulesControl control = new RulesControl();
             control.AddRules(new RumineRules());
 
             string[] links = new string[]

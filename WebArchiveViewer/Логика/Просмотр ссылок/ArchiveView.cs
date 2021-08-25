@@ -56,9 +56,6 @@ namespace WebArchiveViewer
         }
         private SiteSnapshot currentSnapshot;
         private bool IsSnapshotOpened(object obj) => CurrentSnapshot != null;
-
-
-
         
         //Закрытие
         public ICommand CloseSnapCommand { get; private set; }

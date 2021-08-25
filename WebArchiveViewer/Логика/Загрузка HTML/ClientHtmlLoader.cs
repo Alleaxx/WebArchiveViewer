@@ -10,7 +10,7 @@ namespace WebArchiveViewer
 {
     class ClientHTMLoader : HTMLoader
     {
-        public ClientHTMLoader(string writefolder, IArchLink link) : base(writefolder, link) { }
+        public ClientHTMLoader(IArchLink link, LoadHtmlOptions options) : base(link, options) { }
         public async override Task<bool> LoadHtml()
         {
             SetState("Ожидание соединения...", LoadState.Waiting);
@@ -20,17 +20,17 @@ namespace WebArchiveViewer
                 string html = client.DownloadString(Link.Link);
 
                 SetState("Обработка текста...", LoadState.Loading);
-                if (LoadPageName)
+                if (Options.LoadingName)
                 {
                     Link.Name = ArchiveLink.GetTitleFromHtml(html);
                 }
 
 
-                if (SaveFile)
+                if (Options.SavingHtml)
                 {
                     SetState("Запись в файл...", LoadState.Loading);
-                    string fileName = GetSaveName(Link);
-                    string filePath = $"{FolderWrite}\\{fileName}.html";
+                    string fileName = GetSaveFileName(Link);
+                    string filePath = $"{Options.FolderPath}\\{fileName}.html";
 
                     File.WriteAllText(filePath, html);
                     Link.HtmlFilePath = filePath;
