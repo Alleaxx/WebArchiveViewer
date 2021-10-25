@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,42 +21,76 @@ namespace WebArchiveViewer
     {
         public override string ToString() => "Загрузка HTML-разметки";
 
-        public SaveHTMLView() : this(AppView.Ex.Archive.CurrentSnapshot)
+        public SaveHTMLView() : this(AppView.Ex.Archive.SnapshotView)
         {
 
         }
-        public SaveHTMLView(SiteSnapshot snapshot) : base()
+        public SaveHTMLView(SnapshotView snapshot) : base()
         {
-            Snapshot = snapshot;
-            var remainingLinks = snapshot.Links.Where(l => string.IsNullOrEmpty(l.HtmlFilePath));
-            LinksRemaining = new ObservableCollection<IArchLink>(remainingLinks);
-            LinksLoadedCount = snapshot.Links.Length - remainingLinks.Count();
-            Options = new LoadOptions(snapshot.Links.Length);
+            if(snapshot == null || snapshot.Current == null)
+            {
+                throw new ArgumentNullException();
+            }
 
-            StartDateTime = DateTime.Now;
-            Snapshot.LastSaveDate = DateTime.Now;
+            SnapshotView = snapshot;
+            Options = new LoadOptions(Snapshot.Links.Length);
+            Dialog = new FileDialog();
 
-            if (string.IsNullOrEmpty(Snapshot.FilePath))
-                Snapshot.Save(@"D:\Users\Allexx\Documents\Румайн\Проекты\История Румине\ProjectArch 3.0\ПоследниеСсылки.json");
+            ProcessOptions = new LoadHtmlOptions(FolderWrite.FullName)
+            {
+                SavingHtml = true,
+                LoadingName = true
+            };
 
+            InitCollections();
+            InitDates();
+            PreSave();
+
+            void InitCollections()
+            {
+                ActiveRequests = new ObservableCollection<HTMLoader>();
+                SuccessfullRequests = new ObservableCollection<HTMLoader>();
+                ErrorRequests = new ObservableCollection<HTMLoader>();
+                var remainingLinks = Snapshot.Links.Where(l => string.IsNullOrEmpty(l.HtmlFilePath));
+                LinksRemaining = new ObservableCollection<ArchiveLink>(remainingLinks);
+                LinksLoadedCount = Snapshot.Links.Length - remainingLinks.Count();
+            }
+            void InitDates()
+            {
+                PauseState = new PauseState(false);
+                StartDateTime = DateTime.Now;
+            }
+            async void PreSave()
+            {
+                if (!string.IsNullOrEmpty(Snapshot.FilePath))
+                {
+                    snapshot.Save(SaveMode.AllDefaultPath);
+                }
+            }
         }
         protected override void InitCommands()
         {
-            StartDownloadCommand = new RelayCommand(StartDownload, obj => !IsStarted);
-            SaveProgressCommand = new RelayCommand(SaveProgress, obj => IsStarted && !Stopped);
-            StopProgressCommand = new RelayCommand(StopProgress, obj => IsStarted && !Stopped);
+            StartDownloadCommand = new RelayCommand(StartDownload, obj => !IsReady);
+            SaveProgressCommand = new RelayCommand(SaveProgress, obj => IsReady);
+            StopProgressCommand = new RelayCommand(StopProgress, obj => IsReady);
         }
-
-
-        //Откуда и куда
-        public SiteSnapshot Snapshot { get; private set; }
-        public DirectoryInfo FolderWrite => new DirectoryInfo(Snapshot.FolderHtmlSavePath);
-
-
-
 
         //Загрузка и запись файлов
         public ICommand StartDownloadCommand { get; private set; }
+        public ICommand SaveProgressCommand { get; private set; }
+        public ICommand StopProgressCommand { get; private set; }
+
+
+        //Откуда и куда
+        public Snapshot Snapshot => SnapshotView.Current;
+        public SnapshotView SnapshotView { get; private set; }
+        public DirectoryInfo FolderWrite => SnapshotView.FolderHtmlSavePath;
+        private IFileDialog Dialog { get; set; }
+        private HttpClient Client { get; set; }
+
+
+
+
         public bool IsStarted
         {
             get => isStarted;
@@ -67,10 +102,11 @@ namespace WebArchiveViewer
                 OnPropertyChanged(nameof(StartDateTime));
             }
         }
-        private bool isStarted = false;
+        private bool isStarted;
         public DateTime StartDateTime { get; private set; }
         private async void StartDownload(object obj)
         {
+            Client = new HttpClient();
             if (!FolderWrite.Exists)
             {
                 FolderWrite.Create();
@@ -78,15 +114,18 @@ namespace WebArchiveViewer
 
             Task loading = Task.Run(Downloading);
             IsStarted = true;
+            Stopped = false;
             OnPropertyChanged(nameof(IsPauseEnabled));
             await loading;
         }
 
 
+        public bool IsReady => IsStarted && !Stopped;
+
         public TimeSpan FromStart => DateTime.Now - StartDateTime;
 
         //Прогресс загрузки
-        public ObservableCollection<IArchLink> LinksRemaining { get; private set; } = new ObservableCollection<IArchLink>();
+        public ObservableCollection<ArchiveLink> LinksRemaining { get; private set; } = new ObservableCollection<ArchiveLink>();
 
         public int LinksLoadedCount
         {
@@ -99,7 +138,7 @@ namespace WebArchiveViewer
         }
         private int linksLoadedCount;
 
-        public IArchLink LastLink
+        public ArchiveLink LastLink
         {
             get => lastLink;
             private set
@@ -108,25 +147,39 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private IArchLink lastLink;
+        private ArchiveLink lastLink;
 
 
-        public double SpeedLinksPerMinute => LinksLoadedCount / FromStart.TotalMinutes > 0 ? LinksLoadedCount / FromStart.TotalMinutes : 10;
+        public double SpeedLinksPerMinute
+        {
+            get
+            {
+                if(LinksLoadedCount / FromStart.TotalMinutes > 0)
+                {
+                    return LinksLoadedCount / FromStart.TotalMinutes;
+                }
+                else
+                {
+                    return 10;
+                }
+            }
+        }
         public TimeSpan TimeLeft => TimeSpan.FromMinutes(LinksRemaining.Count / SpeedLinksPerMinute);
 
 
         //Настройки загрузки
         public LoadOptions Options { get; private set; }
+        public LoadHtmlOptions ProcessOptions { get; private set; }
 
         //Состояние паузы
-        public bool IsPauseEnabled => IsStarted && !Stopped;
-        public PauseState PauseState { get; private set; } = new PauseState(true);
+        public bool IsPauseEnabled => IsReady;
+        public PauseState PauseState { get; private set; }
 
 
-
-        public ObservableCollection<HTMLoader> ActiveRequests { get; private set; } = new ObservableCollection<HTMLoader>();
-        public ObservableCollection<HTMLoader> SuccessfullRequests { get; private set; } = new ObservableCollection<HTMLoader>();
-        public ObservableCollection<HTMLoader> ErrorRequests { get; private set; } = new ObservableCollection<HTMLoader>();
+        //Процесс загрузки
+        public ObservableCollection<HTMLoader> ActiveRequests { get; private set; }
+        public ObservableCollection<HTMLoader> SuccessfullRequests { get; private set; }
+        public ObservableCollection<HTMLoader> ErrorRequests { get; private set; }
         private void Downloading()
         {
             var links = LinksRemaining.ToArray();
@@ -136,9 +189,9 @@ namespace WebArchiveViewer
                 bool noRequestLimit = ActiveRequests.Count <= Options.MaxRequestsSimultaneosly;
                 if (PauseState.IsPlayed && noRequestLimit)
                 {
-                    IArchLink link = links[i];
+                    ArchiveLink link = links[i];
 
-                    Task.Run(() => LoadLinkAsync(link));
+                    Task.Run(() => ProcessLinkAsync(link));
 
                     i++;
 
@@ -151,16 +204,23 @@ namespace WebArchiveViewer
                 UpdateSpeed();
             }
             StopProgress(null);
+
+            void UpdateSpeed()
+            {
+                if (PauseState.IsPlayed && !Stopped)
+                {
+                    OnPropertyChanged(nameof(FromStart));
+                    OnPropertyChanged(nameof(SpeedLinksPerMinute));
+                    OnPropertyChanged(nameof(TimeLeft));
+                }
+            }
         }
-        private async void LoadLinkAsync(IArchLink link)
+        private async void ProcessLinkAsync(ArchiveLink link)
         {
-            var options = new LoadHtmlOptions(FolderWrite.FullName) { SavingHtml = true, LoadingName = true };
-            var loader = new ClientHTMLoader(link, options);
+            var loader = new HttpClientHTMLoader(Client, link, ProcessOptions);
             ExeInDispatcher(() => ActiveRequests.Add(loader));;
 
-            bool loadSuccessfull = await loader.LoadHtml();
-            LoadState state = loader.State;
-
+            bool loadSuccessfull = await loader.LoadHtmlAsync();
 
             ExeInDispatcher(() => ActiveRequests.Remove(loader));
             if (loadSuccessfull)
@@ -182,26 +242,23 @@ namespace WebArchiveViewer
                 Application.Current.Dispatcher.BeginInvoke(action);
             }
         }
-        private void UpdateSpeed()
+
+
+
+        //Сохранение
+        private async void SaveProgress(object obj)
         {
-            if (PauseState.IsPlayed && !Stopped)
-            {
-                OnPropertyChanged(nameof(FromStart));
-                OnPropertyChanged(nameof(SpeedLinksPerMinute));
-                OnPropertyChanged(nameof(TimeLeft));
-            }
+            SnapshotView.Save(SaveMode.AllDefaultPath);
         }
 
-        public ICommand SaveProgressCommand { get; private set; }
-        private void SaveProgress(object obj)
-        {
-            Snapshot.Save();
-        }
 
         private bool Stopped { get; set; }
-        public ICommand StopProgressCommand { get; private set; }
         private void StopProgress(object obj)
         {
+            if(Client != null)
+            {
+                Client.Dispose();
+            }
             PauseState.IsPaused = true;
             Stopped = true;
             SaveProgress(null);
@@ -209,69 +266,7 @@ namespace WebArchiveViewer
         }
     }
 
-    //Настройки загрузки
-    public class LoadOptions : NotifyObj
-    {
-        public override string ToString() => $"Настройки загрузки: {LatencyMs}мс, {MaxRequestsSimultaneosly} макс, {SavingLatencyLinks} сохр";
-
-        public int LatencyMs
-        {
-            get => latencyMs;
-            set
-            {
-                latencyMs = value;
-                OnPropertyChanged();
-            }
-        }
-        private int latencyMs = 1500;
-        public int MaxRequestsSimultaneosly { get; set; } = 5;
-        public int SavingLatencyLinks { get; set; } = 10;
-        private int GetSavingLatency(int count)
-        {
-            int latency = count / 10;
-            int min = 10;
-            if (latency < min)
-                latency = min;
-            return latency;
-        }
-
-        public LoadOptions() : this(500) { }
-        public LoadOptions(int amount)
-        {
-            SavingLatencyLinks = GetSavingLatency(amount);
-        }
-
-    }
 
 
-    public class PauseState : NotifyObj
-    {
-        public override string ToString() => $"Пауза: {(IsPaused ? "активна" : "выключена")}";
 
-        public bool IsPaused
-        {
-            get => isPaused;
-            set
-            {
-                isPaused = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsPlayed));
-            }
-        }
-        private bool isPaused;
-        public bool IsPlayed
-        {
-            get => !isPaused;
-            set
-            {
-                IsPaused = !value;
-                OnPropertyChanged();
-            }
-        }
-
-        public PauseState(bool paused)
-        {
-            IsPaused = paused;
-        }
-    }
 }

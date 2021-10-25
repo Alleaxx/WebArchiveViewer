@@ -16,7 +16,7 @@ namespace WebArchiveViewer
 
         //Для снапшота
         [JsonIgnore]
-        public SiteSnapshot Snapshot { get; private set; }
+        public Snapshot Snapshot { get; private set; }
 
         //Настройки
         public string Search
@@ -44,57 +44,58 @@ namespace WebArchiveViewer
 
         private bool Filter(object obj)
         {
-            IArchLink link = obj as IArchLink;
-            var dates = DateRange;
-            if (link.Date < dates.From || link.Date > dates.To)
+            ArchiveLink link = obj as ArchiveLink;
+            if (link.Date < DateRange.From || link.Date > DateRange.To)
+            {
                 return false;
-
+            }
             if (!FilterTypes(link))
+            {
                 return false;
+            }
             if (!FilterLoaded(link))
+            {
                 return false;
+            }
             if (!FilterSearch(link))
+            {
                 return false;
+            }
             return true;
         }
-        private bool FilterSearch(IArchLink link)
+        private bool FilterSearch(ArchiveLink link)
         {
             bool linkSearchNotFound = !string.IsNullOrEmpty(Search) && !link.LinkSource.Contains(Search);
             bool nameSearchNotFound = !string.IsNullOrEmpty(Search) && !link.Name.Contains(Search);
-            if (linkSearchNotFound && nameSearchNotFound)
-                return false;
 
-            return true;
+            return (linkSearchNotFound && nameSearchNotFound) ? false : true;
         }
-        private bool FilterTypes(IArchLink link)
+        private bool FilterTypes(ArchiveLink link)
         {
             var code = Codes.Where(c => c.Code == link.StatusCode).First();
             var type = Types.Where(c => c.Type == link.MimeType).First();
             var cate = CategoriesDictionary[link.Category];
 
-            if (!code.Enabled)
-                return false;
-            if (!type.Enabled)
-                return false;
-            if (!cate.Enabled)
-                return false;
-
-            return true;
+            return code.Enabled && type.Enabled && cate.Enabled;
         }
-        private bool FilterLoaded(IArchLink link)
+        private bool FilterLoaded(ArchiveLink link)
         {
             bool onlyLoaded = ShowOnlyLoaded.HasValue && ShowOnlyLoaded.Value;
             bool onlyUnloaded = ShowOnlyLoaded.HasValue && !ShowOnlyLoaded.Value;
             bool loaded = !string.IsNullOrEmpty(link.HtmlFilePath);
             bool unloaded = !loaded;
             if ((onlyUnloaded && loaded) || (onlyLoaded && unloaded))
+            {
                 return false;
-
+            }
             return true;
         }
 
 
-        public IEnumerable<ArchiveLink> GetFilteredLinks() => GetFilteredLinks(SaveMode.AllFiltered);
+        public IEnumerable<ArchiveLink> GetFilteredLinks()
+        {
+            return GetFilteredLinks(SaveMode.AllFiltered);
+        }
         public IEnumerable<ArchiveLink> GetFilteredLinks(SaveMode mode)
         {
             var links = Snapshot.Links;
@@ -126,11 +127,15 @@ namespace WebArchiveViewer
 
 
 
-        public ViewOptions()
+        public ViewOptions(Snapshot snap = null)
         {
             ListView = new ListViewOptions();
             ListView.OnUpdated += Update;
             PropertyChanged += ViewOptions_PropertyChanged;
+            if(snap != null)
+            {
+                SetSnapshot(snap);
+            }
         }
         private bool UpdateBlock { get; set; }
         private void ViewOptions_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -139,11 +144,6 @@ namespace WebArchiveViewer
             {
                 Update();
             }
-        }
-
-        public ViewOptions(SiteSnapshot snap) : this()
-        {
-            SetSnapshot(snap);
         }
 
 
@@ -166,7 +166,7 @@ namespace WebArchiveViewer
         }
 
 
-        public void SetSnapshot(SiteSnapshot snap)
+        public void SetSnapshot(Snapshot snap)
         {
             if(snap.Links.Count() > 0)
             {
@@ -176,7 +176,7 @@ namespace WebArchiveViewer
                 LoadCategories(snap);
             }
         }
-        private void LoadDates(SiteSnapshot snap)
+        private void LoadDates(Snapshot snap)
         {
             var orderedDate = snap.Links.OrderBy(l => l.Date);
             DateTime minDate = orderedDate.First().Date;
@@ -185,11 +185,11 @@ namespace WebArchiveViewer
             DateRange = new DateRange(minDate, minDate, maxDate, maxDate);
             DateRange.PropertyChanged += Dates_Updated;
         }
-        private void LoadCodesTypes(SiteSnapshot snap)
+        private void LoadCodesTypes(Snapshot snap)
         {
             List<string> codes = new List<string>();
             List<string> types = new List<string>();
-            foreach (IArchLink link in snap.Links)
+            foreach (ArchiveLink link in snap.Links)
             {
                 string code = link.StatusCode;
                 string type = link.MimeType;
@@ -204,7 +204,7 @@ namespace WebArchiveViewer
             OnPropertyChanged(nameof(Codes));
             OnPropertyChanged(nameof(Types));
         }
-        public void LoadCategories(SiteSnapshot snap)
+        public void LoadCategories(Snapshot snap)
         {
             var res = snap.GetCategories();
             Categories = res.Collection.OfType<Category>().ToArray();

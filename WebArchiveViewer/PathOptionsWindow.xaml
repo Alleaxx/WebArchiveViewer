@@ -1,0 +1,54 @@
+﻿<Window x:Class="WebArchiveViewer.PathOptionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WebArchiveViewer"
+        
+        d:DataContext="{d:DesignInstance {x:Type local:SnapshotView}}"
+        mc:Ignorable="d"
+        Title="Настройки сохранения" Height="350" Width="400">
+
+    <StackPanel>
+        <TextBlock FontSize="20" Text="Настройки сайта" />
+        <DockPanel>
+            <TextBlock Text="Источник:" />
+            <TextBlock Text="{Binding Current.SourceURI}" HorizontalAlignment="Right"/>
+        </DockPanel>
+        <DockPanel>
+            <TextBlock Text="Получено в:" />
+            <TextBlock Text="{Binding Current.ReceivingDate}" HorizontalAlignment="Right"/>
+        </DockPanel>
+        <DockPanel>
+            <TextBlock Text="Последнее сохранение:" />
+            <TextBlock Text="{Binding LastSaveDate}" HorizontalAlignment="Right"/>
+        </DockPanel>
+        <DockPanel>
+            <TextBlock  Margin="0,5"  Grid.Column="0" Grid.Row="0" Text="Путь к файлу списка:" />
+            <DockPanel HorizontalAlignment="Right">
+                <Button Grid.Column="2" Grid.Row="0" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding File.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                    <TextBlock TextWrapping="Wrap" Text="Открыть" FontSize="12"/>
+                </Button>
+                <Button Grid.Column="3" Grid.Row="0" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding File.Directory.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                    <TextBlock TextWrapping="Wrap" Text="Папка" FontSize="12"/>
+                </Button>
+            </DockPanel>
+        </DockPanel>
+
+        <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" Command="{Binding SaveSnapFileCommand}" CommandParameter="All" Padding="5,2" Style="{StaticResource ActionButton}" HorizontalContentAlignment="Left" BorderThickness="0,0,0,0">
+            <TextBlock TextWrapping="Wrap" Text="{Binding File.FullName}" FontSize="9" />
+        </Button>
+        <DockPanel>
+            <TextBlock Margin="0,5" Grid.Column="0" Grid.Row="2" Text="Сохраняемый HTML:" />
+
+            <DockPanel HorizontalAlignment="Right">
+                <Button Grid.Column="2" Grid.Row="2" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding FolderHtmlSavePath.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                    <TextBlock TextWrapping="Wrap" Text="Открыть" FontSize="12"/>
+                </Button>
+            </DockPanel>
+        </DockPanel>
+        <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="4" Command="{Binding SelectSaveFolderCommand}" CommandParameter="{Binding Current.FilePath}" Padding="5,2" Style="{StaticResource ActionButton}" HorizontalContentAlignment="Left" BorderThickness="0,0,0,0">
+            <TextBlock TextWrapping="Wrap" Text="{Binding FolderHtmlSavePath.FullName}" FontSize="9" />
+        </Button>
+    </StackPanel>
+</Window>

@@ -40,10 +40,10 @@ namespace WebArchiveTests
             bool executeAvailable = command.CanExecute(null);
             Assert.AreEqual(true, executeAvailable, "Команда загрузки ссылок недоступна");
 
-            SiteSnapshot snapshot = await receiving.UploadLinks(null);
+            Snapshot snapshot = await receiving.UploadLinks(null);
             Assert.AreEqual(59, snapshot.Links.Length, "Возвращено неверное количество ссылок");
-            Assert.AreEqual(2, snapshot.ViewOptions.Codes.Length, "Возвращено неверное количество кодов ответа");
-            Assert.AreEqual(1, snapshot.ViewOptions.Types.Length, "Возвращено неверное количество mime-типов");
+            //Assert.AreEqual(2, snapshot.ViewOptions.Codes.Length, "Возвращено неверное количество кодов ответа");
+            //Assert.AreEqual(1, snapshot.ViewOptions.Types.Length, "Возвращено неверное количество mime-типов");
         }
 
         //Загрузить снапшот с помощью параметризованного конструктора запросов веб-архива
@@ -61,10 +61,10 @@ namespace WebArchiveTests
             bool executeAvailable = command.CanExecute(null);
             Assert.AreEqual(true, executeAvailable, "Команда загрузки ссылок недоступна");
 
-            SiteSnapshot snapshot = await receiving.UploadLinks(null);
+            Snapshot snapshot = await receiving.UploadLinks(null);
             Assert.AreEqual(100, snapshot.Links.Length, "Возвращено неверное количество ссылок");
-            Assert.AreEqual(2, snapshot.ViewOptions.Codes.Length, "Возвращено неверное количество кодов ответа");
-            Assert.AreEqual(1, snapshot.ViewOptions.Types.Length, "Возвращено неверное количество mime-типов");
+            //Assert.AreEqual(2, snapshot.ViewOptions.Codes.Length, "Возвращено неверное количество кодов ответа");
+            //Assert.AreEqual(1, snapshot.ViewOptions.Types.Length, "Возвращено неверное количество mime-типов");
 
             var rules = snapshot.RulesControl;
             Assert.AreEqual(true, rules != null && rules.Rule == null, "Нет правил формирования категорий");
@@ -84,7 +84,7 @@ namespace WebArchiveTests
             bool executeAvailable = command.CanExecute(null);
             Assert.AreEqual(true, executeAvailable, "Команда загрузки ссылок недоступна");
 
-            SiteSnapshot snapshot = await receiving.UploadLinks(null);
+            Snapshot snapshot = await receiving.UploadLinks(null);
             Assert.AreEqual(0, snapshot.Links.Length, "В пустом снапшоте из архива не 0 ссылок");
             Assert.AreEqual(receiving.SetSnapshotCommand.CanExecute(null), false, "Можно просмотреть пустой возвращенный снапшот");
         }

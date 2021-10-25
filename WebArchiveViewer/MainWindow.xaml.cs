@@ -42,8 +42,16 @@ namespace WebArchiveViewer
         private void Window_Closed(object sender, EventArgs e)
         {
             var closeCommand = View.CloseSnapCommand;
-            if(closeCommand.CanExecute(null))
+            if (closeCommand.CanExecute(null))
+            {
                 closeCommand?.Execute(null);
+            }
+        }
+
+        private void AboutMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            AboutWindow window = new AboutWindow();
+            window.ShowDialog();
         }
     }
 }

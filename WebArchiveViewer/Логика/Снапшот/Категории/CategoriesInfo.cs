@@ -8,8 +8,8 @@ namespace WebArchiveViewer
 {
     public class CategoriesInfo
     {
-        public IEnumerable<ICategory> Collection { get; private set; }
-        public Dictionary<string, ICategory> Dictionary { get; private set; }
+        public readonly IEnumerable<ICategory> Collection;
+        public readonly Dictionary<string, ICategory> Dictionary;
 
         public CategoriesInfo(IEnumerable<ICategory> cates, Dictionary<string, ICategory> dict)
         {

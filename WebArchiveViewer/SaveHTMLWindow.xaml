@@ -4,15 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
-        xmlns:Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2" x:Class="WebArchiveViewer.SaveHTMLWindow"
+        x:Class="WebArchiveViewer.SaveHTMLWindow"
+        d:DataContext="{d:DesignInstance {x:Type local:SaveHTMLView}}"
         mc:Ignorable="d"
+        Icon="Resources/Веб-архив.png"
         Title="{Binding Snapshot.SourceURI}" Height="750" Width="550" MaxWidth="550" Closing="Window_Closing">
     <Window.Resources>
         <local:MathRoundConverter x:Key="MathRound" />
     </Window.Resources>
-    <Window.DataContext>
-        <local:SaveHTMLView />
-    </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -38,8 +37,8 @@
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Папка:" Style="{StaticResource PropertyName}" />
                     <DockPanel>
-                        <TextBlock Text="{Binding Snapshot.FolderHtmlSavePath}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
-                        <Button Command="{Binding Snapshot.SelectSaveFolderCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding SnapshotView.FolderHtmlSavePath}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
+                        <Button Command="{Binding SnapshotView.SelectSaveFolderCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                             <TextBlock Text="Изменить" />
                         </Button>
                     </DockPanel>
@@ -47,10 +46,10 @@
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Что загружать:" Style="{StaticResource PropertyName}" />
                     <DockPanel VerticalAlignment="Center">
-                        <CheckBox IsChecked="True">
+                        <CheckBox IsChecked="{Binding ProcessOptions.LoadingName}">
                             <TextBlock Text="Имена страниц" />
                         </CheckBox>
-                        <CheckBox IsChecked="True" Margin="5,0">
+                        <CheckBox IsChecked="{Binding ProcessOptions.SavingHtml}" Margin="5,0">
                             <TextBlock Text="HTML" />
                         </CheckBox>
                     </DockPanel>
@@ -58,7 +57,7 @@
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Прогресс:" Style="{StaticResource PropertyName}" />
                     <DockPanel>
-                        <Button Command="{Binding Snapshot.ClearProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
+                        <Button Command="{Binding SnapshotView.ClearProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                             <TextBlock Text="Очистить прогресс загрузки" />
                         </Button>
                     </DockPanel>
@@ -198,7 +197,7 @@
             </Expander.Header>
             <TabControl Grid.Row="3" Margin="25,-3,0,0">
                 <TabControl.Resources>
-                    <DataTemplate x:Key="Request" DataType="{x:Type local:ClientHTMLoader}">
+                    <DataTemplate x:Key="Request" DataType="{x:Type local:HttpClientHTMLoader}">
                         <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="WhiteSmoke">
                             <Grid>
                                 <Grid.ColumnDefinitions>

@@ -22,7 +22,10 @@ namespace WebArchiveViewer
     }
     public class Category : Option, ICategory
     {
-        public override string ToString() => $"Категория {Name}: {ItemsAmount} | {ItemsInner} | {ItemsTotal}";
+        public override string ToString()
+        {
+            return $"Категория {Name}: {ItemsAmount} | {ItemsInner} | {ItemsTotal}";
+        }
 
         public string Name { get; private set; }
 
@@ -32,7 +35,7 @@ namespace WebArchiveViewer
             set
             {
                 base.Enabled = value;
-                foreach (var cate in InnerCates)
+                foreach (ICategory cate in InnerCates)
                 {
                     cate.Enabled = value;
                 }
@@ -78,19 +81,21 @@ namespace WebArchiveViewer
             InnerCates = rule.Rules.Select(r => new Category(r)).ToArray();
         }
 
+
         public ICategory FindCategory(string name)
         {
-            var cate = InnerCates.Where(c => c.Name == name).FirstOrDefault();
-            if (cate == null)
+            foreach (ICategory cateInner in InnerCates)
             {
-                foreach (var cateInner in InnerCates)
+                if (cateInner.Name.Equals(name))
                 {
-                    var res = cateInner.FindCategory(name);
-                    if (res != null)
-                        return res;
+                    return cateInner;
+                }
+                if (cateInner.FindCategory(name) is ICategory found)
+                {
+                    return found;
                 }
             }
-            return cate;
+            return null;
         }
         public void RemoveNullInnerCates()
         {
@@ -105,7 +110,7 @@ namespace WebArchiveViewer
         public IEnumerable<ICategory> GetAllInnerCates()
         {
             List<ICategory> cates = new List<ICategory>();
-            foreach (var cate in InnerCates)
+            foreach (ICategory cate in InnerCates)
             {
                 var inner = cate.GetAllInnerCates();
                 cates.Add(cate);
@@ -124,10 +129,12 @@ namespace WebArchiveViewer
             }
 
             Dictionary<string, ICategory> dictinary = new Dictionary<string, ICategory>();
-            foreach (var rule in categories)
+            foreach (ICategory cate in categories)
             {
-                if (!dictinary.ContainsKey(rule.Name))
-                    dictinary.Add(rule.Name, rule);
+                if (!dictinary.ContainsKey(cate.Name))
+                {
+                    dictinary.Add(cate.Name, cate);
+                }
             }
             return dictinary;
         }

@@ -12,10 +12,17 @@ namespace WebArchiveViewer
     public enum LoadState { Waiting, Loading, Success, WebFail, FileFail }
     public abstract class HTMLoader
     {
-        public override string ToString() => $"Загрузчик HTML: {State} - {Link.Link}";
+        public override string ToString()
+        {
+            return $"Загрузчик HTML: {State} - {Link.Link}";
+        }
 
-        public IArchLink Link { get; private set; }
+        //Опции загрузки
+        public ArchiveLink Link { get; private set; }
+        public LoadHtmlOptions Options { get; private set; }
 
+
+        //Состояние загрузки
         public string Status { get; private set; }
         public LoadState State { get; private set; }
         protected void SetState(string status, LoadState state)
@@ -25,16 +32,25 @@ namespace WebArchiveViewer
         }
 
 
-        public LoadHtmlOptions Options { get; private set; }
-
-
-        public HTMLoader(IArchLink link, LoadHtmlOptions options)
+        public HTMLoader(ArchiveLink link, LoadHtmlOptions options)
         {
             Link = link;
             Options = options;
         }
-        public abstract Task<bool> LoadHtml();
-        protected static string GetSaveFileName(IArchLink link)
+
+        //Метод загрузки
+        protected virtual bool LoadHtml()
+        {
+            return false;
+        }
+        public virtual async Task<bool> LoadHtmlAsync()
+        {
+            return await Task.Run(() => LoadHtml());
+        }
+
+
+        //Формирование имени сохраняемого файла
+        protected static string GetSaveFileName(ArchiveLink link)
         {
             bool noName = link.Name == ArchiveLink.DefaultName;
             string withNameText = $"{link.TimeStamp} - {link.Index} - {link.Name}";
@@ -49,15 +65,5 @@ namespace WebArchiveViewer
             return nameText.ToString();
         }
     }
-    public class LoadHtmlOptions
-    {
-        public bool LoadingName { get; set; } = true;
-        public bool SavingHtml { get; set; } = true;
-        public string FolderPath { get; set; }
 
-        public LoadHtmlOptions(string folder)
-        {
-            FolderPath = folder;
-        }
-    }
 }

@@ -11,7 +11,11 @@ namespace WebArchiveViewer
 
     public class ArchiveSnapLoader : SnapLoader
     {
-        public override string ToString() => $"Архивный загрузчик снапшота - {RequestArchiveCreator.Site.Value}";
+        public override string ToString()
+        {
+            return $"Архивный загрузчик снапшота - {RequestArchiveCreator.Site.Value}";
+        }
+
         public ArchiveSnapLoader() : this(null)
         {
 
@@ -51,7 +55,7 @@ namespace WebArchiveViewer
         //Процесс получения ссылки
         private bool IsUploadingAvailable(object obj) => (!string.IsNullOrEmpty(RequestCreator.GetRequest())) && !Uploading.InProgress;
         public ICommand UploadLinksCommand { get; private set; }
-        public async Task<SiteSnapshot> UploadLinks(object obj)
+        public async Task<Snapshot> UploadLinks(object obj)
         {
             Uploading.SetStatus("Загрузка данных с сервера...", 3);
             try
@@ -81,7 +85,7 @@ namespace WebArchiveViewer
 
 
         //Создание снапшота из полученных данных
-        private SiteSnapshot CreateSnapshotFromJson(string json)
+        private Snapshot CreateSnapshotFromJson(string json)
         {
             List<List<string>> jsonArr = Newtonsoft.Json.JsonConvert.DeserializeObject<List<List<string>>>(json);
 
@@ -91,7 +95,7 @@ namespace WebArchiveViewer
             }).ToArray();
 
             string source = RequestArchiveCreator.Site.Value;
-            SiteSnapshot newSnap = new SiteSnapshot(RequestString, source, allLinks);
+            Snapshot newSnap = new Snapshot(RequestString, source, allLinks);
             return newSnap;
         }
         private ArchiveLink CreateLinkFromJsonString(int counter, List<string> stringList)

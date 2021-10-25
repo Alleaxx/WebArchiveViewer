@@ -17,11 +17,15 @@ namespace WebArchiveViewer
     //Представление просмотра ссылок с архива
     public class ArchiveView : NotifyObj
     {
-        public override string ToString() => $"Просмотр снапшота - {CurrentSnapshot}";
+        public override string ToString()
+        {
+            return $"Просмотр снапшота - {CurrentSnapshot}";
+        }
 
         //Инициализация
         public ArchiveView()
         {
+            ClearSnapshot();
             Receiver = new SnapshotReceiver(this);
         }
         protected override void InitCommands()
@@ -30,38 +34,50 @@ namespace WebArchiveViewer
             CloseSnapCommand = new RelayCommand(CloseSnapshot, IsSnapshotOpened);
         }
 
-
         //Снапшот и его получение
         public SnapshotReceiver Receiver { get; private set; }
-        public SiteSnapshot CurrentSnapshot
-        {
-            get => currentSnapshot;
-            set
-            {
-                var oldValue = currentSnapshot;
-                currentSnapshot = value;
-                OnPropertyChanged();
 
-                if (value != null)
-                {
-                    var options = value.ViewOptions;
-                    options.OnUpdated += UpdateList;
-                    UpdateList();
-                }
-                if (oldValue != null && oldValue.ViewOptions != null)
-                {
-                    oldValue.ViewOptions.OnUpdated -= UpdateList;
-                }
+        public SnapshotView SnapshotView
+        {
+            get => snapshotView;
+            private set
+            {
+                snapshotView = value;
+                OnPropertyChanged();
             }
         }
-        private SiteSnapshot currentSnapshot;
-        private bool IsSnapshotOpened(object obj) => CurrentSnapshot != null;
-        
-        //Закрытие
+        private SnapshotView snapshotView;
+
+
+        private Snapshot CurrentSnapshot => SnapshotView.Current;
+        public void SetSnapshot(Snapshot value)
+        {
+            if(snapshotView != null)
+            {
+                snapshotView.ViewOptions.OnUpdated -= UpdateList;
+            }
+
+            SnapshotView = new SnapshotView(value);
+            if (value != null)
+            {
+                SnapshotView.ViewOptions.OnUpdated += UpdateList;
+                UpdateList();
+            }
+        }
+        public void ClearSnapshot()
+        {
+            SetSnapshot(null);
+        }
+
+        private bool IsSnapshotOpened(object obj)
+        {
+            return CurrentSnapshot != null;
+        }
         public ICommand CloseSnapCommand { get; private set; }
+
         private void CloseSnapshot(object obj)
         {
-            CurrentSnapshot = null;
+            ClearSnapshot();
             LinksPager = null;
         }
 
@@ -79,9 +95,9 @@ namespace WebArchiveViewer
         private IPager<ArchiveLink> linksPager;
         public void UpdateList()
         {
-            if(currentSnapshot != null)
+            if(SnapshotView.Current != null)
             {
-                var options = CurrentSnapshot.ViewOptions;
+                var options = SnapshotView.ViewOptions;
                 var filteredLinks = options.GetFilteredLinks();
                 filteredLinks = options.ListView.SortLinks(filteredLinks);
                 options.LinksFilteredAmount = filteredLinks.Count();
@@ -90,4 +106,5 @@ namespace WebArchiveViewer
             }
         }
     }
+
 }

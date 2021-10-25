@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance {x:Type local:ArchiveSnapLoader }}"
+        Icon="Resources/Веб-архив.png"
         Title="Загрузка с веб-архива" Height="700" Width="450">
     <Window.Resources>
         <local:DateTextConverter x:Key="DateConverter" />

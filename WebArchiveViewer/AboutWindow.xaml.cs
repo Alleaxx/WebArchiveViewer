@@ -14,22 +14,19 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    public partial class RulesWindow : Window
+    /// <summary>
+    /// Логика взаимодействия для AboutWindow.xaml
+    /// </summary>
+    public partial class AboutWindow : Window
     {
-        public RulesWindow(RulesView view)
+        public AboutWindow()
         {
             InitializeComponent();
-            DataContext = view;
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void TextBlock_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            var snap = AppView.Ex.Archive.SnapshotView;
-            snap.UpdateCategories(null);
-            //ICommand command = snap.UpdateCategoriesCommand;
-
-            //if(command.CanExecute(null))
-            //    command.Execute(null);
+            System.Diagnostics.Process.Start("https://github.com/Alleaxx/WebArchiveViewer");
         }
     }
 }

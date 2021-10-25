@@ -14,10 +14,14 @@ namespace WebArchiveViewer
     //Стандартные правила Румайновских ссылок
     public class RumineRules : IRules
     {
-        public override string ToString() => $"Румайнерские правила ссылок";
+        public override string ToString()
+        {
+            return $"Румайнерские правила ссылок";
+        }
+
         public IEnumerable<GroupRule> GetRules()
         {
-            var rumineRule =
+            GroupRule rumineRule =
                 new GroupRule("Румине", "ru-minecraft.ru",
                     new GroupRule("Главная страница", "/index.php"),
                     new GroupRule("Главная страница 2.0", "/main"),

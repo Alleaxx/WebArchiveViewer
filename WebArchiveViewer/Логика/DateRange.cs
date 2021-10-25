@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
-    [Serializable]
     public class DateRange : NotifyObj
     {
         public DateTime From
@@ -42,19 +41,13 @@ namespace WebArchiveViewer
         public double DifferenceFrom
         {
             get => (From - Min).TotalHours;
-            set
-            {
-                From = Min.AddHours(value);
-            }
+            set => From = Min.AddHours(value);
         }
         [JsonIgnore]
         public double DifferenceTo
         {
             get => (To - Min).TotalHours;
-            set
-            {
-                To = Min.AddHours(value);
-            }
+            set => To = Min.AddHours(value);
         }
 
 

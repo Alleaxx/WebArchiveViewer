@@ -7,12 +7,15 @@ using System.Windows.Input;
 
 namespace WebArchiveViewer
 {
-
+    //Получатель снапшота
     public class SnapshotReceiver : NotifyObj
     {
-        public override string ToString() => "Импортер снапшотов";
+        public override string ToString()
+        {
+            return "Импортер снапшотов";
+        }
 
-        private ArchiveView SnapshotView { get; set; }
+        private readonly ArchiveView ArchiveView;
 
         public ArchiveSnapLoader ArchiveLoader { get; private set; }
         public FileSnapLoader FileLoader { get; private set; }
@@ -20,61 +23,17 @@ namespace WebArchiveViewer
         public SnapshotReceiver() : this(null) { }
         public SnapshotReceiver(ArchiveView view)
         {
-            SnapshotView = view;
+            ArchiveView = view;
             ArchiveLoader = new ArchiveSnapLoader(this);
             FileLoader = new FileSnapLoader(this);
         }
 
-        public void ReceiveSnapshot(SiteSnapshot snapshot)
+        public void ReceiveSnapshot(Snapshot snapshot)
         {
-            if (SnapshotView != null)
+            if(ArchiveView != null)
             {
-                SnapshotView.CurrentSnapshot = snapshot;
+                ArchiveView.SetSnapshot(snapshot);
             }
         }
     }
-
-
-
-    public abstract class SnapLoader : NotifyObj
-    {
-        public override string ToString() => "Загрузчик снапшота";
-
-        private SnapshotReceiver Receiver { get; set; }
-        public SiteSnapshot Snapshot
-        {
-            get => snapshot;
-            protected set
-            {
-                snapshot = value;
-                OnPropertyChanged();
-            }
-        }
-        private SiteSnapshot snapshot;
-        protected IFileDialog FileDialog { get; set; }
-
-
-        protected SnapLoader(SnapshotReceiver receiver)
-        {
-            Receiver = receiver;
-            FileDialog = new FileDialog();
-        }
-        protected override void InitCommands()
-        {
-            base.InitCommands();
-            LoadCommand = new RelayCommand(obj => LoadSnapshot(), RelayCommand.IsTrue);
-        }
-
-
-        public ICommand LoadCommand { get; private set; }
-        protected abstract void LoadSnapshot();
-        protected void SendSnapshot()
-        {
-            if(Receiver != null)
-            {
-                Receiver.ReceiveSnapshot(Snapshot);
-            }
-        }
-    }
-
 }

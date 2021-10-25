@@ -24,7 +24,10 @@ namespace WebArchiveViewer
 
     public class FileDialog : IFileDialog
     {
-        public override string ToString() => $"Файловый диалог: {Extension ?? "без четкого расширения"}";
+        public override string ToString()
+        {
+            return $"Файловый диалог: {Extension ?? "без четкого расширения"}";
+        }
 
         private string DefaultDirectory { get; set; }
         private string Extension { get; set; }
@@ -107,13 +110,9 @@ namespace WebArchiveViewer
 
         public bool SaveFile<T>(string path, T obj)
         {
-            string json = JsonConvert.SerializeObject(obj, Formatting.Indented);
-            using (FileStream fs = new FileStream(path, FileMode.Create))
-            {
-                byte[] arr = Encoding.Default.GetBytes(json);
-                fs.Write(arr, 0, arr.Length);
-                return true;
-            }
+            string json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings() { Formatting = Formatting.Indented  });
+            File.WriteAllText(path, json, Encoding.GetEncoding("windows-1251"));
+            return true;
         }
     }
 }

@@ -88,43 +88,4 @@ namespace WebArchiveViewer
                 return links;
         }
     }
-
-
-    public interface ISorting
-    {
-        string Name { get; }
-        Func<IArchLink, string> KeySelector { get; }
-    }
-    class Sorting : ISorting
-    {
-        public string Name { get; private set; }
-        public Func<IArchLink, string> KeySelector { get; private set; }
-
-
-        public Sorting(string name, Func<IArchLink, string> func, bool enabled)
-        {
-            Name = name;
-            KeySelector = func;
-
-        }
-    }
-
-    public interface IGrouping
-    {
-        string Name { get; }
-        string Key { get; }
-    }
-    class Grouping : IGrouping
-    {
-        public string Name { get; private set; }
-        public string Key { get; private set; }
-
-        public Grouping(string name, string key, bool enabled)
-        {
-            Name = name;
-            Key = key;
-        }
-    }
-
-
 }

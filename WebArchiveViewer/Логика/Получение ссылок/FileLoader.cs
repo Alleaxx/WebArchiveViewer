@@ -9,7 +9,11 @@ namespace WebArchiveViewer
 
     public class FileSnapLoader : SnapLoader
     {
-        public override string ToString() => "Файловый загрузчик снапшота";
+        public override string ToString()
+        {
+            return "Файловый загрузчик снапшота";
+        }
+
         public FileSnapLoader(SnapshotReceiver receiver) : base(receiver)
         {
 
@@ -25,11 +29,10 @@ namespace WebArchiveViewer
                 SendSnapshot();
             }
         }
-        public void OpenFrom(string path)
+        private void OpenFrom(string path)
         {
-            Snapshot = FileDialog.OpenReadJson<SiteSnapshot>(path);
+            Snapshot = FileDialog.OpenReadJson<Snapshot>(path);
             Snapshot.FilePath = path;
-            Snapshot.ViewOptions.SetSnapshot(Snapshot);
         }
     }
 }

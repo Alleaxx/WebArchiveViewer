@@ -11,12 +11,16 @@ namespace WebArchiveViewer
 {
     public class GroupRule
     {
-        public override string ToString() => $"[{Rules.Count}] Правило '{GroupName}': {FoundText}";
+        public override string ToString()
+        {
+            return $"[{Rules.Count}] Правило '{GroupName}': {FoundText}";
+        }
 
+        //Имя правила и соответствующий паттерн
         public string GroupName { get; set; }
         public string FoundText { get; set; }
 
-        public ObservableCollection<GroupRule> Rules { get; set; }
+        public ObservableCollection<GroupRule> Rules { get; private set; }
 
         public GroupRule() : this("-","-")
         {
@@ -27,17 +31,9 @@ namespace WebArchiveViewer
             GroupName = name;
             FoundText = text;
             Rules = new ObservableCollection<GroupRule>(rules);
-
-            AddRuleCommand = new RelayCommand(AddRule);
         }
 
 
-        [JsonIgnore]
-        public ICommand AddRuleCommand { get; private set; }
-        private void AddRule(object obj)
-        {
-            Rules.Insert(0, new GroupRule());
-        }
         public void AddRules(params GroupRule[] rules)
         {
             foreach (var rule in rules)
@@ -45,9 +41,15 @@ namespace WebArchiveViewer
                 Rules.Add(rule);
             }
         }
+        public void AddRules(IEnumerable<GroupRule> rules)
+        {
+            foreach (var rule in rules)
+            {
+                Rules.Add(rule);
+            }
+        }
 
-
-        public string IsMatched(IArchLink link)
+        public string IsMatched(ArchiveLink link)
         {
             return IsMatched(link.LinkSource);
         }
@@ -71,15 +73,12 @@ namespace WebArchiveViewer
             }
             return null;
         }
-        public GroupRule FindOwner(GroupRule rule)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public void Remove(GroupRule ruleToRemove)
         {
-            Rules.Remove(ruleToRemove as GroupRule);
-            foreach (var rule in Rules)
+            Rules.Remove(ruleToRemove);
+            foreach (GroupRule rule in Rules)
             {
                 rule.Remove(ruleToRemove);
             }

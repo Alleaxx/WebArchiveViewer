@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
         mc:Ignorable="d"
+        Icon="Resources/Веб-архив.png"
         Title="Групповые правила" Height="475" Width="825" Closed="Window_Closed">
     <Window.Resources>
         <Style TargetType="{x:Type TreeViewItem}">
@@ -23,7 +24,7 @@
         </Style>
     </Window.Resources>
     <Window.DataContext>
-        <local:RulesControl />
+        <local:RulesView />
     </Window.DataContext>
     <Grid x:Name="grid" >
         <Grid.RowDefinitions>
@@ -46,7 +47,7 @@
                 </DockPanel>--><!--
             </DockPanel>-->
         </Border>
-        <TreeView Grid.Row="2" ItemsSource="{Binding Rules}" BorderThickness="0">
+        <TreeView Grid.Row="2" ItemsSource="{Binding RulesControl.Rules}" BorderThickness="0">
             <TreeView.Resources>
                 <HierarchicalDataTemplate ItemsSource="{Binding Rules}" DataType="{x:Type local:GroupRule}">
                     <DockPanel Margin="0,2">
@@ -54,8 +55,8 @@
                         <TextBox Text="{Binding GroupName}" MinWidth="225"/>
                         <TextBox Text="{Binding FoundText}" HorizontalAlignment="Right" Margin="20,0"/>
                         <DockPanel HorizontalAlignment="Right">
-                            <Button Content="Удалить" CommandParameter="{Binding }" Command="{Binding ElementName=grid, Path=DataContext.RemoveRuleCommand}"  Margin="5,0" Padding="3,0" />
-                            <Button Content="Добавить" Command="{Binding AddRuleCommand}" Margin="5,0" Padding="3,0" />
+                            <Button Content="Удалить" Command="{Binding ElementName=grid, Path=DataContext.RemoveRuleCommand}" CommandParameter="{Binding }"  Margin="5,0" Padding="3,0" />
+                            <Button Content="Добавить" Command="{Binding ElementName=grid, Path=DataContext.AddRuleCommand}" CommandParameter="{Binding}" Margin="5,0" Padding="3,0" />
                         </DockPanel>
                     </DockPanel>
                 </HierarchicalDataTemplate>

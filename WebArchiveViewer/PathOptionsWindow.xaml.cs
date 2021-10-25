@@ -14,22 +14,15 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    public partial class RulesWindow : Window
+    /// <summary>
+    /// Логика взаимодействия для PathOptionsWindow.xaml
+    /// </summary>
+    public partial class PathOptionsWindow : Window
     {
-        public RulesWindow(RulesView view)
+        public PathOptionsWindow(SnapshotView snapshot)
         {
             InitializeComponent();
-            DataContext = view;
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            var snap = AppView.Ex.Archive.SnapshotView;
-            snap.UpdateCategories(null);
-            //ICommand command = snap.UpdateCategoriesCommand;
-
-            //if(command.CanExecute(null))
-            //    command.Execute(null);
+            DataContext = snapshot;
         }
     }
 }
