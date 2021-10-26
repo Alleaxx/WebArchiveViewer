@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Archive.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -73,16 +76,19 @@
     </Compile>
     <Compile Include="Конвертеры\Round.cs" />
     <Compile Include="Логика\Загрузка HTML\HtmlLoadOptions.cs" />
+    <Compile Include="Логика\Загрузка HTML\LinkLoad.cs" />
     <Compile Include="Логика\Загрузка HTML\LoadOptions.cs" />
     <Compile Include="Логика\Загрузка HTML\PauseState.cs" />
     <Compile Include="Логика\Получение ссылок\SnapLoader.cs" />
-    <Compile Include="Логика\Загрузка HTML\HtmlClientoader.cs" />
+    <Compile Include="Логика\Загрузка HTML\HtmlClientLoader.cs" />
     <Compile Include="Логика\Загрузка HTML\HtmlLoader.cs" />
     <Compile Include="Логика\Получение ссылок\ArchiveLoader.cs" />
     <Compile Include="Логика\Получение ссылок\FileLoader.cs" />
+    <Compile Include="Логика\Получение ссылок\Запрос\ArchiveRequestCreator.cs" />
+    <Compile Include="Логика\Получение ссылок\Запрос\ArchiveRequestParts.cs" />
     <Compile Include="Логика\Получение ссылок\Запрос\RequestCreator.cs" />
     <Compile Include="Логика\Получение ссылок\SnapshotReceiver.cs" />
-    <Compile Include="Логика\Получение ссылок\Запрос\RequestParts.cs" />
+    <Compile Include="Логика\Получение ссылок\Запрос\RequestPart.cs" />
     <Compile Include="Логика\Снапшот\SaveMode.cs" />
     <Compile Include="Приложение\Опции\Grouping.cs" />
     <Compile Include="Приложение\Опции\Sorting.cs" />
@@ -97,10 +103,10 @@
     <Compile Include="Логика\DateRange.cs" />
     <Compile Include="Приложение\RulesView.cs" />
     <Compile Include="Приложение\SnapshowView.cs" />
-    <Compile Include="Приложение\Техническое\FileDialog.cs" />
+    <Compile Include="Приложение\Команды и диалоги\FileDialog.cs" />
     <Compile Include="Конвертеры\Date.cs" />
     <Compile Include="Конвертеры\StatusCode.cs" />
-    <Compile Include="Приложение\Техническое\NotifyObj.cs" />
+    <Compile Include="Приложение\Команды и диалоги\NotifyObj.cs" />
     <Compile Include="Элементы\IntervalSlider.xaml.cs">
       <DependentUpon>IntervalSlider.xaml</DependentUpon>
     </Compile>
@@ -116,13 +122,13 @@
     <Compile Include="Логика\Снапшот\Правила\GroupRule.cs" />
     <Compile Include="Приложение\AppView.cs" />
     <Compile Include="Приложение\Pager.cs" />
-    <Compile Include="Логика\Загрузка HTML\SaveHTMLView.cs" />
+    <Compile Include="Логика\Загрузка HTML\LinksLoaderView.cs" />
     <Compile Include="Элементы\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Приложение\ArchiveView.cs" />
     <Compile Include="Приложение\Опции\ViewOptions.cs" />
-    <Compile Include="Приложение\Техническое\RelayCommand.cs" />
+    <Compile Include="Приложение\Команды и диалоги\RelayCommand.cs" />
     <Page Include="AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -195,7 +201,9 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Archive.ico" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Веб-архив.png" />
   </ItemGroup>

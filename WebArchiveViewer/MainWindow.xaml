@@ -28,7 +28,7 @@
             </MenuItem>
 
             <MenuItem x:Name="SaveHTML" Header="Загрузить">
-                <MenuItem Header="HTML" Command="{Binding SnapshotView.SaveHTMLCommand}" />
+                <MenuItem Header="HTML" Command="{Binding SnapshotView.OpenLoadOptionsCommand}" />
             </MenuItem>
 
             <MenuItem Header="Сохранить" Command="{Binding SnapshotView.SaveSnapFileCommand}" CommandParameter="AllDefaultPath" />
@@ -136,8 +136,8 @@
                                             <Button Command="{Binding SnapshotView.OpenOptionsCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="Настройки сохранения" />
                                             </Button>
-                                            <Button Command="{Binding SnapshotView.LoadNamesCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
-                                                <TextBlock Text="Загрузить имена страниц" />
+                                            <Button Command="{Binding SnapshotView.OpenLoadOptionsCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
+                                                <TextBlock Text="Загрузить имена и HTML" />
                                             </Button>
                                             <Button Command="{Binding SnapshotView.ClearProgressCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="Обнулить процесс загрузки" />
@@ -270,16 +270,16 @@
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock ToolTip="{Binding Date, Converter={StaticResource DateConverter}}" Text="{Binding Date, ConverterParameter=dd MMMM yyy, Converter={StaticResource DateConverter}}" Foreground="Black" />
+                                                        <TextBlock ToolTip="{Binding Date, Converter={StaticResource DateConverter}}" Text="{Binding Date, ConverterParameter=dd-MMM-yyyy, Converter={StaticResource DateConverter}}" FontFamily="Consolas" FontSize="14" Foreground="#404040" />
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
-                                                <TextBlock Text="Дата" />
+                                                <TextBlock Text="Дата"/>
                                             </GridViewColumn>
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <DockPanel>
-                                                            <TextBlock ToolTip="{Binding Date, Converter={StaticResource DateConverter}}" Text="{Binding Date, ConverterParameter=HH:mm, Converter={StaticResource DateConverter}}" Foreground="Black" />
+                                                        <DockPanel >
+                                                            <TextBlock ToolTip="{Binding Date, Converter={StaticResource DateConverter}}" Text="{Binding Date, ConverterParameter=HH:mm, Converter={StaticResource DateConverter}}" FontFamily="Consolas" FontSize="14" Foreground="#404040" />
                                                         </DockPanel>
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
@@ -301,7 +301,7 @@
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock Text="{Binding MimeType}" FontSize="11" Foreground="Gray" />
+                                                        <TextBlock Text="{Binding MimeType}" FontSize="11" Foreground="Gray" MinWidth="100" />
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Тип" />
@@ -324,7 +324,7 @@
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <DockPanel>
-                                                            <Button x:Name="load" Command="{Binding LoadNameCommand}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
+                                                            <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
                                                                 <TextBlock x:Name="text" Text="{Binding Name}" FontSize="14" Foreground="Black" />
                                                             </Button>
                                                         </DockPanel>
@@ -353,7 +353,7 @@
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <!--<Button x:Name="load" Command="{Binding DataContext.SnapshotView.OpenLinkCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}" CommandParameter="{Binding HtmlFilePath}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
+                                                        <Button x:Name="load" Command="{Binding DataContext.SnapshotView.OpenLinkCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}" CommandParameter="{Binding HtmlFilePath}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
                                                             <TextBlock x:Name="text" Text="файл" FontSize="14" Foreground="Black" />
                                                         </Button>
                                                         <DataTemplate.Triggers>
@@ -363,7 +363,7 @@
                                                             <DataTrigger Binding="{Binding HtmlFilePath}" Value="">
                                                                 <Setter TargetName="text" Property="Text" Value="нет" />
                                                             </DataTrigger>
-                                                        </DataTemplate.Triggers>-->
+                                                        </DataTemplate.Triggers>
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                                 <DockPanel>

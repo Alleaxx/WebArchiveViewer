@@ -180,7 +180,6 @@
                             <DockPanel Style="{StaticResource Property}">
                                 <TextBlock Text="Действия:" Style="{StaticResource PropertyName}"/>
                                 <StackPanel>
-                                    <Button Content="Сохранить в файл" Command="{Binding SaveSnapFileCommand}" CommandParameter="All" Style="{StaticResource ActionButton}"  Click="BtnSaveFile_Click"/>
                                     <Button Content="Перейти к просмотру" DataContext="{Binding ElementName=elem,Path=DataContext}" Command="{Binding SetSnapshotCommand}" Style="{StaticResource ActionButton}"  Click="BtnSaveFile_Click" />
                                 </StackPanel>
                             </DockPanel>

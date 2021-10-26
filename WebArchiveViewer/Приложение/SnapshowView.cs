@@ -50,70 +50,49 @@ namespace WebArchiveViewer
         public ViewOptions ViewOptions { get; private set; }
         public DirectoryInfo FolderHtmlSavePath => new DirectoryInfo(Current.FolderHtmlSavePath);
 
-
-
         public SnapshotView(Snapshot snap)
         {
             Current = snap;
             LastSaveDate = DateTime.Now;
-            CreateCommands();
             RulesView = new RulesView(Current);
             ViewOptions = new ViewOptions(Current);
         }
-        private void CreateCommands()
+        protected override void InitCommands()
         {
-            if (Current != null)
-            {
-                OpenLinkCommand = new RelayCommand(OpenLink, IsCorrectLink);
-                SelectSaveFolderCommand = new RelayCommand(SelectFolderSave);
-                SaveSnapFileCommand = new RelayCommand(Save);
+            base.InitCommands();
+            OpenLinkCommand = new RelayCommand(OpenLink, IsCorrectLink);
+            SelectSaveFolderCommand = new RelayCommand(SelectFolderSave, NotNull);
+            SaveSnapFileCommand = new RelayCommand(Save, NotNull);
 
-                SaveHTMLCommand = new RelayCommand(SaveHTML);
-                UpdateCategoriesCommand = new RelayCommand(UpdateCategories);
-                LoadNamesCommand = new RelayCommand(LoadNames);
-                ClearProgressCommand = new RelayCommand(ClearProgress);
-                OpenOptionsCommand = new RelayCommand(OpenOptions);
-            }
-            else
-            {
-                OpenLinkCommand = new RelayCommand(Nothing, NotAvailable);
-                SelectSaveFolderCommand = new RelayCommand(Nothing, NotAvailable);
-                SaveSnapFileCommand = new RelayCommand(Nothing, NotAvailable);
+            OpenLoadOptionsCommand = new RelayCommand(OpenLoadHtml, NotNull);
+            OpenOptionsCommand = new RelayCommand(OpenOptions, NotNull);
 
-                SaveHTMLCommand = new RelayCommand(Nothing, NotAvailable);
-                UpdateCategoriesCommand = new RelayCommand(Nothing, NotAvailable);
-                LoadNamesCommand = new RelayCommand(Nothing, NotAvailable);
-                ClearProgressCommand = new RelayCommand(Nothing, NotAvailable);
-                OpenOptionsCommand = new RelayCommand(Nothing, NotAvailable);
-
-                void Nothing(object obj)
-                {
-
-                }
-                bool NotAvailable(object obj)
-                {
-                    return false;
-                }
-            }
+            UpdateCategoriesCommand = new RelayCommand(UpdateCategories, NotNull);
+            ClearProgressCommand = new RelayCommand(ClearProgress, NotNull);
+            LoadLinkNameCommand = new RelayCommand(LoadNameAsync, IsLoadNameAvailable);
         }
 
-        //----
-        public ICommand SelectSaveFolderCommand { get; private set; }
-        public ICommand SaveHTMLCommand { get; private set; }
         public ICommand OpenLinkCommand { get; private set; }
-        public ICommand ClearProgressCommand { get; private set; }
-        public ICommand LoadNamesCommand { get; private set; }
+
+
+        public ICommand SelectSaveFolderCommand { get; private set; }
         public ICommand UpdateCategoriesCommand { get; private set; }
         public ICommand SaveSnapFileCommand { get; private set; }
+        public ICommand ClearProgressCommand { get; private set; }
+
+
         public ICommand OpenOptionsCommand { get; private set; }
-        //-----
+        public ICommand OpenLoadOptionsCommand { get; private set; }
 
 
+        private bool NotNull(object obj)
+        {
+            return Current != null;
+        }
         private bool IsCorrectLink(object obj)
         {
             return obj is string link && !string.IsNullOrEmpty(link);
         }
-
         private void OpenLink(object obj)
         {
             if (obj is string link)
@@ -121,22 +100,14 @@ namespace WebArchiveViewer
                 System.Diagnostics.Process.Start(link);
             }
         }
-        private void SelectFolderSave(object obj)
-        {
-            IFileDialog dialog = new FileDialog();
-            var folder = dialog.SelectFolder();
-            if (folder != null && folder.Exists)
-            {
-                Current.FolderHtmlSavePath = folder.FullName;
-            }
-        }
+
 
 
         public void Save(SaveMode mode)
         {
-            Save(mode);
+            Save(mode as object);
         }
-        public async void Save(object obj)
+        private async void Save(object obj)
         {
             IFileDialog fileDialog = new FileDialog();
             SaveMode mod = GetSaveMode(obj);
@@ -144,7 +115,7 @@ namespace WebArchiveViewer
             Snapshot saveCopy = new Snapshot(Current, ViewOptions.GetFilteredLinks(mod));
             int linksCount = saveCopy.Links.Count();
 
-            if (Current.FilePath != null && mod == SaveMode.AllDefaultPath)
+            if (Current.FilePath != null && File.Exists && mod == SaveMode.AllDefaultPath)
             {
                 await Task.Run(() => fileDialog.SaveFile(Current.FilePath, saveCopy));
                 SaveComplete(Current.FilePath);
@@ -175,9 +146,9 @@ namespace WebArchiveViewer
                 return modeS;
             }
         }
-        private void SaveHTML(object obj)
+        private void OpenLoadHtml(object obj)
         {
-            SaveHTMLView saveHTMLView = new SaveHTMLView(this);
+            LinksLoaderView saveHTMLView = new LinksLoaderView(this);
             SaveHTMLWindow w = new SaveHTMLWindow(saveHTMLView);
             w.Show();
         }
@@ -186,6 +157,16 @@ namespace WebArchiveViewer
             PathOptionsWindow w = new PathOptionsWindow(this);
             w.ShowDialog();
         }
+        private void SelectFolderSave(object obj)
+        {
+            IFileDialog dialog = new FileDialog();
+            var folder = dialog.SelectFolder();
+            if (folder != null && folder.Exists)
+            {
+                Current.FolderHtmlSavePath = folder.FullName;
+                OnPropertyChanged(nameof(FolderHtmlSavePath));
+            }
+        }
         private void ClearProgress(object obj)
         {
             foreach (var link in Current.Links)
@@ -193,68 +174,35 @@ namespace WebArchiveViewer
                 link.HtmlFilePath = null;
             }
         }
-        
-
-        //Загрузка имен
-        private async void LoadNames(object obj)
-        {
-            var links = Current.Links.Select(l => new LoadLink(l)).Where(l => l.LoadNameCommand.CanExecute(null) && l.Link.Name == ArchiveLink.DefaultName);
-            Task loading = Task.Run(() => LoadNamesProcess(links));
-            await loading;
-        }
-        private void LoadNamesProcess(IEnumerable<LoadLink> links)
-        {
-            var linksArr = links.ToArray();
-            int latencyMs = 1000;
-
-            for (int i = 0; i < linksArr.Length; i++)
-            {
-                var link = linksArr[i];
-                System.Threading.Thread.Sleep(latencyMs);
-                link.LoadNameCommand.Execute(null);
-            }
-        }
-
-
-
         public void UpdateCategories(object obj)
         {
             ViewOptions.LoadCategories(Current);
         }
-    }
 
-    public class LoadLink
-    {
-        public readonly ArchiveLink Link;
-        public LoadLink(ArchiveLink link)
-        {
-            Link = link;
-        }
+
+
         //Загрузка имени страницы
-        private string[] ForbiddenCodes = new string[] { "404", "502", "302" };
-        private bool IsLoadNameAvailable(object obj) => !ForbiddenCodes.Contains(Link.StatusCode);
+        private List<ArchiveLink> LoadingLinks { get; set; } = new List<ArchiveLink>(); 
+        private readonly string[] ForbiddenCodes = new string[] { "404", "502", "302" };
+        private bool IsLoadNameAvailable(object obj)
+        {
+            return obj is ArchiveLink Link && !ForbiddenCodes.Contains(Link.StatusCode) && !LoadingLinks.Contains(Link);
+        }
 
-        public RelayCommand LoadNameCommand { get; private set; }
+        public ICommand LoadLinkNameCommand { get; private set; }
         private async void LoadNameAsync(object obj)
         {
-            //try
-            //{
-            //    WebClient client = new WebClient();
-            //    string html = await client.DownloadStringTaskAsync(new Uri(Link.Link));
-            //    Link.Name = await Task.Run(() => GetTitleFromHtml(html));
-            //}
-            //catch (WebException ex)
-            //{
-            //    Console.WriteLine(ex.Message);
-            //}
-        }
-
-
-        public static string GetTitleFromHtml(string html)
-        {
-            string name = System.Text.RegularExpressions.Regex.Match(html, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>",
-                System.Text.RegularExpressions.RegexOptions.IgnoreCase).Groups["Title"].Value;
-            return name;
+            if (obj is ArchiveLink Link)
+            {
+                LoadingLinks.Add(Link);
+                using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
+                {
+                    HttpClientHTMLoader loader = new HttpClientHTMLoader(client, Link, new LoadHtmlOptions());
+                    ILinkLoad res = await loader.LoadHtmlAsync();
+                    await Task.Run(res.Process);
+                }
+                LoadingLinks.Remove(Link);
+            }
         }
     }
 }

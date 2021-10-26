@@ -9,13 +9,11 @@ using System.Windows.Input;
 
 namespace WebArchiveViewer
 {
-    [Serializable]
     public class ViewOptions : NotifyObj
     {
         public event Action OnUpdated;
 
         //Для снапшота
-        [JsonIgnore]
         public Snapshot Snapshot { get; private set; }
 
         //Настройки
@@ -29,14 +27,14 @@ namespace WebArchiveViewer
             }
         }
         private string search = "";
-        public DateRange DateRange { get; set; }
+        public DateRange DateRange { get; private set; }
 
-        public StatusCode[] Codes { get; set; }
-        public MimeType[] Types { get; set; }
-        public Category[] Categories { get; set; }
+
+        public StatusCode[] Codes { get; private set; }
+        public MimeType[] Types { get; private set; }
+        public Category[] Categories { get; private set; }
         private Dictionary<string, ICategory> CategoriesDictionary { get; set; }
 
-        [JsonIgnore]
         public ListViewOptions ListView { get; private set; }
 
         public bool? ShowOnlyLoaded { get; set; } = null;
@@ -152,7 +150,6 @@ namespace WebArchiveViewer
             base.InitCommands();
             ToggleCategoriesCommand = new RelayCommand(ToggleCategories);
         }
-        [JsonIgnore]
         public ICommand ToggleCategoriesCommand { get; private set; }
         private void ToggleCategories(object obj)
         {

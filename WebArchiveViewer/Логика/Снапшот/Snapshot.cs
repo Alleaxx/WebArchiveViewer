@@ -56,7 +56,7 @@ namespace WebArchiveViewer
         }
 
         //Категории, их обновление
-        private void UpdateLinkCategories()
+        public void UpdateLinkCategories()
         {
             foreach (ArchiveLink link in Links)
             {

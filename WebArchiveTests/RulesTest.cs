@@ -72,7 +72,7 @@ namespace WebArchiveTests
                 ["Форум"] = 2,
                 ["Форумная тема"] = 3,
                 ["Румине"] = 1,
-                ["Все"] = 1,
+                ["Всё"] = 1,
             };
             foreach (var req in Required)
             {

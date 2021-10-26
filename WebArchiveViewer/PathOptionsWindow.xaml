@@ -7,48 +7,60 @@
         
         d:DataContext="{d:DesignInstance {x:Type local:SnapshotView}}"
         mc:Ignorable="d"
-        Title="Настройки сохранения" Height="350" Width="400">
+        Title="Настройки сохранения" Height="350" Width="475">
 
-    <StackPanel>
-        <TextBlock FontSize="20" Text="Настройки сайта" />
-        <DockPanel>
-            <TextBlock Text="Источник:" />
-            <TextBlock Text="{Binding Current.SourceURI}" HorizontalAlignment="Right"/>
-        </DockPanel>
-        <DockPanel>
-            <TextBlock Text="Получено в:" />
-            <TextBlock Text="{Binding Current.ReceivingDate}" HorizontalAlignment="Right"/>
-        </DockPanel>
-        <DockPanel>
-            <TextBlock Text="Последнее сохранение:" />
-            <TextBlock Text="{Binding LastSaveDate}" HorizontalAlignment="Right"/>
-        </DockPanel>
-        <DockPanel>
-            <TextBlock  Margin="0,5"  Grid.Column="0" Grid.Row="0" Text="Путь к файлу списка:" />
-            <DockPanel HorizontalAlignment="Right">
-                <Button Grid.Column="2" Grid.Row="0" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding File.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
-                    <TextBlock TextWrapping="Wrap" Text="Открыть" FontSize="12"/>
-                </Button>
-                <Button Grid.Column="3" Grid.Row="0" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding File.Directory.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
-                    <TextBlock TextWrapping="Wrap" Text="Папка" FontSize="12"/>
-                </Button>
+    <StackPanel Margin="5">
+        <Border BorderThickness="0,0,0,1" BorderBrush="Gainsboro">
+            <TextBlock FontSize="20" Text="Настройки сайта" />
+        </Border>
+        <StackPanel Margin="5,0">
+            <DockPanel Margin="0,2">
+                <TextBlock Text="Источник:" Foreground="Gray" Width="180"/>
+                <TextBlock Text="{Binding Current.SourceURI}" FontSize="12" />
             </DockPanel>
-        </DockPanel>
-
-        <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" Command="{Binding SaveSnapFileCommand}" CommandParameter="All" Padding="5,2" Style="{StaticResource ActionButton}" HorizontalContentAlignment="Left" BorderThickness="0,0,0,0">
-            <TextBlock TextWrapping="Wrap" Text="{Binding File.FullName}" FontSize="9" />
-        </Button>
-        <DockPanel>
-            <TextBlock Margin="0,5" Grid.Column="0" Grid.Row="2" Text="Сохраняемый HTML:" />
-
-            <DockPanel HorizontalAlignment="Right">
-                <Button Grid.Column="2" Grid.Row="2" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding FolderHtmlSavePath.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
-                    <TextBlock TextWrapping="Wrap" Text="Открыть" FontSize="12"/>
-                </Button>
+            <DockPanel Margin="0,2">
+                <TextBlock Text="Получено в:" Foreground="Gray" Width="180"/>
+                <TextBlock Text="{Binding Current.ReceivingDate,StringFormat=dd-MM-yyyy; HH-mm}" FontSize="12"/>
             </DockPanel>
-        </DockPanel>
-        <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="4" Command="{Binding SelectSaveFolderCommand}" CommandParameter="{Binding Current.FilePath}" Padding="5,2" Style="{StaticResource ActionButton}" HorizontalContentAlignment="Left" BorderThickness="0,0,0,0">
-            <TextBlock TextWrapping="Wrap" Text="{Binding FolderHtmlSavePath.FullName}" FontSize="9" />
-        </Button>
+            <DockPanel Margin="0,2">
+                <TextBlock Text="Сохранение:" Foreground="Gray" Width="180"/>
+                <TextBlock Text="{Binding LastSaveDate,StringFormat=dd-MM-yyyy; HH-mm}" FontSize="12"/>
+            </DockPanel>
+            <Border BorderThickness="0,1,0,0" BorderBrush="Gainsboro" Padding="0,3" Margin="0,3">
+                <StackPanel>
+                    <DockPanel Margin="0,2">
+                        <TextBlock  Margin="0,5"  Grid.Column="0" Grid.Row="0" Text="Путь к файлу списка:" Width="180"/>
+                        <DockPanel>
+                            <Button Grid.Column="2" Grid.Row="0" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding File.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                                <TextBlock TextWrapping="Wrap" Text="Открыть" FontSize="12"/>
+                            </Button>
+                            <Button Grid.Column="3" Grid.Row="0" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding File.Directory.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                                <TextBlock TextWrapping="Wrap" Text="Папка" FontSize="12"/>
+                            </Button>
+                        </DockPanel>
+                    </DockPanel>
+
+                    <Button Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" Command="{Binding SaveSnapFileCommand}" CommandParameter="All" Padding="5,2" Style="{StaticResource ActionButton}" HorizontalContentAlignment="Left" BorderThickness="0,0,0,0">
+                        <TextBlock TextWrapping="Wrap" Text="{Binding File.FullName,FallbackValue=Снапшот не сохранялся в файл}" FontSize="9" />
+                    </Button>
+                    <DockPanel Margin="0,2">
+                        <TextBlock Margin="0,5" Grid.Column="0" Grid.Row="2" Text="Сохраняемый HTML:" Width="180"/>
+
+                        <DockPanel>
+                            <Button Grid.Column="2" Grid.Row="2" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding FolderHtmlSavePath.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                                <TextBlock TextWrapping="Wrap" Text="Открыть" FontSize="12"/>
+                            </Button>
+                        </DockPanel>
+                    </DockPanel>
+                    <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="4" Command="{Binding SelectSaveFolderCommand}" CommandParameter="{Binding Current.FilePath}" Padding="5,2" Style="{StaticResource ActionButton}" HorizontalContentAlignment="Left" BorderThickness="0,0,0,0">
+                        <TextBlock TextWrapping="Wrap" Text="{Binding FolderHtmlSavePath.FullName}" FontSize="9" />
+                    </Button>
+
+                    <Button Command="{Binding ClearProgressCommand}" Style="{StaticResource ActionButton}" Margin="0,5">
+                        <TextBlock Text="Сбросить прогресс загрузки" />
+                    </Button>
+                </StackPanel>
+            </Border>
+        </StackPanel>
     </StackPanel>
 </Window>

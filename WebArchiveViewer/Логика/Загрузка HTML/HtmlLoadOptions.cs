@@ -8,13 +8,21 @@ namespace WebArchiveViewer
 {
     public class LoadHtmlOptions
     {
-        public bool LoadingName { get; set; } = true;
+        public bool LoadingTitle { get; set; } = true;
         public bool SavingHtml { get; set; } = true;
-        public string FolderPath { get; set; }
+        public string FolderPath { get; private set; }
 
-        public LoadHtmlOptions(string folder)
+        public LoadHtmlOptions(bool loadName, bool loadHtml, string path)
         {
-            FolderPath = folder;
+            LoadingTitle = loadName;
+            SavingHtml = loadHtml;
+            FolderPath = path;
+        }
+        public LoadHtmlOptions()
+        {
+            LoadingTitle = true;
+            SavingHtml = false;
+            FolderPath = null;
         }
     }
 }

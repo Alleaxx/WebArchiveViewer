@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
         x:Class="WebArchiveViewer.SaveHTMLWindow"
-        d:DataContext="{d:DesignInstance {x:Type local:SaveHTMLView}}"
+        d:DataContext="{d:DesignInstance {x:Type local:LinksLoaderView}}"
         mc:Ignorable="d"
         Icon="Resources/Веб-архив.png"
         Title="{Binding Snapshot.SourceURI}" Height="750" Width="550" MaxWidth="550" Closing="Window_Closing">
@@ -28,37 +28,20 @@
             </Expander.Header>
             <StackPanel Grid.Row="0" Margin="25,0,0,0">
                 <DockPanel Style="{StaticResource Property}">
-                    <TextBlock Text="Задержка:" Style="{StaticResource PropertyName}" />
+                    <TextBlock Text="Таймаут:" Style="{StaticResource PropertyName}" />
                     <StackPanel Style="{StaticResource PropertiesPanel}">
-                        <TextBlock Text="{Binding Options.LatencyMs, StringFormat=\{0\} миллисекунд}"  />
-                        <Slider Minimum="500" Maximum="10000" Value="{Binding Options.LatencyMs}" IsSnapToTickEnabled="True" TickFrequency="200"/>
+                        <TextBlock Text="{Binding Options.TimeoutMinutes, StringFormat=\{0\} минут}"  />
+                        <Slider Minimum="1" Maximum="60" Value="{Binding Options.TimeoutMinutes}" IsSnapToTickEnabled="True" TickFrequency="1"/>
                     </StackPanel>
                 </DockPanel>
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Папка:" Style="{StaticResource PropertyName}" />
                     <DockPanel>
-                        <TextBlock Text="{Binding SnapshotView.FolderHtmlSavePath}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
                         <Button Command="{Binding SnapshotView.SelectSaveFolderCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
-                            <TextBlock Text="Изменить" />
+                            <TextBlock Text="{Binding SnapshotView.FolderHtmlSavePath.Name,StringFormat=({0})}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
                         </Button>
-                    </DockPanel>
-                </DockPanel>
-                <DockPanel Style="{StaticResource Property}">
-                    <TextBlock Text="Что загружать:" Style="{StaticResource PropertyName}" />
-                    <DockPanel VerticalAlignment="Center">
-                        <CheckBox IsChecked="{Binding ProcessOptions.LoadingName}">
-                            <TextBlock Text="Имена страниц" />
-                        </CheckBox>
-                        <CheckBox IsChecked="{Binding ProcessOptions.SavingHtml}" Margin="5,0">
-                            <TextBlock Text="HTML" />
-                        </CheckBox>
-                    </DockPanel>
-                </DockPanel>
-                <DockPanel Style="{StaticResource Property}">
-                    <TextBlock Text="Прогресс:" Style="{StaticResource PropertyName}" />
-                    <DockPanel>
-                        <Button Command="{Binding SnapshotView.ClearProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
-                            <TextBlock Text="Очистить прогресс загрузки" />
+                        <Button Command="{Binding SnapshotView.OpenLinkCommand}" CommandParameter="{Binding Snapshot.FolderHtmlSavePath}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
+                            <TextBlock Text="Открыть" />
                         </Button>
                     </DockPanel>
                 </DockPanel>
@@ -72,6 +55,17 @@
             </Expander.Header>
             <StackPanel Margin="20,0,0,0">
                 <DockPanel Style="{StaticResource Property}">
+                    <TextBlock Text="Что загружать:" Style="{StaticResource PropertyName}" />
+                    <DockPanel VerticalAlignment="Center">
+                        <CheckBox IsChecked="{Binding ProcessOptions.LoadingTitle}">
+                            <TextBlock Text="Имена страниц" />
+                        </CheckBox>
+                        <CheckBox IsChecked="{Binding ProcessOptions.SavingHtml}" Margin="5,0">
+                            <TextBlock Text="HTML" />
+                        </CheckBox>
+                    </DockPanel>
+                </DockPanel>
+                <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Действия:" Style="{StaticResource PropertyName}" />
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -79,9 +73,8 @@
                             <!--<ColumnDefinition Width="1*"/>-->
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="Начать" Command="{Binding StartDownloadCommand}" Style="{StaticResource ActionButton}" />
-                        <!--<Button Grid.Column="1" Content="Сохранить" Command="{Binding SaveProgressCommand}" Style="{StaticResource ActionButton}"/>-->
-                        <Button Grid.Column="2" Content="Завершить" Command="{Binding StopProgressCommand}" Style="{StaticResource ActionButton}"/>
+                        <Button Grid.Column="0" Content="Запустить загрузку" Command="{Binding StartDownloadCommand}" Style="{StaticResource ActionButton}" />
+                        <Button Grid.Column="2" Content="Завершить загрузку" Command="{Binding StopProgressCommand}" Style="{StaticResource ActionButton}"/>
                     </Grid>
                 </DockPanel>
 
@@ -109,7 +102,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" ToolTip="Осталось ссылок" Text="{Binding LinksRemaining.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Blue"/>
                             <TextBlock Grid.Column="1" Text="→" Margin="3,0" FontSize="18" HorizontalAlignment="Center" />
-                            <TextBlock Grid.Column="2" ToolTip="Загружающихся ссылок" Text="{Binding ActiveRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="DarkGoldenrod" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" ToolTip="Загружающихся ссылок" Text="{Binding CurrentRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="DarkGoldenrod" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="3" Text="→" Margin="3,0" FontSize="18" HorizontalAlignment="Center" />
                             <TextBlock Grid.Column="4" ToolTip="Загруженных ссылок" Text="{Binding LinksLoadedCount, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Green" HorizontalAlignment="Right"/>
                         </Grid>
@@ -118,7 +111,7 @@
                                 <ColumnDefinition Width="1*" />
                                 <ColumnDefinition Width="1*" />
                             </Grid.ColumnDefinitions>
-                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource ToggleButtonStyle1}"/>
+                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource Default}"/>
                             <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding PauseState.IsPlayed}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource Default}"/>
                         </Grid>
                     </StackPanel>
@@ -156,33 +149,32 @@
                             <TextBlock Text="Когда:" Style="{StaticResource PropertyName}" />
                             <StackPanel Style="{StaticResource PropertiesPanel}">
                                 <DockPanel>
-                                    <TextBlock Text="{Binding StartDateTime, StringFormat=HH:mm начало\,}" />
+                                    <TextBlock Text="{Binding PauseState.StartDateTime, StringFormat=HH:mm начало\,}" />
                                     <DockPanel Margin="4,0">
-                                        <TextBlock Text="{Binding FromStart.TotalMinutes, ConverterParameter=0, Converter={StaticResource MathRound}, StringFormat=\{0\}:}" />
-                                        <TextBlock Text="{Binding FromStart.Seconds, Converter={StaticResource MathRound}, StringFormat=\{0\} прошло}" Margin="1,0"/>
+                                        <TextBlock Text="{Binding PauseState.FromStart.TotalMinutes, ConverterParameter=0, Converter={StaticResource MathRound}, StringFormat=\{0\}:}" />
+                                        <TextBlock Text="{Binding PauseState.FromStart.Seconds, Converter={StaticResource MathRound}, StringFormat=\{0\} прошло}" Margin="1,0"/>
                                     </DockPanel>
+                                    <TextBlock HorizontalAlignment="Right" Text="{Binding SpeedLinksPerMinute, Converter={StaticResource MathRound}, StringFormat=~ \{0\} ссылок в минуту}" />
+
                                 </DockPanel>
                                 <DockPanel>
-                                    <TextBlock Text="{Binding Snapshot.LastSaveDate, StringFormat=HH:mm сохранение}" />
+                                    <TextBlock Text="{Binding SnapshotView.LastSaveDate, StringFormat=HH:mm сохранение}" />
                                     <Button Command="{Binding SaveProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                                         <TextBlock Text="сохранить" />
                                     </Button>
                                 </DockPanel>
                             </StackPanel>
                         </DockPanel>
-                        <DockPanel Style="{StaticResource Property}">
+                        <DockPanel Style="{StaticResource Property}" Visibility="Collapsed">
                             <TextBlock Text="Сколько:" Style="{StaticResource PropertyName}" />
                             <StackPanel Style="{StaticResource PropertiesPanel}">
 
                                 <DockPanel>
                                     <TextBlock Text="{Binding TimeLeft.TotalMinutes, ConverterParameter=0, Converter={StaticResource MathRound}, StringFormat=\{0\}:}" />
                                     <TextBlock Text="{Binding TimeLeft.Seconds, Converter={StaticResource MathRound}, StringFormat=\{0\} осталось}" Margin="1,0"/>
+
                                 </DockPanel>
                             </StackPanel>
-                        </DockPanel>
-                        <DockPanel Style="{StaticResource Property}">
-                            <TextBlock Text="Скорость:" Style="{StaticResource PropertyName}" />
-                            <TextBlock Text="{Binding SpeedLinksPerMinute, Converter={StaticResource MathRound}, StringFormat=~ \{0\} ссылок в минуту}" />
                         </DockPanel>
                     </StackPanel>
                 </Expander>
@@ -212,13 +204,14 @@
                 </TabControl.Resources>
                 <TabItem>
                     <TabItem.Header>
-                        <DockPanel Margin="0,5">
-                            <TextBlock Text="{Binding ActiveRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
-                            <TextBlock Text="Текущие" />
+                        <DockPanel>
+                            <TextBlock Text="{Binding CurrentRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                            <TextBlock Text="Сейчас" />
                         </DockPanel>
+
                     </TabItem.Header>
-                    <ScrollViewer>
-                        <ItemsControl ItemsSource="{Binding ActiveRequests}" ItemTemplate="{DynamicResource Request}" />
+                    <ScrollViewer MaxHeight="400">
+                        <ItemsControl ItemsSource="{Binding CurrentRequests}" ItemTemplate="{DynamicResource Request}" />
                     </ScrollViewer>
                 </TabItem>
                 <TabItem>
@@ -229,7 +222,7 @@
                         </DockPanel>
 
                     </TabItem.Header>
-                    <ScrollViewer>
+                    <ScrollViewer MaxHeight="400">
                         <ItemsControl ItemsSource="{Binding ErrorRequests}" ItemTemplate="{DynamicResource Request}" />
                     </ScrollViewer>
                 </TabItem>

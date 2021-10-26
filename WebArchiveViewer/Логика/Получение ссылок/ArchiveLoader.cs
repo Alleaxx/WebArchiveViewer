@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -22,7 +23,6 @@ namespace WebArchiveViewer
         }
         public ArchiveSnapLoader(SnapshotReceiver receiver) : base(receiver)
         {
-            WebClient = new WebClient();
             RequestArchiveCreator = new ArchiveRequestCreator();
 
             Uploading = new ProcessProgress("Ожидание старта загрузки", 10);
@@ -34,17 +34,13 @@ namespace WebArchiveViewer
             window.Show();
         }
 
-
         protected override void InitCommands()
         {
             base.InitCommands();
-            UploadLinksCommand = new RelayCommand(obj => UploadLinks(obj), IsUploadingAvailable);
+            UploadLinksCommand = new RelayCommand(async obj => await UploadLinks(obj), IsUploadingAvailable);
             SetSnapshotCommand = new RelayCommand(SetSnapshotSource, IsNotEmptySnapshotReceived);
             CopyRequestCommand = new RelayCommand(CopyRequest);
         }
-
-        //Соединения
-        private WebClient WebClient { get; set; }
 
         //Сайт и настройки получения
         public IRequestCreator RequestCreator => RequestDefaultCreator ?? RequestArchiveCreator;
@@ -52,32 +48,48 @@ namespace WebArchiveViewer
         public IArhiveRequest RequestArchiveCreator { get; private set; }
 
 
+
+        public ICommand UploadLinksCommand { get; private set; }
+        public ICommand SetSnapshotCommand { get; private set; }
+        public ICommand CopyRequestCommand { get; private set; }
+
+
         //Процесс получения ссылки
         private bool IsUploadingAvailable(object obj) => (!string.IsNullOrEmpty(RequestCreator.GetRequest())) && !Uploading.InProgress;
-        public ICommand UploadLinksCommand { get; private set; }
         public async Task<Snapshot> UploadLinks(object obj)
         {
             Uploading.SetStatus("Загрузка данных с сервера...", 3);
-            try
+            using(HttpClient client = new HttpClient())
             {
-                string responceText = await WebClient.DownloadStringTaskAsync(RequestString);
+                try
+                {
+                    string responceText = await client.GetStringAsync(RequestString);
 
-                Uploading.SetStatus("Обработка загруженных данных...", 7);
-                Snapshot = await Task.Run(() => CreateSnapshotFromJson(responceText));
+                    Uploading.SetStatus("Обработка загруженных данных...", 7);
+                    Snapshot = await Task.Run(() => CreateSnapshotFromJson(responceText));
 
-                Uploading.SetStatus("Загрузка завершена...", Uploading.Maximum);
-                return Snapshot;
-            }
-            catch (WebException ex)
-            {
-                Uploading.SetStatus($"Ошибка соединения: {ex.Message}", Uploading.Maximum);
-                return null;
+                    Uploading.SetStatus("Загрузка завершена...", Uploading.Maximum);
+                    return Snapshot;
+                }
+                catch (WebException ex)
+                {
+                    Uploading.SetStatus($"Ошибка соединения: {ex.Message}", Uploading.Maximum);
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Uploading.SetStatus($"Неопределенная ошибка: {ex.Message}", Uploading.Maximum);
+                    return null;
+                }
             }
         }
+
+        //Процесс загрузки
+        public ProcessProgress Uploading { get; private set; }
+
+
+        //Скопировать строку запроса
         public string RequestString => RequestCreator.GetRequest();
-
-
-        public ICommand CopyRequestCommand { get; private set; }
         private void CopyRequest(object obj)
         {
             System.Windows.Clipboard.SetText(RequestString);
@@ -119,21 +131,13 @@ namespace WebArchiveViewer
         }
 
 
-        //Процесс загрузки
-        public ProcessProgress Uploading { get; private set; }
-
-
-        private bool IsNotEmptySnapshotReceived(object obj) => Snapshot != null && Snapshot.Links.Length > 0;
-
-
-
         //Задание полученного снапшота в качестве источника для просмотра
+        private bool IsNotEmptySnapshotReceived(object obj) => Snapshot != null && Snapshot.Links.Length > 0;
         private void SetSnapshotSource(object obj)
         {
             SendSnapshot();
             ClearStatus();
         }
-        public ICommand SetSnapshotCommand { get; private set; }
 
 
         //Сбросить состояние

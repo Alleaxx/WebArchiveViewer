@@ -15,10 +15,6 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    /// <summary>
-    /// Логика взаимодействия для IntervalSlider.xaml
-    /// </summary>
-
     public partial class IntervalSlider : UserControl
     {
         public double Minimum

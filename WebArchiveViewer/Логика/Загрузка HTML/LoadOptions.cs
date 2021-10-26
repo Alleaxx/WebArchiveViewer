@@ -6,40 +6,46 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
-    //Настройки загрузки
+    //Настройкf процесса загрузки
     public class LoadOptions : NotifyObj
     {
         public override string ToString()
         {
-            return $"Настройки загрузки: {LatencyMs}мс, {MaxRequestsSimultaneosly} макс, {SavingLatencyLinks} сохр";
+            return $"Настройки загрузки: {TimeoutMinutes}мин, {SavingLatencyLinks} сохр";
         }
 
-        public int LatencyMs
+        public TimeSpan Timeout => new TimeSpan(0, timeoutMinutes, 0);
+        public int TimeoutMinutes
         {
-            get => latencyMs;
+            get => timeoutMinutes;
             set
             {
-                latencyMs = value;
+                timeoutMinutes = value;
                 OnPropertyChanged();
             }
         }
-        private int latencyMs = 1000;
-        public int MaxRequestsSimultaneosly { get; set; } = 5;
+        private int timeoutMinutes;
+
+
+
         public int SavingLatencyLinks { get; set; } = 10;
-        private int GetSavingLatency(int count)
+        private int CreateLatencyFromLinks(int links)
         {
-            int latency = count / 10;
+            int latency = links / 10;
             int min = 10;
             if (latency < min)
+            {
                 latency = min;
+            }
             return latency;
         }
 
-        public LoadOptions() : this(500) { }
-        public LoadOptions(int amount)
-        {
-            SavingLatencyLinks = GetSavingLatency(amount);
-        }
 
+        public LoadOptions() : this(500) { }
+        public LoadOptions(int totalLinksAmount)
+        {
+            TimeoutMinutes = 10;
+            SavingLatencyLinks = CreateLatencyFromLinks(totalLinksAmount);
+        }
     }
 }

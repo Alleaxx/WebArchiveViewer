@@ -14,14 +14,11 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    /// <summary>
-    /// Логика взаимодействия для SaveHTMLWindow.xaml
-    /// </summary>
     public partial class SaveHTMLWindow : Window
     {
-        private SaveHTMLView View { get; set; }
+        private LinksLoaderView View { get; set; }
 
-        public SaveHTMLWindow(SaveHTMLView view)
+        public SaveHTMLWindow(LinksLoaderView view)
         {
             InitializeComponent();
             View = view;

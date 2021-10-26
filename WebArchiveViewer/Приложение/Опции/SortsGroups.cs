@@ -26,6 +26,7 @@ namespace WebArchiveViewer
             new Sorting("Имя", l => l.Name, false),
             new Sorting("Адрес", l => l.LinkSource, false),
             new Sorting("Тип", l => l.MimeType, false),
+            new Sorting("Порядок", l => "Index", false),
             new Sorting("Нет", null, true)
         };
 
@@ -73,13 +74,15 @@ namespace WebArchiveViewer
                 switch (sort.Name)
                 {
                     case "Имя":
-                        return links.AsParallel().OrderBy(l => l.Name).ToArray();
+                        return links.AsParallel().OrderBy(l => l.Name);
                     case "Адрес":
-                        return links.AsParallel().OrderBy(l => l.LinkSource).ToArray();
+                        return links.AsParallel().OrderBy(l => l.LinkSource);
                     case "Дата":
-                        return links.AsParallel().OrderBy(l => l.Date).ToArray();
+                        return links.AsParallel().OrderBy(l => l.Date);
                     case "Тип":
-                        return links.AsParallel().OrderBy(l => l.MimeType).ToArray();
+                        return links.AsParallel().OrderBy(l => l.MimeType);
+                    case "Порядок":
+                        return links.AsParallel().OrderBy(l => l.Index);
                     default:
                         return links;
                 }

@@ -13,7 +13,7 @@ namespace WebArchiveViewer
         string Name { get; }
         Func<ArchiveLink, string> KeySelector { get; }
     }
-    class Sorting : ISorting
+    public class Sorting : ISorting
     {
         public string Name { get; private set; }
         public Func<ArchiveLink, string> KeySelector { get; private set; }

@@ -15,9 +15,6 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    /// <summary>
-    /// Логика взаимодействия для IntervalSelector.xaml
-    /// </summary>
     public partial class IntervalDateSelector : UserControl
     {
         public static DependencyProperty MinDateProperty;
@@ -101,7 +98,7 @@ namespace WebArchiveViewer
             }
         }
 
-        private Thickness ProgressMargin =>  Maximum != 0 ? new Thickness(From / Maximum * ProgressFull.ActualWidth,0,0,0) : new Thickness(0,0,0,0);
+        private Thickness ProgressMargin =>  Maximum != 0 ? new Thickness(From / Maximum * ProgressFull.ActualWidth, 0, 0, 0) : new Thickness(0, 0, 0, 0);
         private double ProgressWidth
         {
             get

@@ -9,7 +9,22 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
-    public class ArchiveLink : NotifyObj
+    interface ILink
+    {
+        string Name { get; set; }
+        string Link { get; }
+    }
+    public class UsualLink : ILink
+    {
+        public string Name { get; set; }
+        public string Link { get; set; }
+        public UsualLink(string name, string link)
+        {
+            Name = name;
+            Link = link;
+        }
+    }
+    public class ArchiveLink : NotifyObj, ILink
     {
         public string Name
         {
@@ -59,6 +74,4 @@ namespace WebArchiveViewer
 
         }
     }
-
-
 }

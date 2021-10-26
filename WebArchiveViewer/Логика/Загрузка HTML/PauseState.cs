@@ -8,7 +8,10 @@ namespace WebArchiveViewer
 {
     public class PauseState : NotifyObj
     {
-        public override string ToString() => $"Пауза: {(IsPaused ? "активна" : "выключена")}";
+        public override string ToString()
+        {
+            return $"Пауза: {(IsPaused ? "активна" : "выключена")}";
+        }
 
         public bool IsPaused
         {
@@ -31,9 +34,23 @@ namespace WebArchiveViewer
             }
         }
 
+
+        public DateTime StartDateTime
+        {
+            get => startDateTime;
+            set
+            {
+                startDateTime = value;
+                OnPropertyChanged();
+            }
+        }
+        private DateTime startDateTime;
+        public TimeSpan FromStart => DateTime.Now - StartDateTime;
+
         public PauseState(bool paused)
         {
             IsPaused = paused;
+            StartDateTime = DateTime.Now;
         }
     }
 }

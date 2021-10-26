@@ -15,6 +15,7 @@ namespace WebArchiveViewer
         }
     }
 
+
     public class MatchTypes : RequestPart
     {
         public LinkMatchType[] Types { get; private set; } = new LinkMatchType[]
@@ -72,6 +73,7 @@ namespace WebArchiveViewer
     }
 
 
+
     public class RequestLimit : RequestPart
     {
         public int Min { get; private set; } = -1;
@@ -82,11 +84,17 @@ namespace WebArchiveViewer
             set
             {
                 if (value < Min)
+                {
                     amount = Min;
+                }
                 else if (value > Max)
+                {
                     amount = Max;
+                }
                 else
+                {
                     amount = value;
+                }
                 OnPropertyChanged();
             }
         }
@@ -108,9 +116,13 @@ namespace WebArchiveViewer
             set
             {
                 if (value)
+                {
                     JSON = false;
+                }
                 else
+                {
                     JSON = true;
+                }
 
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(JSON));
@@ -161,29 +173,6 @@ namespace WebArchiveViewer
                 sb.Append($"{PrefixChar}{Prefix}={inc}{FilterType}:{option.Key}");
             }
             return sb.ToString();
-
-
-
-
-            //string filters = "";
-            //foreach (var option in Options.Codes)
-            //{
-            //    if (int.TryParse(option.Value, out int codeNum))
-            //    {
-            //        string inc = option.Enabled ? "" : "!";
-            //        filters += $"&filter={inc}statuscode:{codeNum}";
-            //    }
-            //}
-            //foreach (var option in Options.Types)
-            //{
-            //    string inc = option.Enabled ? "" : "!";
-            //    filters += $"&filter={inc}mimetype:{option.Value}";
-            //}
-            //if (!string.IsNullOrEmpty(Options.Search))
-            //{
-            //    string inc = Options.SearchIncluded ? "" : "!";
-            //    filters += $"&filter={inc}urlkey:{Options.Search}";
-            //}
         }
         private void RefillFilters(string filterText)
         {
@@ -194,10 +183,14 @@ namespace WebArchiveViewer
                 string text = option.Trim();
                 bool disabled = text.StartsWith("!");
                 if (disabled)
+                {
                     text = text.Substring(1);
+                }
 
                 if (!Filters.ContainsKey(text) && !string.IsNullOrEmpty(text))
+                {
                     Filters.Add(text, !disabled);
+                }
             }
         }
 
@@ -219,6 +212,7 @@ namespace WebArchiveViewer
             FilterType = filterType;
         }
     }
+
 
     public class RequestCodes : RequestFilter
     {

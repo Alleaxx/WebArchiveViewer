@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebArchiveViewer
@@ -39,31 +40,17 @@ namespace WebArchiveViewer
         }
 
         //Метод загрузки
-        protected virtual bool LoadHtml()
+        protected virtual ILinkLoad LoadHtml()
         {
-            return false;
+            return new LinkLoad(Link, Options).SetFail();
         }
-        public virtual async Task<bool> LoadHtmlAsync()
+        public virtual async Task<ILinkLoad> LoadHtmlAsync()
         {
             return await Task.Run(() => LoadHtml());
         }
-
-
-        //Формирование имени сохраняемого файла
-        protected static string GetSaveFileName(ArchiveLink link)
+        public virtual async Task<ILinkLoad> LoadHtmlAsync(CancellationToken token)
         {
-            bool noName = link.Name == ArchiveLink.DefaultName;
-            string withNameText = $"{link.TimeStamp} - {link.Index} - {link.Name}";
-            string withoutNameText = $"{link.TimeStamp} - {link.Index}";
-
-            StringBuilder nameText = noName ? new StringBuilder(withoutNameText) : new StringBuilder(withNameText);
-            char[] invalidChars = Path.GetInvalidFileNameChars();
-            foreach (var invChar in invalidChars)
-            {
-                nameText = nameText.Replace(invChar, '_');
-            }
-            return nameText.ToString();
+            return await Task.Run(() => LoadHtml());
         }
     }
-
 }

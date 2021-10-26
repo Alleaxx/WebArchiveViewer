@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace WebArchiveViewer
 {
-    interface ICode
+    public interface ICode
     {
         string Code { get; }
         bool Enabled { get; set; }
     }
-    interface IType
+    public interface IType
     {
         string Type { get; }
         bool Enabled { get; set; }
