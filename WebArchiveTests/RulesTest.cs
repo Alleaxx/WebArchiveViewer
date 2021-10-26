@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace WebArchiveTests
+using WebArchive.Data;
+namespace WebArchive.Tests
 {    
     [TestClass]
     public class RulesTest

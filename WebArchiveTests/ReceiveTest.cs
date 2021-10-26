@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using WebArchiveViewer;
 
-namespace WebArchiveTests
+using WebArchive.Data;
+namespace WebArchive.Tests
 {
 
     [TestClass]

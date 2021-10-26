@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Text;
 using WebArchiveViewer;
 
-namespace WebArchiveTests
+using WebArchive.Data;
+namespace WebArchive.Tests
 {
     //Сформировать запрос с заданными параметрами, проверить корректность строки
     //+ с датами

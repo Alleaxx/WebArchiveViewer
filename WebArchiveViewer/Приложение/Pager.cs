@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
+using WebArchive.Data;
 namespace WebArchiveViewer
 {
     //Разделение списка по страницам

@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
+    xmlns:Lib="clr-namespace:WebArchive.Data;assembly=WebArchive.Data"
         x:Class="WebArchiveViewer.SaveHTMLWindow"
         d:DataContext="{d:DesignInstance {x:Type local:LinksLoaderView}}"
         mc:Ignorable="d"
@@ -189,7 +190,7 @@
             </Expander.Header>
             <TabControl Grid.Row="3" Margin="25,-3,0,0">
                 <TabControl.Resources>
-                    <DataTemplate x:Key="Request" DataType="{x:Type local:HttpClientHTMLoader}">
+                    <DataTemplate x:Key="Request" DataType="{x:Type Lib:HttpClientHTMLoader}">
                         <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="WhiteSmoke">
                             <Grid>
                                 <Grid.ColumnDefinitions>

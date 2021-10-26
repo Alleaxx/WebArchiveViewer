@@ -15,17 +15,14 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        private ArchiveView View { get; set; }
+        private readonly ArchiveView MainView;
         public MainWindow()
         {
             InitializeComponent();
-            View = AppView.Ex.Archive;
-            DataContext = View;
+            MainView = new ArchiveView();
+            DataContext = MainView;
         }
 
         private void EntryInfo_MouseDown(object sender, MouseButtonEventArgs e)
@@ -36,12 +33,12 @@ namespace WebArchiveViewer
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            View.UpdateList();
+            MainView.UpdateShowedLinks();
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            var closeCommand = View.CloseSnapCommand;
+            var closeCommand = MainView.CloseSnapCommand;
             if (closeCommand.CanExecute(null))
             {
                 closeCommand?.Execute(null);

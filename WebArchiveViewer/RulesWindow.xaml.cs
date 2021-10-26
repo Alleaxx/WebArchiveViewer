@@ -16,20 +16,17 @@ namespace WebArchiveViewer
 {
     public partial class RulesWindow : Window
     {
+        public RulesView View { get; set; }
         public RulesWindow(RulesView view)
         {
             InitializeComponent();
             DataContext = view;
+            View = view;
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            var snap = AppView.Ex.Archive.SnapshotView;
-            snap.UpdateCategories(null);
-            //ICommand command = snap.UpdateCategoriesCommand;
-
-            //if(command.CanExecute(null))
-            //    command.Execute(null);
+            View.Owner.UpdateCategories(null);
         }
     }
 }

@@ -75,38 +75,22 @@
       <DependentUpon>PathOptionsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Конвертеры\Round.cs" />
-    <Compile Include="Логика\Загрузка HTML\HtmlLoadOptions.cs" />
-    <Compile Include="Логика\Загрузка HTML\LinkLoad.cs" />
-    <Compile Include="Логика\Загрузка HTML\LoadOptions.cs" />
-    <Compile Include="Логика\Загрузка HTML\PauseState.cs" />
-    <Compile Include="Логика\Получение ссылок\SnapLoader.cs" />
-    <Compile Include="Логика\Загрузка HTML\HtmlClientLoader.cs" />
-    <Compile Include="Логика\Загрузка HTML\HtmlLoader.cs" />
-    <Compile Include="Логика\Получение ссылок\ArchiveLoader.cs" />
-    <Compile Include="Логика\Получение ссылок\FileLoader.cs" />
-    <Compile Include="Логика\Получение ссылок\Запрос\ArchiveRequestCreator.cs" />
-    <Compile Include="Логика\Получение ссылок\Запрос\ArchiveRequestParts.cs" />
-    <Compile Include="Логика\Получение ссылок\Запрос\RequestCreator.cs" />
-    <Compile Include="Логика\Получение ссылок\SnapshotReceiver.cs" />
-    <Compile Include="Логика\Получение ссылок\Запрос\RequestPart.cs" />
-    <Compile Include="Логика\Снапшот\SaveMode.cs" />
-    <Compile Include="Приложение\Опции\Grouping.cs" />
-    <Compile Include="Приложение\Опции\Sorting.cs" />
-    <Compile Include="Логика\Снапшот\Правила\RulesControl.cs" />
-    <Compile Include="Логика\Снапшот\Правила\RumineRules.cs" />
-    <Compile Include="Логика\Снапшот\ArchiveLink.cs" />
-    <Compile Include="Логика\Снапшот\Категории\CategoriesInfo.cs" />
-    <Compile Include="Логика\Снапшот\Категории\Category.cs" />
-    <Compile Include="Логика\Снапшот\Snapshot.cs" />
-    <Compile Include="Приложение\Опции\CodeTypes.cs" />
-    <Compile Include="Приложение\Опции\SortsGroups.cs" />
-    <Compile Include="Логика\DateRange.cs" />
-    <Compile Include="Приложение\RulesView.cs" />
-    <Compile Include="Приложение\SnapshowView.cs" />
-    <Compile Include="Приложение\Команды и диалоги\FileDialog.cs" />
+    <Compile Include="Приложение\Загрузка HTML\LoadOptions.cs" />
+    <Compile Include="Приложение\Загрузка HTML\PauseState.cs" />
+    <Compile Include="Приложение\Получение ссылок\SnapLoader.cs" />
+    <Compile Include="Приложение\Получение ссылок\ArchiveLoader.cs" />
+    <Compile Include="Приложение\Получение ссылок\FileLoader.cs" />
+    <Compile Include="Приложение\Получение ссылок\SnapshotReceiver.cs" />
+    <Compile Include="Приложение\Снапшот\SaveMode.cs" />
+    <Compile Include="Приложение\Настройки\Grouping.cs" />
+    <Compile Include="Приложение\Настройки\Sorting.cs" />
+    <Compile Include="Приложение\Настройки\CodeTypes.cs" />
+    <Compile Include="Приложение\Настройки\SortsGroups.cs" />
+    <Compile Include="Приложение\Снапшот\RulesView.cs" />
+    <Compile Include="Приложение\Снапшот\SnapshowView.cs" />
+    <Compile Include="Приложение\FileDialog.cs" />
     <Compile Include="Конвертеры\Date.cs" />
     <Compile Include="Конвертеры\StatusCode.cs" />
-    <Compile Include="Приложение\Команды и диалоги\NotifyObj.cs" />
     <Compile Include="Элементы\IntervalSlider.xaml.cs">
       <DependentUpon>IntervalSlider.xaml</DependentUpon>
     </Compile>
@@ -119,16 +103,14 @@
     <Compile Include="SaveHTMLWindow.xaml.cs">
       <DependentUpon>SaveHTMLWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Логика\Снапшот\Правила\GroupRule.cs" />
-    <Compile Include="Приложение\AppView.cs" />
     <Compile Include="Приложение\Pager.cs" />
-    <Compile Include="Логика\Загрузка HTML\LinksLoaderView.cs" />
+    <Compile Include="Приложение\Загрузка HTML\LinksLoaderView.cs" />
     <Compile Include="Элементы\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="Приложение\ArchiveView.cs" />
-    <Compile Include="Приложение\Опции\ViewOptions.cs" />
-    <Compile Include="Приложение\Команды и диалоги\RelayCommand.cs" />
+    <Compile Include="Приложение\Настройки\ViewOptions.cs" />
+    <Compile Include="Приложение\RelayCommand.cs" />
     <Page Include="AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -207,5 +189,12 @@
   <ItemGroup>
     <Resource Include="Resources\Веб-архив.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WebArchive.Data\WebArchive.Data.csproj">
+      <Project>{84d53a64-8fc1-4279-8e86-18090f37b1ea}</Project>
+      <Name>WebArchive.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

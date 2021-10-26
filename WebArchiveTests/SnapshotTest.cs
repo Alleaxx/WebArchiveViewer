@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
 
-namespace WebArchiveTests
+using WebArchive.Data;
+namespace WebArchive.Tests
 {
     [TestClass]
     public class SnapshotTest

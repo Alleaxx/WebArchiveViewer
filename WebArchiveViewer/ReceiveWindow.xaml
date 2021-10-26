@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
+        xmlns:Lib="clr-namespace:WebArchive.Data;assembly=WebArchive.Data"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance {x:Type local:ArchiveSnapLoader }}"
         Icon="Resources/Веб-архив.png"
         Title="Загрузка с веб-архива" Height="700" Width="450">
@@ -52,7 +53,7 @@
                             <StackPanel Style="{StaticResource PropertiesPanel}">
                                 <ContentPresenter Content="{Binding RequestCreator.Limit}">
                                     <ContentPresenter.ContentTemplate>
-                                        <DataTemplate DataType="{x:Type local:RequestLimit}">
+                                        <DataTemplate DataType="{x:Type Lib:RequestLimit}">
                                             <TextBlock x:Name="block" Text="{Binding Amount}" />
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding Amount}" Value="-1">

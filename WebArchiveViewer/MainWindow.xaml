@@ -353,7 +353,7 @@
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button x:Name="load" Command="{Binding DataContext.SnapshotView.OpenLinkCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}}" CommandParameter="{Binding HtmlFilePath}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
+                                                        <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" CommandParameter="{Binding HtmlFilePath}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
                                                             <TextBlock x:Name="text" Text="файл" FontSize="14" Foreground="Black" />
                                                         </Button>
                                                         <DataTemplate.Triggers>

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
+using WebArchive.Data;
 namespace WebArchiveViewer
 {
 
@@ -19,13 +20,12 @@ namespace WebArchiveViewer
     {
         public override string ToString()
         {
-            return $"Просмотр снапшота - {CurrentSnapshot}";
+            return $"Просмотр снапшота - {snapshotView}";
         }
 
-        //Инициализация
         public ArchiveView()
         {
-            ClearSnapshot();
+            SetSnapshot(null);
             Receiver = new SnapshotReceiver(this);
         }
         protected override void InitCommands()
@@ -34,9 +34,13 @@ namespace WebArchiveViewer
             CloseSnapCommand = new RelayCommand(CloseSnapshot, IsSnapshotOpened);
         }
 
-        //Снапшот и его получение
+
+
+        //Получение снапшота
         public SnapshotReceiver Receiver { get; private set; }
 
+
+        //Открытый снапшот
         public SnapshotView SnapshotView
         {
             get => snapshotView;
@@ -48,36 +52,30 @@ namespace WebArchiveViewer
         }
         private SnapshotView snapshotView;
 
-
-        private Snapshot CurrentSnapshot => SnapshotView.Current;
         public void SetSnapshot(Snapshot value)
         {
             if(snapshotView != null)
             {
-                snapshotView.ViewOptions.OnUpdated -= UpdateList;
+                snapshotView.ViewOptions.OnUpdated -= UpdateShowedLinks;
             }
 
             SnapshotView = new SnapshotView(value);
             if (value != null)
             {
-                SnapshotView.ViewOptions.OnUpdated += UpdateList;
-                UpdateList();
+                SnapshotView.ViewOptions.OnUpdated += UpdateShowedLinks;
+                UpdateShowedLinks();
             }
         }
-        public void ClearSnapshot()
-        {
-            SetSnapshot(null);
-        }
+
 
         private bool IsSnapshotOpened(object obj)
         {
-            return CurrentSnapshot != null;
+            return SnapshotView.Current != null;
         }
         public ICommand CloseSnapCommand { get; private set; }
-
         private void CloseSnapshot(object obj)
         {
-            ClearSnapshot();
+            SetSnapshot(null);
             LinksPager = null;
         }
 
@@ -93,7 +91,7 @@ namespace WebArchiveViewer
             }
         }
         private IPager<ArchiveLink> linksPager;
-        public void UpdateList()
+        public void UpdateShowedLinks()
         {
             if(SnapshotView.Current != null)
             {
