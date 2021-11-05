@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30406.217
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebArchiveViewer", "WebArchiveViewer\WebArchiveViewer.csproj", "{5C2EE86A-02B0-4A82-A075-36A03F4B90E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebArchive.Viewer", "WebArchiveViewer\WebArchive.Viewer.csproj", "{5C2EE86A-02B0-4A82-A075-36A03F4B90E1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{84D53A64-8FC1-4279-8E86-18090F37B1EA} = {84D53A64-8FC1-4279-8E86-18090F37B1EA}
 	EndProjectSection

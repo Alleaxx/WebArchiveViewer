@@ -74,9 +74,12 @@
     <Compile Include="PathOptionsWindow.xaml.cs">
       <DependentUpon>PathOptionsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Конвертеры\ColumnWidthConverter.cs" />
     <Compile Include="Конвертеры\Round.cs" />
+    <Compile Include="Приложение\Page.cs" />
     <Compile Include="Приложение\Загрузка HTML\LoadOptions.cs" />
     <Compile Include="Приложение\Загрузка HTML\PauseState.cs" />
+    <Compile Include="Приложение\Получение ссылок\ProcessProgress.cs" />
     <Compile Include="Приложение\Получение ссылок\SnapLoader.cs" />
     <Compile Include="Приложение\Получение ссылок\ArchiveLoader.cs" />
     <Compile Include="Приложение\Получение ссылок\FileLoader.cs" />

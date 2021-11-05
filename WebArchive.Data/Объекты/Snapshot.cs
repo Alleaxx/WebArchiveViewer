@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace WebArchive.Data
 {
     //Сохраняемый снапшот (список ссылок полученных из запроса)
-    public class Snapshot
+    public class Snapshot : ICloneable
     {
         //Сведения о файлах
         public string FolderHtmlSavePath { get; set; }
@@ -20,7 +20,7 @@ namespace WebArchive.Data
         public DateTime ReceivingDate { get; set; }
 
 
-        public RulesControl RulesControl { get; set; }
+        public GroupRule RulesControl { get; set; }
         public ArchiveLink[] Links { get; set; }
 
 
@@ -31,17 +31,6 @@ namespace WebArchive.Data
         {
 
         }
-        //Копия для сохранения
-        public Snapshot(Snapshot snapshot, IEnumerable<ArchiveLink> links)
-        {
-            FolderHtmlSavePath = snapshot.FolderHtmlSavePath;
-            FilePath = snapshot.FilePath;
-            Request = snapshot.Request;
-            SourceURI = snapshot.SourceURI;
-            ReceivingDate = snapshot.ReceivingDate;
-            RulesControl = snapshot.RulesControl;
-            Links = links.ToArray();
-        }
         //Из архива
         public Snapshot(string request, string sourceLink, IEnumerable<ArchiveLink> links)
         {
@@ -51,59 +40,52 @@ namespace WebArchive.Data
             SourceURI = sourceLink;
             Links = links.ToArray();
 
-            CreateRulesIfNull();
+            SetRulesIfNull();
+        }
+
+        public void InitAfterLoad()
+        {
+            foreach (var link in Links)
+            {
+                if (!string.IsNullOrEmpty(link.HtmlFilePath) && !System.IO.File.Exists(link.HtmlFilePath))
+                {
+                    link.HtmlFilePath = null;
+                }
+            }
         }
 
         //Категории, их обновление
-        public void UpdateLinkCategories()
+        public void UpdateCategories()
         {
+            SetRulesIfNull();
             foreach (ArchiveLink link in Links)
             {
-                string category = RulesControl.CheckLink(link);
-                link.Category = category;
+                link.Category = RulesControl.CheckLink(link);
             }
         }
-        public CategoriesInfo GetCategories()
-        {
-            CreateRulesIfNull();
-            UpdateLinkCategories();
-
-            var mainRule = RulesControl.Rule;
-            var cates = RulesControl.Rules.Select(r => new Category(r)).ToList();
-            var cateDictionary = Category.GetDictionary(cates);
-
-            CountCategoriesElements(cates, cateDictionary);
-            foreach (var cate in cates)
-            {
-                cate.RemoveNullInnerCates();
-            }
-
-            return new CategoriesInfo(cates, cateDictionary);
-        }
-        private void CountCategoriesElements(List<Category> categories, Dictionary<string, ICategory> dictionary)
-        {
-            foreach (ArchiveLink link in Links)
-            {
-                string cateName = link.Category;
-
-                if (!dictionary.ContainsKey(cateName))
-                {
-                    var newCate = new Category(cateName);
-                    dictionary.Add(newCate.Name, newCate);
-                    categories.Add(newCate);
-                }
-                dictionary[cateName].ItemsAmount++;
-            }
-        }
-
-
-        private void CreateRulesIfNull()
+        private void SetRulesIfNull()
         {
             if (RulesControl == null)
             {
-                RulesControl = new RulesControl();
-                RulesControl.AddRules(new RumineRules());
+                RulesControl = new GroupRule();
+                if (SourceURI.Contains("ru-minecraft.ru"))
+                {
+                    RulesControl.AddInner(RulesStorage.Rumine());
+                }
             }
+        }
+
+
+        //Копия для сохранения
+        public object Clone()
+        {
+            return CloneThis(Links);
+        }
+        public Snapshot CloneThis(IEnumerable<ArchiveLink> links)
+        {
+            var copy = MemberwiseClone() as Snapshot;
+            copy.Links = links.ToArray();
+            return copy;
         }
     }
 }

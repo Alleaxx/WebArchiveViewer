@@ -12,7 +12,13 @@ namespace WebArchive.Data
 {
     //Получение ссылок
     public enum LoadState { Waiting, Loading, Success, WebFail, FileFail }
-    public abstract class HTMLoader
+
+    public interface IHtmlLoader
+    {
+        Task<ILinkLoad> LoadHtmlAsync();
+        Task<ILinkLoad> LoadHtmlAsync(CancellationToken token);
+    }
+    public abstract class HTMLoader : IHtmlLoader
     {
         public override string ToString()
         {
@@ -20,7 +26,7 @@ namespace WebArchive.Data
         }
 
         //Опции загрузки
-        public ArchiveLink Link { get; private set; }
+        public ILink Link { get; private set; }
         public LoadHtmlOptions Options { get; private set; }
 
 
@@ -34,7 +40,7 @@ namespace WebArchive.Data
         }
 
 
-        public HTMLoader(ArchiveLink link, LoadHtmlOptions options)
+        public HTMLoader(ILink link, LoadHtmlOptions options)
         {
             Link = link;
             Options = options;

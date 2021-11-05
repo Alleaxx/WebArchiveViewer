@@ -16,7 +16,6 @@ namespace WebArchiveViewer
             return Current != null ? $"Модель {Current}" : "Нулевой снапшот";
         }
 
-
         public string Status
         {
             get
@@ -119,24 +118,33 @@ namespace WebArchiveViewer
             IFileDialog fileDialog = new FileDialog();
             SaveMode mod = GetSaveMode(obj);
 
-            Snapshot saveCopy = new Snapshot(Current, ViewOptions.GetFilteredLinks(mod));
-            int linksCount = saveCopy.Links.Count();
+            Snapshot saveCopy = Current.CloneThis(ViewOptions.GetFilteredLinks(mod));
 
+            string filePath = null;
             if (Current.FilePath != null && File.Exists && mod == SaveMode.AllDefaultPath)
             {
-                await Task.Run(() => fileDialog.SaveFile(Current.FilePath, saveCopy));
-                SaveComplete(Current.FilePath);
+                filePath = Current.FilePath;
             }
             else
             {
-                var file = new FileDialog().Save($"Снапшот - {linksCount}");
+                int linksCount = saveCopy.Links.Count();
+                var file = new FileDialog().Save($"{Current.ReceivingDate:yyyy-MM-dd} снапшот - {linksCount} ссылок");
                 if(file != null)
                 {
-                    await Task.Run(() => fileDialog.SaveFile(file.FullName, saveCopy));
-                    SaveComplete(file.FullName);
+                    filePath = file.FullName;
                 }
             }
+            await Save();
 
+
+            async Task Save()
+            {
+                if (!string.IsNullOrEmpty(filePath))
+                {
+                    await Task.Run(() => fileDialog.SaveFile(filePath, saveCopy));
+                    SaveComplete(filePath);
+                }
+            }
             void SaveComplete(string path)
             {
                 Current.FilePath = path;
@@ -193,7 +201,7 @@ namespace WebArchiveViewer
         private readonly string[] ForbiddenCodes = new string[] { "404", "502", "302" };
         private bool IsLoadNameAvailable(object obj)
         {
-            return obj is ArchiveLink Link && !ForbiddenCodes.Contains(Link.StatusCode) && !LoadingLinks.Contains(Link);
+            return obj is ArchiveLink Link && !ForbiddenCodes.Contains(Link.StatusCode) && Link.MimeType == "text/html" && !LoadingLinks.Contains(Link);
         }
 
         public ICommand LoadLinkNameCommand { get; private set; }
@@ -204,7 +212,7 @@ namespace WebArchiveViewer
                 LoadingLinks.Add(Link);
                 using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
                 {
-                    HttpClientHTMLoader loader = new HttpClientHTMLoader(client, Link, new LoadHtmlOptions());
+                    IHtmlLoader loader = new HttpClientHTMLoader(client, Link, new LoadHtmlOptions());
                     ILinkLoad res = await loader.LoadHtmlAsync();
                     await Task.Run(res.Process);
                 }

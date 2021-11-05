@@ -11,50 +11,41 @@ namespace WebArchiveViewer
     public class RulesView : NotifyObj
     {
         public readonly SnapshotView Owner;
-        public RulesControl RulesControl { get; private set; }
+        public GroupRule RulesControl { get; private set; }
+
 
         public RulesView()
         {
-            RulesControl = new RulesControl();
+            RulesControl = new GroupRule();
         }
         public RulesView(SnapshotView snap)
         {
             Owner = snap;
-            RulesControl = snap.Current == null ? null : snap.Current.RulesControl;
+            RulesControl = snap?.Current?.RulesControl;
             CreateCommands();
         }
         private void CreateCommands()
         {
-            if (RulesControl == null)
-            {
-                ShowRulesCommand = new RelayCommand(Nothing, NotAvailable);
-                RemoveRuleCommand = new RelayCommand(Nothing, NotAvailable);
-                AddRuleCommand = new RelayCommand(Nothing, NotAvailable);
-            }
-            else
-            {
-                ShowRulesCommand = new RelayCommand(ShowRules);
-                RemoveRuleCommand = new RelayCommand(RemoveRule, IsNotMainRule);
-                AddRuleCommand = new RelayCommand(AddRule, IsNotMainRule);
-            }
-            void Nothing(object obj)
-            {
-
-            }
-            bool NotAvailable(object obj)
-            {
-                return false;
-            }
+            ShowRulesCommand = new RelayCommand(ShowRules, Exist);
+            RemoveRuleCommand = new RelayCommand(RemoveRule, IsNotMainRule);
+            AddRuleCommand = new RelayCommand(AddRule, Exist);
         }
+
 
         public ICommand ShowRulesCommand { get; private set; }
         public ICommand RemoveRuleCommand { get; private set; }
         public ICommand AddRuleCommand { get; private set; }
 
+
+        private bool Exist(object obj)
+        {
+            return RulesControl != null;
+        }
         private bool IsNotMainRule(object obj)
         {
-            return obj != RulesControl.Rule;
+            return Exist(obj) && obj != RulesControl;
         }
+
 
         private void ShowRules(object obj)
         {
@@ -65,14 +56,14 @@ namespace WebArchiveViewer
         {
             if (obj is GroupRule ruleToRemove)
             {
-                RulesControl.Rule.Remove(ruleToRemove);
+                RulesControl.RemoveInner(ruleToRemove);
             }
         }
         private void AddRule(object obj)
         {
             if (obj is GroupRule rule)
             {
-                rule.Rules.Insert(0, new GroupRule());
+                rule.Rules.Insert(0, new GroupRule("Новое правило", "???"));
             }
         }
     }

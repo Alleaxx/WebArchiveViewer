@@ -16,7 +16,10 @@ namespace WebArchive.Data
     }
     public class RequestPart : NotifyObj, IRequestPart
     {
-        public override string ToString() => $"Часть запроса: {Name}";
+        public override string ToString()
+        {
+            return $"Часть запроса: {Name}";
+        }
 
         protected virtual string PrefixChar => Inverted ? "&!" : "&";
         public string Prefix { get; protected set; }
@@ -54,6 +57,10 @@ namespace WebArchive.Data
             Prefix = prefix;
             Name = name;
             Value = defaultValue;
+        }
+        public RequestPart(string name)
+        {
+            Name = name;
         }
     }
 }

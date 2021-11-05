@@ -10,6 +10,9 @@ namespace WebArchive.Data
 {
     public interface ILinkLoad
     {
+        string Name { get; }
+        string Content { get; }
+
         bool Success { get; }
         void Process();
         ILinkLoad SetFail();
@@ -18,7 +21,7 @@ namespace WebArchive.Data
     public class LinkLoad : ILinkLoad
     {
         private readonly LoadHtmlOptions Options;
-        private readonly ArchiveLink Link;
+        private readonly ILink Link;
 
 
         public string Name { get; private set; }
@@ -26,7 +29,7 @@ namespace WebArchive.Data
         public bool Success { get; private set; }
 
 
-        public LinkLoad(ArchiveLink link, LoadHtmlOptions options)
+        public LinkLoad(ILink link, LoadHtmlOptions options)
         {
             Link = link;
             Options = options;
@@ -50,9 +53,9 @@ namespace WebArchive.Data
             {
                 Link.Name = Name;
             }
-            if (Options.SavingHtml)
+            if (Options.SavingHtml && !string.IsNullOrEmpty(Options.FolderPath))
             {
-                string fileName = CreateSaveFileName(Link);
+                string fileName = CreateSaveFileName(Link as ArchiveLink);
                 string filePath = $"{Options.FolderPath}\\{fileName}.html";
 
                 File.WriteAllText(filePath, Content);

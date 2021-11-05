@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WebArchiveViewer\WebArchiveViewer.csproj" />
+    <ProjectReference Include="..\WebArchiveViewer\WebArchive.Viewer.csproj" />
   </ItemGroup>
 
 </Project>

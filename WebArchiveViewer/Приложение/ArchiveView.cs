@@ -20,7 +20,7 @@ namespace WebArchiveViewer
     {
         public override string ToString()
         {
-            return $"Просмотр снапшота - {snapshotView}";
+            return $"Представление снапшота: {snapshotView}";
         }
 
         public ArchiveView()
@@ -51,28 +51,27 @@ namespace WebArchiveViewer
             }
         }
         private SnapshotView snapshotView;
-
         public void SetSnapshot(Snapshot value)
         {
             if(snapshotView != null)
             {
-                snapshotView.ViewOptions.OnUpdated -= UpdateShowedLinks;
+                snapshotView.ViewOptions.OnUpdated -= UpdatePagerLinks;
             }
 
             SnapshotView = new SnapshotView(value);
             if (value != null)
             {
-                SnapshotView.ViewOptions.OnUpdated += UpdateShowedLinks;
-                UpdateShowedLinks();
+                SnapshotView.ViewOptions.OnUpdated += UpdatePagerLinks;
+                UpdatePagerLinks();
             }
         }
 
 
+        public ICommand CloseSnapCommand { get; private set; }
         private bool IsSnapshotOpened(object obj)
         {
             return SnapshotView.Current != null;
         }
-        public ICommand CloseSnapCommand { get; private set; }
         private void CloseSnapshot(object obj)
         {
             SetSnapshot(null);
@@ -91,7 +90,7 @@ namespace WebArchiveViewer
             }
         }
         private IPager<ArchiveLink> linksPager;
-        public void UpdateShowedLinks()
+        public void UpdatePagerLinks()
         {
             if(SnapshotView.Current != null)
             {

@@ -35,13 +35,13 @@ namespace WebArchiveViewer
             Receiver = receiver;
             FileDialog = new FileDialog();
         }
+
+
         protected override void InitCommands()
         {
             base.InitCommands();
             LoadCommand = new RelayCommand(obj => LoadSnapshot(), RelayCommand.IsTrue);
         }
-
-
         public ICommand LoadCommand { get; private set; }
         protected abstract void LoadSnapshot();
         protected void SendSnapshot()

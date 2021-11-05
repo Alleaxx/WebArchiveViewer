@@ -9,20 +9,22 @@ using System.Windows.Data;
 
 namespace WebArchiveViewer
 {
-    public class MathRoundConverter : IValueConverter
+    public class ColumnWidthConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is double number)
+            if (value is bool flag)
             {
-                string format = "0.0";
-                if (parameter is string str && !string.IsNullOrEmpty(str))
+                if (flag)
                 {
-                    format = str;
+                    return 250;
                 }
-                return number.ToString(format);
+                else
+                {
+                    return 0;
+                }
             }
-            return value;
+            return 250;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -30,5 +32,4 @@ namespace WebArchiveViewer
             return DependencyProperty.UnsetValue;
         }
     }
-
 }

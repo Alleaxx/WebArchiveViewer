@@ -21,7 +21,11 @@ namespace WebArchive.Data
             return $"Построитель запроса: {Request}";
         }
 
-        public string GetRequest() => Request;
+        public string GetRequest()
+        {
+            return Request;
+        }
+
         public string Request
         {
             get => request;

@@ -14,9 +14,11 @@ namespace WebArchiveViewer
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             DateTime date = (DateTime)value;
-            string param = (string)parameter;
-            if (string.IsNullOrEmpty(param))
-                param = "dd MMMM yyyy, HH:mm";
+            string param = "dd MMMM yyyy, HH:mm";
+            if (parameter is string str && !string.IsNullOrEmpty(str))
+            {
+                param = str;
+            }
             return date.ToString(param);
         }
 

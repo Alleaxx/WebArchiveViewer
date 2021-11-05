@@ -19,10 +19,32 @@ namespace WebArchive.Data
         public string FoundText { get; set; }
 
         public ObservableCollection<GroupRule> Rules { get; private set; }
+        public void AddInner(IEnumerable<GroupRule> newRules)
+        {
+            foreach (GroupRule rule in newRules)
+            {
+                Rules.Add(rule);
+            }
+        }
+        public void RemoveInner(GroupRule ruleToRemove)
+        {
+            Rules.Remove(ruleToRemove);
+            foreach (GroupRule rule in Rules)
+            {
+                rule.RemoveInner(ruleToRemove);
+            }
+        }
 
-        public GroupRule() : this("-", "-")
+
+        public GroupRule() : this("Всё", "")
         {
 
+        }
+        public GroupRule(string name, string text)
+        {
+            GroupName = name;
+            FoundText = text;
+            Rules = new ObservableCollection<GroupRule>();
         }
         public GroupRule(string name, string text, params GroupRule[] rules)
         {
@@ -31,55 +53,24 @@ namespace WebArchive.Data
             Rules = new ObservableCollection<GroupRule>(rules);
         }
 
-
-        public void AddRules(params GroupRule[] rules)
+        public string CheckLink(ArchiveLink link)
         {
-            foreach (var rule in rules)
-            {
-                Rules.Add(rule);
-            }
+            return CheckLink(link.LinkSource);
         }
-        public void AddRules(IEnumerable<GroupRule> rules)
-        {
-            foreach (var rule in rules)
-            {
-                Rules.Add(rule);
-            }
-        }
-
-        public string IsMatched(ArchiveLink link)
-        {
-            return IsMatched(link.LinkSource);
-        }
-        public string IsMatched(string link)
+        public string CheckLink(string link)
         {
             if (link.Contains(FoundText))
             {
-                if (Rules.Count == 0)
+                foreach (GroupRule rule in Rules)
                 {
-                    return GroupName;
-                }
-                else
-                {
-                    foreach (var rule in Rules)
+                    if (rule.CheckLink(link) is string res && !string.IsNullOrEmpty(res))
                     {
-                        if (rule.IsMatched(link) is string res && !string.IsNullOrEmpty(res))
-                            return res;
+                        return res;
                     }
                 }
                 return GroupName;
             }
             return null;
-        }
-
-
-        public void Remove(GroupRule ruleToRemove)
-        {
-            Rules.Remove(ruleToRemove);
-            foreach (GroupRule rule in Rules)
-            {
-                rule.Remove(ruleToRemove);
-            }
         }
     }
 }

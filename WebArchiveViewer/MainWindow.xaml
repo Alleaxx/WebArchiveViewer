@@ -10,6 +10,7 @@
     <Window.Resources>
         <local:DateTextConverter x:Key="DateConverter" />
         <local:StatusCodeColorConverter x:Key="StatusCodeColorConverter" />
+        <local:ColumnWidthConverter x:Key="ColumnWidthConverter" />
 
     </Window.Resources>
     <Window.DataContext>
@@ -86,6 +87,7 @@
                                                 <TextBlock Text="Группировка"  Style="{DynamicResource PropertyName}" />
                                                 <ComboBox ItemsSource="{Binding ListView.Groups}" SelectedItem="{Binding ListView.GroupSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center" />
                                             </DockPanel>
+                                            <CheckBox x:Name="showName" Content="Показывать имя"></CheckBox>
                                         </StackPanel>
                                     </Border>
 
@@ -132,16 +134,15 @@
                                     </ScrollViewer>
                                     <Border Grid.Row="4" BorderThickness="0,1,0,0" BorderBrush="Gainsboro" Padding="15,5">
                                         <StackPanel Margin="0,3">
-                                            <TextBlock Text="Действия:" />
                                             <Button Command="{Binding SnapshotView.OpenOptionsCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="Настройки сохранения" />
                                             </Button>
                                             <Button Command="{Binding SnapshotView.OpenLoadOptionsCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="Загрузить имена и HTML" />
                                             </Button>
-                                            <Button Command="{Binding SnapshotView.ClearProgressCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
+                                            <!--<Button Command="{Binding SnapshotView.ClearProgressCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="Обнулить процесс загрузки" />
-                                            </Button>
+                                            </Button>-->
                                         </StackPanel>
                                     </Border>
                                 </Grid>
@@ -161,7 +162,7 @@
                                     <DockPanel Margin="0,4">
                                         <TextBlock Grid.Row="0" Text="{Binding SnapshotView.Current.SourceURI}" FontSize="24" Margin="0,0,10,0"/>
 
-                                        <DockPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
+                                        <!--<DockPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
                                             <TextBlock Text="Стр." Margin="5,0" />
                                             <TextBox Text="{Binding LinksPager.PageNowNumber, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
                                             <TextBlock Text="из" Margin="5,0" />
@@ -177,7 +178,7 @@
                                                 <System:Int32>10000</System:Int32>
                                             </ComboBox>
                                             <TextBlock Text="ссылок" Margin="5,0" />
-                                        </DockPanel>
+                                        </DockPanel>-->
                                         <DockPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
                                             <TextBlock FontSize="18" Text="{Binding SnapshotView.ViewOptions.LinksFilteredAmount}" VerticalAlignment="Center" Margin="5,0" />
                                             <TextBlock FontSize="18" Text="/" VerticalAlignment="Center" Margin="5,0"/>
@@ -229,12 +230,14 @@
                                     <DockPanel Grid.Row="2" Margin="0,5,0,0">
 
                                         <DockPanel>
-                                            <Button Content="««" Padding="15,0" Margin="0,0,2,0" ToolTip="Перейти на первую страницу" Command="{Binding LinksPager.SetPageCommand}" CommandParameter="{Binding LinksPager.PageMinAmount}" />
+                                            <Button Padding="15,0" Margin="0,0,2,0" ToolTip="Перейти на первую страницу" Command="{Binding LinksPager.SetPageCommand}" CommandParameter="{Binding LinksPager.PageMinAmount}">
+                                                <TextBlock Text="{Binding LinksPager.PageMinAmount,StringFormat=\{0\} ««}"/>
+                                            </Button>
                                             <Button Content="←" Padding="15,0" Margin="0,0,5,0" ToolTip="Перейти на предыдущую страницу"  Command="{Binding LinksPager.PrevPageCommand}" />
                                             <ListBox ItemsSource="{Binding LinksPager.PagesAvailable}" SelectedItem="{Binding LinksPager.PageNowNumber}">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock Text="{Binding}" Padding="5,0" Cursor="Hand" />
+                                                        <TextBlock Text="{Binding}" Padding="3,0" Cursor="Hand" />
                                                     </DataTemplate>
                                                 </ListBox.ItemTemplate>
                                                 <ListBox.ItemsPanel>
@@ -244,11 +247,32 @@
                                                 </ListBox.ItemsPanel>
                                             </ListBox>
                                             <Button Content="→" Padding="15,0" Margin="5,0,2,0" ToolTip="Перейти на следующую страницу" Command="{Binding LinksPager.NextPageCommand}" />
-                                            <Button Content="»»" Padding="15,0" Margin="0,0,5,0" ToolTip="Перейти на последнюю страницу" Command="{Binding LinksPager.SetPageCommand}" CommandParameter="{Binding LinksPager.PageMaxAmount}" />
+                                            <Button  Padding="15,0" Margin="0,0,5,0" ToolTip="Перейти на последнюю страницу" Command="{Binding LinksPager.SetPageCommand}" CommandParameter="{Binding LinksPager.PageMaxAmount}">
+                                                <TextBlock Text="{Binding LinksPager.PageMaxAmount,StringFormat=»» {0}}"/>
+                                            </Button>
 
                                         </DockPanel>
+                                        <DockPanel DockPanel.Dock="Right">
 
-                                        <Slider Grid.Row="1" Minimum="1"  Margin="5,0" Maximum="{Binding LinksPager.PageMaxAmount}"
+                                            <DockPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
+                                                <TextBlock Text="Стр." Margin="5,0" />
+                                                <TextBox Text="{Binding LinksPager.PageNowNumber, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                                                <TextBlock Text="из" Margin="5,0" />
+                                                <TextBlock Text="{Binding LinksPager.PageMaxAmount}"/>
+                                                <TextBlock Text="по" Margin="5,0" />
+                                                <ComboBox SelectedItem="{Binding LinksPager.ElementsPerPage}">
+                                                    <System:Int32>50</System:Int32>
+                                                    <System:Int32>100</System:Int32>
+                                                    <System:Int32>250</System:Int32>
+                                                    <System:Int32>500</System:Int32>
+                                                    <System:Int32>2000</System:Int32>
+                                                    <System:Int32>5000</System:Int32>
+                                                    <System:Int32>10000</System:Int32>
+                                                </ComboBox>
+                                                <TextBlock Text="ссылок" Margin="5,0" />
+                                            </DockPanel>
+                                        </DockPanel>
+                                        <Slider Grid.Row="1" Minimum="1"  Margin="5,0" Maximum="{Binding LinksPager.PageMaxAmount}" Visibility="Collapsed"
                                 Value="{Binding LinksPager.PageNowNumber, UpdateSourceTrigger=PropertyChanged}" AutoToolTipPlacement="TopLeft" TickPlacement="BottomRight" />
                                     </DockPanel>
                                 </Grid>
@@ -315,29 +339,31 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <DockPanel>
                                                     <TextBlock Text="Категория" />
-                                                    <Button Command="{Binding SnapshotView.UpdateCategoriesCommand}" ToolTip="Обновить категории у всех ссылок" Margin="4,0" Padding="1,0" BorderThickness="0" >
+                                                    <!--<Button Command="{Binding SnapshotView.UpdateCategoriesCommand}" ToolTip="Обновить категории у всех ссылок" Margin="4,0" Padding="1,0" BorderThickness="0" >
                                                         <TextBlock Text="[ @ ]" FontSize="11" Foreground="Gray" />
-                                                    </Button>
+                                                    </Button>-->
                                                 </DockPanel>
                                             </GridViewColumn>
-                                            <GridViewColumn>
+                                            <GridViewColumn Width="250">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <DockPanel>
-                                                            <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
+                                                            <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
                                                                 <TextBlock x:Name="text" Text="{Binding Name}" FontSize="14" Foreground="Black" />
                                                             </Button>
                                                         </DockPanel>
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                                 <DockPanel>
-                                                    <TextBlock Text="Имя" />
+                                                    <TextBlock Text="Имя страницы" />
                                                 </DockPanel>
                                             </GridViewColumn>
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock Text="{Binding LinkSource}"  Tag="{Binding LinkSource}" ToolTip="{Binding LinkSource}" MouseDown="EntryInfo_MouseDown" Style="{DynamicResource TextBlockLink}"  />
+                                                        <Button Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding LinkSource}">
+                                                            <TextBlock Text="{Binding LinkSource}" ToolTip="{Binding LinkSource}" Style="{DynamicResource TextBlockLink}"  />
+                                                        </Button>
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Ссылка" />
@@ -345,7 +371,9 @@
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock Text="Архив" Tag="{Binding Link}" ToolTip="{Binding Link}" MouseDown="EntryInfo_MouseDown" Style="{DynamicResource TextBlockLink}" />
+                                                        <Button Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding Link}">
+                                                            <TextBlock Text="Архив" Tag="{Binding Link}" ToolTip="{Binding Link}" Style="{DynamicResource TextBlockLink}" />
+                                                        </Button>
                                                     </DataTemplate>
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Веб-архив" />
@@ -353,7 +381,7 @@
                                             <GridViewColumn>
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" CommandParameter="{Binding HtmlFilePath}" Height="18" HorizontalAlignment="Center" Padding="10,0" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
+                                                        <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" CommandParameter="{Binding HtmlFilePath}" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
                                                             <TextBlock x:Name="text" Text="файл" FontSize="14" Foreground="Black" />
                                                         </Button>
                                                         <DataTemplate.Triggers>
@@ -370,6 +398,7 @@
                                                     <TextBlock Text="Загрузка" />
                                                 </DockPanel>
                                             </GridViewColumn>
+              
                                         </GridView>
                                     </ListView.View>
                                     <ListView.GroupStyle>
@@ -404,6 +433,17 @@
                                             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                         </Style>
                                     </ListView.ItemContainerStyle>
+                                    <ListView.Resources>
+                                        <Style TargetType="{x:Type Button}">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush" Value="Gainsboro" />
+                                            <Setter Property="BorderThickness" Value="0,0,0,1" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                            <Setter Property="Padding" Value="2,0,10,0" />
+                                            <Setter Property="Height" Value="18" />
+                                            <Setter Property="Cursor" Value="Hand" />
+                                        </Style>
+                                    </ListView.Resources>
                                 </ListView>
                             </Border>
 

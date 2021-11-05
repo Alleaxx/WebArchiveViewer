@@ -17,7 +17,8 @@ namespace WebArchive.Data
         ICategory FindCategory(string name);
         void RemoveNullInnerCates();
         ICategory[] InnerCates { get; }
-        IEnumerable<ICategory> GetAllInnerCates();
+        IEnumerable<ICategory> AllInnerCates();
+        IEnumerable<ICategory> AllInnerCatesSelf();
     }
     public class Category : Option, ICategory
     {
@@ -62,10 +63,7 @@ namespace WebArchive.Data
         public ICategory[] InnerCates { get; private set; } = new ICategory[0];
 
 
-        public Category()
-        {
 
-        }
         public Category(string name)
         {
             Name = name;
@@ -106,36 +104,23 @@ namespace WebArchive.Data
         }
 
 
-        public IEnumerable<ICategory> GetAllInnerCates()
+        public IEnumerable<ICategory> AllInnerCates()
         {
             List<ICategory> cates = new List<ICategory>();
             foreach (ICategory cate in InnerCates)
             {
-                var inner = cate.GetAllInnerCates();
+                var inner = cate.AllInnerCates();
                 cates.Add(cate);
                 cates.AddRange(inner);
             }
             return cates;
         }
-
-        public static Dictionary<string, ICategory> GetDictionary(IEnumerable<ICategory> cates)
+        public IEnumerable<ICategory> AllInnerCatesSelf()
         {
-            List<ICategory> categories = new List<ICategory>();
-            foreach (var cate in cates)
-            {
-                categories.Add(cate);
-                categories.AddRange(cate.GetAllInnerCates());
-            }
-
-            Dictionary<string, ICategory> dictinary = new Dictionary<string, ICategory>();
-            foreach (ICategory cate in categories)
-            {
-                if (!dictinary.ContainsKey(cate.Name))
-                {
-                    dictinary.Add(cate.Name, cate);
-                }
-            }
-            return dictinary;
+            var inner = AllInnerCates();
+            List<ICategory> cates = new List<ICategory>(inner);
+            cates.Add(this);
+            return cates;
         }
     }
 }

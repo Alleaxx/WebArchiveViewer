@@ -35,6 +35,27 @@ namespace WebArchiveViewer
             window.Show();
         }
 
+
+        //Сайт и настройки получения
+        public IRequestCreator RequestCreator
+        {
+            get
+            {
+                if(RequestDefaultCreator == null)
+                {
+                    return RequestArchiveCreator;
+                }
+                else
+                {
+                    return RequestDefaultCreator;
+                }
+            }
+        }
+        public DefaultRequestCreator RequestDefaultCreator { get; set; }
+        public ArchiveRequestCreator RequestArchiveCreator { get; private set; }
+
+
+
         protected override void InitCommands()
         {
             base.InitCommands();
@@ -42,14 +63,6 @@ namespace WebArchiveViewer
             SetSnapshotCommand = new RelayCommand(SetSnapshotSource, IsNotEmptySnapshotReceived);
             CopyRequestCommand = new RelayCommand(CopyRequest);
         }
-
-        //Сайт и настройки получения
-        public IRequestCreator RequestCreator => RequestDefaultCreator ?? RequestArchiveCreator;
-        public IRequestCreator RequestDefaultCreator { get; set; }
-        public IArhiveRequest RequestArchiveCreator { get; private set; }
-
-
-
         public ICommand UploadLinksCommand { get; private set; }
         public ICommand SetSnapshotCommand { get; private set; }
         public ICommand CopyRequestCommand { get; private set; }
@@ -57,7 +70,10 @@ namespace WebArchiveViewer
 
         //Процесс получения ссылки
         private bool IsUploadingAvailable(object obj) => (!string.IsNullOrEmpty(RequestCreator.GetRequest())) && !Uploading.InProgress;
-        public async Task<Snapshot> UploadLinks(object obj)
+        public ProcessProgress Uploading { get; private set; }
+
+
+        public async Task<Snapshot> UploadLinks(object obj = null)
         {
             Uploading.SetStatus("Загрузка данных с сервера...", 3);
             using(HttpClient client = new HttpClient())
@@ -85,8 +101,6 @@ namespace WebArchiveViewer
             }
         }
 
-        //Процесс загрузки
-        public ProcessProgress Uploading { get; private set; }
 
 
         //Скопировать строку запроса
@@ -100,6 +114,11 @@ namespace WebArchiveViewer
         //Создание снапшота из полученных данных
         private Snapshot CreateSnapshotFromJson(string json)
         {
+            string source = RequestArchiveCreator.Site.Value;
+            if (string.IsNullOrEmpty(json))
+            {
+                return new Snapshot(RequestString, source, Array.Empty<ArchiveLink>());
+            }
             List<List<string>> jsonArr = Newtonsoft.Json.JsonConvert.DeserializeObject<List<List<string>>>(json);
 
             ArchiveLink[] allLinks = jsonArr.Skip(1).AsParallel().Select((arr, index) =>
@@ -107,7 +126,6 @@ namespace WebArchiveViewer
                 return CreateLinkFromJsonString(index, arr);
             }).ToArray();
 
-            string source = RequestArchiveCreator.Site.Value;
             Snapshot newSnap = new Snapshot(RequestString, source, allLinks);
             return newSnap;
         }
@@ -146,33 +164,6 @@ namespace WebArchiveViewer
         {
             Snapshot = null;
             Uploading.SetStatus("Ожидание старта новой загрузки", 0);
-        }
-    }
-    public class ProcessProgress : NotifyObj
-    {
-        public override string ToString() => $"Процесс: {Status}: {Now} / {Maximum}";
-
-        public bool InProgress => Now > 0 && Now < Maximum;
-
-        public int Maximum { get; private set; }
-        public int Now { get; private set; }
-        public string Status { get; private set; }
-
-        public void SetStatus(string status, int now)
-        {
-            Status = status;
-            Now = now;
-
-            OnPropertyChanged(nameof(Status));
-            OnPropertyChanged(nameof(Now));
-            OnPropertyChanged(nameof(InProgress));
-        }
-
-        public ProcessProgress(string status, int max)
-        {
-            Status = status;
-            Now = 0;
-            Maximum = max;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace WebArchiveViewer
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            MainView.UpdateShowedLinks();
+            MainView.UpdatePagerLinks();
         }
 
         private void Window_Closed(object sender, EventArgs e)

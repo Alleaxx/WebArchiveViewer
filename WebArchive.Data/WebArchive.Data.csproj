@@ -57,11 +57,11 @@
     <Compile Include="Объекты\ArchiveLink.cs" />
     <Compile Include="Категории\CategoriesInfo.cs" />
     <Compile Include="Категории\Category.cs" />
-    <Compile Include="Объекты\NotifyObj.cs" />
+    <Compile Include="NotifyObj.cs" />
     <Compile Include="Объекты\DateRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Категории\RulesControl.cs" />
-    <Compile Include="Категории\RumineRules.cs" />
+    <Compile Include="Категории\RulesStorage.cs" />
+    <Compile Include="Объекты\Link.cs" />
     <Compile Include="Объекты\Snapshot.cs" />
   </ItemGroup>
   <ItemGroup>

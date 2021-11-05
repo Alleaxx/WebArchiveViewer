@@ -34,6 +34,7 @@ namespace WebArchiveViewer
         {
             Snapshot = FileDialog.OpenReadJson<Snapshot>(path);
             Snapshot.FilePath = path;
+            Snapshot.InitAfterLoad();
         }
     }
 }

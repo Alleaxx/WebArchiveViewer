@@ -57,13 +57,17 @@ namespace WebArchiveViewer
         public FileInfo Save() => Save("Имя файла");
         public FileInfo Save(string name)
         {
-            Microsoft.Win32.SaveFileDialog dialog = new Microsoft.Win32.SaveFileDialog();
-            dialog.FileName = name;
+            Microsoft.Win32.SaveFileDialog dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = name,
 
-            dialog.DefaultExt = Extension;
+                DefaultExt = Extension
+            };
 
-            if(!string.IsNullOrEmpty(DefaultDirectory))
+            if (!string.IsNullOrEmpty(DefaultDirectory))
+            {
                 dialog.InitialDirectory = DefaultDirectory;
+            }
 
             dialog.Filter = Filter;
 
@@ -76,9 +80,10 @@ namespace WebArchiveViewer
 
         public FileInfo Open()
         {
-            Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog();
-
-            dialog.DefaultExt = Extension;
+            Microsoft.Win32.OpenFileDialog dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                DefaultExt = Extension
+            };
 
             if (!string.IsNullOrEmpty(DefaultDirectory))
                 dialog.InitialDirectory = DefaultDirectory;
@@ -97,7 +102,7 @@ namespace WebArchiveViewer
             {
                 byte[] array = new byte[fs.Length];
                 fs.Read(array, 0, array.Length);
-                string textFromFile = Encoding.Default.GetString(array);
+                string textFromFile = Encoding.UTF8.GetString(array);
                 return textFromFile;
             }
         }
@@ -105,13 +110,13 @@ namespace WebArchiveViewer
         public T OpenReadJson<T>(string path)
         {
             string text = OpenReadText(path);
-            return JsonConvert.DeserializeObject<T>(text);
+            return JsonConvert.DeserializeObject<T>(text, new JsonSerializerSettings());
         }
 
         public bool SaveFile<T>(string path, T obj)
         {
-            string json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings() { Formatting = Formatting.Indented  });
-            File.WriteAllText(path, json, Encoding.GetEncoding("windows-1251"));
+            string json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings());
+            File.WriteAllText(path, json, new UTF8Encoding(false));
             return true;
         }
     }

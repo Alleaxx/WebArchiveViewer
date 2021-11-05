@@ -14,8 +14,8 @@ namespace WebArchiveViewer
             return $"Команда {(canExecute == IsTrue ? "с условием" : ", активна всегда")}";
         }
 
-        private Action<object> execute;
-        private Func<object, bool> canExecute;
+        private readonly Action<object> execute;
+        private readonly Func<object, bool> canExecute;
  
         public event EventHandler CanExecuteChanged
         {

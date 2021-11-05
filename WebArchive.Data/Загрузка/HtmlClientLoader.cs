@@ -10,16 +10,11 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data
 {
-    //Проверка загрузки ссылки
-    //Проверка длины загруженного HTML
-    //Проверка наличия имени
-
-
     public class HttpClientHTMLoader : HTMLoader
     {
         private readonly HttpClient Client;
         private readonly CancellationToken Token;
-        public HttpClientHTMLoader(HttpClient client, ArchiveLink link, LoadHtmlOptions options, CancellationToken token = default) : base(link, options)
+        public HttpClientHTMLoader(HttpClient client, ILink link, LoadHtmlOptions options, CancellationToken token = default) : base(link, options)
         {
             Client = client;
             Token = token;
@@ -62,14 +57,24 @@ namespace WebArchive.Data
         //Загрузка кода страницы
         private async Task<string> LoadHtmlFromUri()
         {
-            //return await Client.GetStringAsync(Link.Link);
             HttpResponseMessage responce = await Client.GetAsync(Link.Link, Token);
             if (Token.IsCancellationRequested)
                 return null;
             var buffer = await responce.Content.ReadAsByteArrayAsync();
             var byteArray = buffer.ToArray();
+
+
             string win1251 = Encoding.GetEncoding(1251).GetString(byteArray, 0, byteArray.Length);
-            return win1251;
+            string utf = Encoding.UTF8.GetString(byteArray, 0, byteArray.Length);
+            string shorten = utf.Substring(0, 2000);
+            if (shorten.Contains("windows-1251"))
+            {
+                return win1251;
+            }
+            else
+            {
+                return utf;
+            }
         }
 
         //Обработка содержимого

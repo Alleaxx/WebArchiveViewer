@@ -35,7 +35,8 @@
         </Grid.RowDefinitions>
 
         <Border Grid.Row="0">
-            
+            <Button Content="Добавить новое правило" Command="{Binding AddRuleCommand}" CommandParameter="{Binding RulesControl}" Margin="6,3" Padding="10,2" HorizontalAlignment="Left"/>
+
         </Border>
         <Border Grid.Row="1" Padding="0,8" BorderThickness="0,1" BorderBrush="Gainsboro">
             <Border Style="{DynamicResource HeaderPanel}">
@@ -52,7 +53,7 @@
             <TreeView.Resources>
                 <HierarchicalDataTemplate ItemsSource="{Binding Rules}" DataType="{x:Type Lib:GroupRule}">
                     <DockPanel Margin="0,2">
-                        <TextBlock Text="{Binding Rules.Count,StringFormat=[{0}] }" Margin="5,0"/>
+                        <TextBlock Text="{Binding Rules.Count,StringFormat=\{0\} }" Margin="5,0"/>
                         <TextBox Text="{Binding GroupName}" MinWidth="225"/>
                         <TextBox Text="{Binding FoundText}" HorizontalAlignment="Right" Margin="20,0"/>
                         <DockPanel HorizontalAlignment="Right">

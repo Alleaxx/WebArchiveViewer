@@ -33,7 +33,7 @@ namespace WebArchiveViewer
 
         public StatusCode[] Codes { get; private set; }
         public MimeType[] Types { get; private set; }
-        public Category[] Categories { get; private set; }
+        public ICategory[] Categories { get; private set; }
         private Dictionary<string, ICategory> CategoriesDictionary { get; set; }
 
         public ListViewOptions ListView { get; private set; }
@@ -43,7 +43,7 @@ namespace WebArchiveViewer
 
         private bool Filter(object obj)
         {
-            ArchiveLink link = obj as ArchiveLink;
+            var link = obj as ArchiveLink;
             if (link.Date < DateRange.From || link.Date > DateRange.To)
             {
                 return false;
@@ -71,8 +71,8 @@ namespace WebArchiveViewer
         }
         private bool FilterTypes(ArchiveLink link)
         {
-            var code = Codes.Where(c => c.Code == link.StatusCode).First();
-            var type = Types.Where(c => c.Type == link.MimeType).First();
+            var code = Codes.First(c => c.Code == link.StatusCode);
+            var type = Types.First(c => c.Type == link.MimeType);
             var cate = CategoriesDictionary[link.Category];
 
             return code.Enabled && type.Enabled && cate.Enabled;
@@ -152,11 +152,11 @@ namespace WebArchiveViewer
             ToggleCategoriesCommand = new RelayCommand(ToggleCategories);
         }
         public ICommand ToggleCategoriesCommand { get; private set; }
-        private void ToggleCategories(object obj)
+        private void ToggleCategories(object obj = null)
         {
-            var cates = Categories;
-            bool newState = !cates[0].Enabled;
-            foreach (var cate in cates)
+            var cates = CategoriesDictionary.Values;
+            bool newState = !cates.First().Enabled;
+            foreach (ICategory cate in cates)
             {
                 cate.Enabled = newState;
             }
@@ -166,7 +166,7 @@ namespace WebArchiveViewer
 
         public void SetSnapshot(Snapshot snap)
         {
-            if(snap.Links.Count() > 0)
+            if(snap.Links.Any())
             {
                 Snapshot = snap;
                 LoadDates(snap);
@@ -185,18 +185,8 @@ namespace WebArchiveViewer
         }
         private void LoadCodesTypes(Snapshot snap)
         {
-            List<string> codes = new List<string>();
-            List<string> types = new List<string>();
-            foreach (ArchiveLink link in snap.Links)
-            {
-                string code = link.StatusCode;
-                string type = link.MimeType;
-
-                if (!codes.Contains(code))
-                    codes.Add(code);
-                if (!types.Contains(type))
-                    types.Add(type);
-            }
+            var codes = snap.Links.Select(l => l.StatusCode).Distinct();
+            var types = snap.Links.Select(l => l.MimeType).Distinct();
             Codes = codes.Select(c => new StatusCode(c)).ToArray();
             Types = types.Select(t => new MimeType(t)).ToArray();
             OnPropertyChanged(nameof(Codes));
@@ -204,9 +194,10 @@ namespace WebArchiveViewer
         }
         public void LoadCategories(Snapshot snap)
         {
-            var res = snap.GetCategories();
-            Categories = res.Collection.OfType<Category>().ToArray();
-            CategoriesDictionary = res.Dictionary;
+            snap.UpdateCategories();
+            var info = new CategoriesInfo(snap);
+            Categories = new ICategory[1] { info.MainCategory };
+            CategoriesDictionary = info.Dictionary;
             OnPropertyChanged(nameof(Categories));
         }
 

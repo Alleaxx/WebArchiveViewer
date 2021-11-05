@@ -11,44 +11,83 @@ namespace WebArchive.Tests
     [TestClass]
     public class RulesTest
     {
-        //Ссылка и простые правила
+        //Простые правила
         [TestMethod]
-        public void MatchSimpleTest()
+        public void MatchTrue_IsTrue()
         {
             string link = "http://ru-minecraft.ru/forum/showtopic-10000";
             GroupRule rule1 = new GroupRule("Правило true", "forum");
-            string result1 = rule1.IsMatched(link);
-            Assert.AreEqual("Правило true", result1, "Правило не работает");
 
+            string result1 = rule1.CheckLink(link);
+
+            Assert.AreEqual(rule1.GroupName, result1, "Правило не работает");
+
+        }
+
+        [TestMethod]
+        public void MatchFalse_IsFalse()
+        {
+            string link = "http://ru-minecraft.ru/forum/showtopic-10000";
             GroupRule rule2 = new GroupRule("Правило false", "fomur");
-            string result2 = rule2.IsMatched(link);
+
+            string result2 = rule2.CheckLink(link);
+
             Assert.IsTrue(string.IsNullOrEmpty(result2), "Правило не работает");
         }
 
-        //Ссылка и вложенные правила
+
+        //Вложенные правила
         [TestMethod]
-        public void MatchInnerTest()
+        public void MatchInner_Check()
         {
             string link = "http://ru-minecraft.ru/forum/showtopic-10000";
             GroupRule main = new GroupRule("Румайн", "ru-minecraft.ru",
                 new GroupRule("Форум", "forum",
                     new GroupRule("Тема", "showtopic")));
 
-            string result1 = main.IsMatched(link);
+            string result1 = main.CheckLink(link);
             Assert.AreEqual("Тема", result1, "Внутреннее правило не работает");
+        }
+        [TestMethod]
+        public void MatchInner2_Check()
+        {
+            string link = "http://ru-minecraft.ru/forum";
+            GroupRule main = new GroupRule("Румайн", "ru-minecraft.ru",
+                new GroupRule("Форум", "forum",
+                    new GroupRule("Тема", "showtopic")));
 
-            string result2 = main.IsMatched("http://ru-minecraft.ru/forum");
+            string result2 = main.CheckLink(link);
+
             Assert.AreEqual("Форум", result2, "Внутреннее правило не работает");
         }
 
-        //Ссылки и контроль правил
-        [TestMethod]
-        public void CheckCategorisation()
-        {
-            RulesControl control = new RulesControl();
-            control.AddRules(new RumineRules());
 
-            string[] links = new string[]
+        [TestMethod]
+        [DataRow("Форум", 2)]
+        [DataRow("Форумная тема", 3)]
+        [DataRow("Румине", 1)]
+        [DataRow("Всё", 1)]
+        public void CategoryAssign_Check(string category, int amount)
+        {
+            GroupRule control = CreateRule();
+            var links = CreateLinks();
+
+            var found = links.ToLookup(l => control.CheckLink(l));
+            int foundCount = found[category].Count();
+
+            Assert.AreEqual(amount, foundCount, $"Ожидается [{category}] - {amount}, найдено {foundCount}");
+        }
+
+
+        private GroupRule CreateRule()
+        {
+            GroupRule rule = new GroupRule();
+            rule.AddInner(RulesStorage.Rumine());
+            return rule;
+        }
+        private IEnumerable<string> CreateLinks()
+        {
+            return new string[]
             {
                 "http://ru-minecraft.ru/forum/showtopic-10000",
                 "http://ru-minecraft.ru/forum/showtopic-10000",
@@ -58,30 +97,6 @@ namespace WebArchive.Tests
                 "http://ru-minecraft.ru/",
                 "https://vk.com/",
             };
-
-            var Found = new Dictionary<string, int>();
-            foreach (var link in links)
-            {
-                string category = control.CheckLink(link);
-                if (!Found.ContainsKey(category))
-                    Found.Add(category, 0);
-                Found[category]++;
-            }
-
-            var Required = new Dictionary<string, int>()
-            {
-                ["Форум"] = 2,
-                ["Форумная тема"] = 3,
-                ["Румине"] = 1,
-                ["Всё"] = 1,
-            };
-            foreach (var req in Required)
-            {
-                if (Found[req.Key] != req.Value)
-                    Assert.Fail($"Ошибка категоризации, необходимо '{req.Key}' - {req.Value}, найдено {req.Value}");
-            }
-
-
         }
     }
 }

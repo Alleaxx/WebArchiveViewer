@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -35,15 +34,13 @@ namespace WebArchive.Data
         public DateTime Max { get; protected set; }
 
 
-        [JsonIgnore]
+        //Интерфейс
         public double Difference => (Max - Min).TotalHours;
-        [JsonIgnore]
         public double DifferenceFrom
         {
             get => (From - Min).TotalHours;
             set => From = Min.AddHours(value);
         }
-        [JsonIgnore]
         public double DifferenceTo
         {
             get => (To - Min).TotalHours;
@@ -65,6 +62,5 @@ namespace WebArchive.Data
             From = from;
             To = to;
         }
-
     }
 }

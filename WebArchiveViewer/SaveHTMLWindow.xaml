@@ -151,15 +151,16 @@
                             <StackPanel Style="{StaticResource PropertiesPanel}">
                                 <DockPanel>
                                     <TextBlock Text="{Binding PauseState.StartDateTime, StringFormat=HH:mm начало\,}" />
-                                    <DockPanel Margin="4,0">
+                                    <DockPanel Margin="4,0" Visibility="Collapsed">
                                         <TextBlock Text="{Binding PauseState.FromStart.TotalMinutes, ConverterParameter=0, Converter={StaticResource MathRound}, StringFormat=\{0\}:}" />
                                         <TextBlock Text="{Binding PauseState.FromStart.Seconds, Converter={StaticResource MathRound}, StringFormat=\{0\} прошло}" Margin="1,0"/>
                                     </DockPanel>
+
+                                    <TextBlock Text="{Binding SnapshotView.LastSaveDate, StringFormat=HH:mm сохранение}" Margin="4,0"/>
                                     <TextBlock HorizontalAlignment="Right" Text="{Binding SpeedLinksPerMinute, Converter={StaticResource MathRound}, StringFormat=~ \{0\} ссылок в минуту}" />
 
                                 </DockPanel>
                                 <DockPanel>
-                                    <TextBlock Text="{Binding SnapshotView.LastSaveDate, StringFormat=HH:mm сохранение}" />
                                     <Button Command="{Binding SaveProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                                         <TextBlock Text="сохранить" />
                                     </Button>

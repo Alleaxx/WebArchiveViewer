@@ -20,7 +20,7 @@ namespace WebArchiveViewer
         IEnumerable<T> Source { get; }
         IPage<T> PageNow { get; }
     }
-    public class Pager<T> : NotifyObj, IPager<T> where T:class
+    public class Pager<T> : NotifyObj, IPager<T> where T : class
     {
         public int ElementsPerPage
         {
@@ -47,17 +47,14 @@ namespace WebArchiveViewer
             {
                 if (!Updating)
                 {
-                    if (value < PageMinAmount)
-                        value = PageMinAmount;
-                    if (value > PageMaxAmount)
-                        value = PageMaxAmount;
-
-                    pageNowNumber = value;
+                    pageNowNumber = value < PageMinAmount ? PageMinAmount : value > PageMaxAmount ? PageMaxAmount : value;
                     OnPropertyChanged();
 
                     PageNow = new Page<T>(PageNowNumber, ElementsPerPage, Source);
                     if (groupSelected != null)
+                    {
                         GroupSelected = groupSelected;
+                    }
 
                     UpdatePagesAvailable();
                 }
@@ -112,12 +109,6 @@ namespace WebArchiveViewer
             Source = coll;
             Recount();
         }
-        protected override void InitCommands()
-        {
-            NextPageCommand = new RelayCommand(NextPage, IsNextPageAvail);
-            PrevPageCommand = new RelayCommand(PrevPage, IsPrevPageAvail);
-            SetPageCommand = new RelayCommand(SetPage);
-        }
 
         private void Recount()
         {
@@ -168,7 +159,19 @@ namespace WebArchiveViewer
         }
 
 
+        protected override void InitCommands()
+        {
+            NextPageCommand = new RelayCommand(NextPage, IsNextPageAvail);
+            PrevPageCommand = new RelayCommand(PrevPage, IsPrevPageAvail);
+            SetPageCommand = new RelayCommand(SetPage);
+        }
         public ICommand SetPageCommand { get; private set; }
+        public ICommand PrevPageCommand { get; private set; }
+        public ICommand NextPageCommand { get; private set; }
+
+        private bool IsNextPageAvail(object obj) => PageNowNumber < PageMaxAmount;
+        private bool IsPrevPageAvail(object obj) => PageNowNumber > PageMinAmount;
+        
         private void SetPage(object obj)
         {
             if(obj is int page)
@@ -176,44 +179,13 @@ namespace WebArchiveViewer
                 PageNowNumber = page;
             }
         }
-
-
-        public ICommand NextPageCommand { get; private set; }
         private void NextPage(object obj)
         {
             PageNowNumber++;
         }
-        private bool IsNextPageAvail(object obj) => PageNowNumber < PageMaxAmount;
-
-
-        public ICommand PrevPageCommand { get; private set; }
         private void PrevPage(object obj)
         {
             PageNowNumber--;
-        }
-        private bool IsPrevPageAvail(object obj) => PageNowNumber > PageMinAmount;
-    }
-
-
-    //"Страница", содержащая определенное число элементов
-    public interface IPage<T>
-    {
-        int Number { get; }
-        IEnumerable<T> Elements { get; }
-        CollectionViewSource Source { get; }
-    }
-    public class Page<T> : IPage<T> where T:class
-    {
-        public int Number { get; private set; }
-        public IEnumerable<T> Elements { get; private set; }
-        public CollectionViewSource Source { get; private set; }
-
-        public Page(int num,int perPage, IEnumerable<T> source)
-        {
-            Number = num;
-            Elements = source.Skip((num - 1) * perPage).Take(perPage).ToArray();
-            Source = new CollectionViewSource();
-            Source.Source = Elements;
         }
     }
 }

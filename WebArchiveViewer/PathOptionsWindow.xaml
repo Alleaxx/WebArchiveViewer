@@ -20,11 +20,11 @@
             </DockPanel>
             <DockPanel Margin="0,2">
                 <TextBlock Text="Получено в:" Foreground="Gray" Width="180"/>
-                <TextBlock Text="{Binding Current.ReceivingDate,StringFormat=dd-MM-yyyy; HH-mm}" FontSize="12"/>
+                <TextBlock Text="{Binding Current.ReceivingDate,StringFormat=dd-MM-yyyy; HH:mm}" FontSize="12"/>
             </DockPanel>
             <DockPanel Margin="0,2">
                 <TextBlock Text="Сохранение:" Foreground="Gray" Width="180"/>
-                <TextBlock Text="{Binding LastSaveDate,StringFormat=dd-MM-yyyy; HH-mm}" FontSize="12"/>
+                <TextBlock Text="{Binding LastSaveDate,StringFormat=dd-MM-yyyy; HH:mm}" FontSize="12"/>
             </DockPanel>
             <Border BorderThickness="0,1,0,0" BorderBrush="Gainsboro" Padding="0,3" Margin="0,3">
                 <StackPanel>

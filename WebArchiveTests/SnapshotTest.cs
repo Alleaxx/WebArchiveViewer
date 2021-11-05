@@ -12,7 +12,9 @@ namespace WebArchive.Tests
     {
         private Snapshot SnapExample { get; set; }
         private string OpenPath { get; set; }
-        public SnapshotTest()
+
+        [TestInitialize]
+        public void Init()
         {
             ArchiveLink[] links = new ArchiveLink[]
             {
@@ -20,14 +22,16 @@ namespace WebArchive.Tests
                 new ArchiveLink(){ LinkSource = "http://ru-minecraft.ru:80/forum", TimeStamp="20111217112750", StatusCode="302", MimeType="text/html" },
             };
             SnapExample = new Snapshot("norequest", "http://ru-minecraft.ru/forum", links);
-            SnapExample.UpdateLinkCategories();
+            SnapExample.UpdateCategories();
 
             OpenPath = Directory.GetCurrentDirectory() + "\\test-open.json";
         }
 
+
+
         //Пустой путь у новосозданного снапшота
         [TestMethod]
-        public void NewSnapshotFilePathIsEmpty()
+        public void NewSnapshotFilePath_IsEmpty()
         {
             Snapshot snap = new Snapshot();
             Assert.AreEqual(null, snap.FilePath);
@@ -35,7 +39,7 @@ namespace WebArchive.Tests
 
         //Проверка открытия снапшота из файла
         [TestMethod]
-        public void OpenSnapshot()
+        public void OpenSnapshotFile_Check()
         {
             IFileDialog dialog = new FileDialog();
             if (File.Exists(OpenPath))
@@ -49,12 +53,20 @@ namespace WebArchive.Tests
             }
         }
 
+        //Количество ссылок то же
+        //Количество правил то же
+
         //Проверка выставления категории
         [TestMethod]
-        public void CategoryCorrect()
+        public void Category_Check()
         {
             var link = SnapExample.Links[0];
             Assert.AreEqual("Форум", link.Category, "Категория выставляется неверно");
         }
+
+
+        //Проверка того, что возвращается корректная информация по категориям
+        //Нет пустых категорий
+        //Нет перечисленных в коллекции категорий
     }
 }

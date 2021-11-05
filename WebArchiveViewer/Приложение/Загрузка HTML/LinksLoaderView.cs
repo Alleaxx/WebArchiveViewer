@@ -44,10 +44,10 @@ namespace WebArchiveViewer
 
             void InitCollections()
             {
-                CurrentRequests = new ObservableCollection<HTMLoader>();
-                SuccessfullRequests = new ObservableCollection<HTMLoader>();
-                ErrorRequests = new ObservableCollection<HTMLoader>();
-                var remainingLinks = Snapshot.Links.Where(l => string.IsNullOrEmpty(l.HtmlFilePath));
+                CurrentRequests = new ObservableCollection<IHtmlLoader>();
+                SuccessfullRequests = new ObservableCollection<IHtmlLoader>();
+                ErrorRequests = new ObservableCollection<IHtmlLoader>();
+                var remainingLinks = Snapshot.Links.Where(l => l.MimeType == "text/html" && string.IsNullOrEmpty(l.HtmlFilePath));
                 LinksRemaining = new ObservableCollection<ArchiveLink>(remainingLinks);
                 LinksLoadedCount = Snapshot.Links.Length - remainingLinks.Count();
             }
@@ -178,9 +178,9 @@ namespace WebArchiveViewer
         }
         private ArchiveLink lastLink;
 
-        public ObservableCollection<HTMLoader> CurrentRequests { get; private set; }
-        public ObservableCollection<HTMLoader> SuccessfullRequests { get; private set; }
-        public ObservableCollection<HTMLoader> ErrorRequests { get; private set; }
+        public ObservableCollection<IHtmlLoader> CurrentRequests { get; private set; }
+        public ObservableCollection<IHtmlLoader> SuccessfullRequests { get; private set; }
+        public ObservableCollection<IHtmlLoader> ErrorRequests { get; private set; }
 
 
         //Скорость загрузки
@@ -214,7 +214,7 @@ namespace WebArchiveViewer
         //Обработка ссылки
         private async Task LinkLoadAsync(ArchiveLink link)
         {
-            HttpClientHTMLoader loader = new HttpClientHTMLoader(Client, link, ProcessOptions, TokenCancel);
+            IHtmlLoader loader = new HttpClientHTMLoader(Client, link, ProcessOptions, TokenCancel);
             ExeInDispatcher(() => CurrentRequests.Add(loader));
             ILinkLoad loadResult = await loader.LoadHtmlAsync();
             if (loadResult.Success)
@@ -244,7 +244,7 @@ namespace WebArchiveViewer
             {
                 ExeInDispatcher(() => ErrorRequests.Add(loader));
             }
-            
+
             void ExeInDispatcher(Action action)
             {
                 Application.Current.Dispatcher.BeginInvoke(action);

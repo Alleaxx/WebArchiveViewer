@@ -6,23 +6,16 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data
 {
-    interface ILink
-    {
-        string Name { get; set; }
-        string Link { get; }
-    }
-    public class UsualLink : ILink
-    {
-        public string Name { get; set; }
-        public string Link { get; set; }
-        public UsualLink(string name, string link)
-        {
-            Name = name;
-            Link = link;
-        }
-    }
     public class ArchiveLink : NotifyObj, ILink
     {
+        public const string DefaultName = "-";
+
+        public override string ToString()
+        {
+            return Link;
+        }
+
+
         public string Name
         {
             get => name;
@@ -33,8 +26,6 @@ namespace WebArchive.Data
             }
         }
         private string name = DefaultName;
-
-        public const string DefaultName = "-";
 
         public int Index { get; set; }
         public string TimeStamp { get; set; }

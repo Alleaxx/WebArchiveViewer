@@ -8,13 +8,42 @@ namespace WebArchive.Data
 {
     public class CategoriesInfo
     {
-        public readonly IEnumerable<ICategory> Collection;
+        public readonly ICategory MainCategory;
+
+        //Все категории, но с ключом доступа
         public readonly Dictionary<string, ICategory> Dictionary;
 
-        public CategoriesInfo(IEnumerable<ICategory> cates, Dictionary<string, ICategory> dict)
+
+        public CategoriesInfo(Snapshot snapshot) : this(snapshot.RulesControl, snapshot.Links.Select(l => l.Category))
         {
-            Collection = cates;
-            Dictionary = dict;
+
+        }
+        //Сформировать иерархию категорий на основе правил и ссылок
+        public CategoriesInfo(GroupRule rule, IEnumerable<string> categories)
+        {
+            MainCategory = new Category(rule);
+            Dictionary<string, ICategory> dictionary = MainCategory
+                .AllInnerCatesSelf()
+                .GroupBy(c => c.Name)
+                .Select(g => g.First())
+                .ToDictionary(c => c.Name);
+
+            UpdateWithActual();
+            MainCategory.RemoveNullInnerCates();
+            var notEmptyCates = dictionary.Values.Where(p => p.ItemsTotal > 0);
+            Dictionary = notEmptyCates.ToDictionary(p => p.Name);
+
+            void UpdateWithActual()
+            {
+                var catesLinks = categories.GroupBy(l => l);
+                foreach (var group in catesLinks)
+                {
+                    if (dictionary.ContainsKey(group.Key))
+                    {
+                        dictionary[group.Key].ItemsAmount = group.Count();
+                    }
+                }
+            }
         }
     }
 }

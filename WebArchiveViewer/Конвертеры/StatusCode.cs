@@ -28,12 +28,13 @@ namespace WebArchiveViewer
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            string text = (string)value;
-            if (int.TryParse(text, out int code))
+            if (int.TryParse($"{value}", out int code))
             {
-                var matchStatus = CodeColors.Where(c => code > c.From && code <= c.To).FirstOrDefault();
+                StatusCodeColor matchStatus = CodeColors.FirstOrDefault(c => code > c.From && code <= c.To);
                 if (matchStatus != null)
+                {
                     return matchStatus.Color;
+                }
             }
             return UndefinedColor;
         }

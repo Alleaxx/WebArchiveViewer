@@ -7,19 +7,12 @@ using System.Threading.Tasks;
 namespace WebArchive.Data
 {
     //Запрос из шаблона для архива
-    public interface IArhiveRequest : IRequestCreator
+    public class ArchiveRequestCreator : IRequestCreator
     {
-        IRequestPart Site { get; }
-        IRequestPart Output { get; }
-        MatchTypes MatchType { get; }
-        RequestLimit Limit { get; }
-        RequestDates Dates { get; }
-        RequestCodes Codes { get; }
-        RequestTypes Types { get; }
-    }
-    public class ArchiveRequestCreator : IArhiveRequest
-    {
-        public override string ToString() => $"Архивный построитель запроса - {Request}";
+        public override string ToString()
+        {
+            return $"Архивный построитель запроса - {Request}";
+        }
 
         public IRequestPart Site { get; private set; }
         public IRequestPart Output { get; private set; }
@@ -43,12 +36,14 @@ namespace WebArchive.Data
             Search = new RequestSearch();
         }
 
+        //Ссылка на API
+        //https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
+        
+        //Образец формируемой ссылки
+        //http://web.archive.org/cdx/search/cdx?url=http://ru-minecraft.ru*&output=json&from=2010&to=2011
         public string Request => GetRequest();
         public string GetRequest()
         {
-            //https://github.com/internetarchive/wayback/tree/master/wayback-cdx-server
-            //http://web.archive.org/cdx/search/cdx?url=http://ru-minecraft.ru*&output=json&from=2010&to=2011
-
             string WebArhiveSearch = "http://web.archive.org/cdx/search/cdx?";
             string site = Site.RequestString;
             string json = Output.RequestString;
@@ -58,11 +53,14 @@ namespace WebArchive.Data
 
             string filters = $"{Codes.RequestString}{Types.RequestString}{Search.RequestString}";
 
-            if (string.IsNullOrEmpty(site))
+            if (!string.IsNullOrEmpty(site))
+            {
+                return $"{WebArhiveSearch}{site}{matchType}{json}{limit}{dates}{filters}";
+            }
+            else
+            {
                 return "";
-
-
-            return $"{WebArhiveSearch}{site}{matchType}{json}{limit}{dates}{filters}";
+            }
         }
     }
 }

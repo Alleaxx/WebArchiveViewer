@@ -6,20 +6,10 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data
 {
-    public interface IRules
+    public static class RulesStorage
     {
-        IEnumerable<GroupRule> GetRules();
-    }
-
-    //Стандартные правила Румайновских ссылок
-    public class RumineRules : IRules
-    {
-        public override string ToString()
-        {
-            return $"Румайнерские правила ссылок";
-        }
-
-        public IEnumerable<GroupRule> GetRules()
+        //Стандартные правила Румайновских ссылок
+        public static IEnumerable<GroupRule> Rumine()
         {
             GroupRule rumineRule =
                 new GroupRule("Румине", "ru-minecraft.ru",
