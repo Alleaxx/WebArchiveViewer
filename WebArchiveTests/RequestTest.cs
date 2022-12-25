@@ -5,6 +5,7 @@ using System.Text;
 using WebArchiveViewer;
 
 using WebArchive.Data;
+using WebArchive.Data.RequestParts;
 namespace WebArchive.Tests
 {
     [TestClass]

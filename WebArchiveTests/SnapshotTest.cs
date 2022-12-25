@@ -38,7 +38,7 @@ namespace WebArchive.Tests
         }
 
         //Проверка открытия снапшота из файла
-        [TestMethod]
+        //[TestMethod]
         public void OpenSnapshotFile_Check()
         {
             IFileDialog dialog = new FileDialog();
