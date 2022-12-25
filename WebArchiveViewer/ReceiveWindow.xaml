@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
         xmlns:Lib="clr-namespace:WebArchive.Data;assembly=WebArchive.Data"
+        xmlns:LibParts="clr-namespace:WebArchive.Data.RequestParts;assembly=WebArchive.Data"
         mc:Ignorable="d" d:DataContext="{d:DesignInstance {x:Type local:ArchiveSnapLoader }}"
-        Icon="Resources/Веб-архив.png"
-        Title="Загрузка с веб-архива" Height="700" Width="450">
+        Icon="Resources/Веб-архив.png" 
+        Title="Загрузка с веб-архива" Height="700" Width="450" ResizeMode="CanMinimize">
     <Window.Resources>
         <local:DateTextConverter x:Key="DateConverter" />
     </Window.Resources>
@@ -39,21 +40,23 @@
                         </DockPanel>
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="Вывод:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
-                            <DockPanel IsEnabled="False">
-                                <RadioButton GroupName="output" IsChecked="{Binding RequestCreator.Output.JSON}" VerticalAlignment="Center">
-                                    <TextBlock Text="JSON-массив" />
-                                </RadioButton>
-                                <RadioButton GroupName="output" IsChecked="{Binding RequestCreator.Output.Usual}" VerticalAlignment="Center" Margin="5,0">
-                                    <TextBlock Text="Строки" />
-                                </RadioButton>
-                            </DockPanel>
+                            <ComboBox ItemsSource="{Binding RequestCreator.Output.Types}" SelectedItem="{Binding RequestCreator.Output.Selected}" VerticalAlignment="Center" IsEnabled="False" >
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" ToolTip="{Binding Description}" />
+                                            <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </DockPanel>
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="Лимит:" Style="{StaticResource PropertyName}" />
                             <StackPanel Style="{StaticResource PropertiesPanel}">
                                 <ContentPresenter Content="{Binding RequestCreator.Limit}">
                                     <ContentPresenter.ContentTemplate>
-                                        <DataTemplate DataType="{x:Type Lib:RequestLimit}">
+                                        <DataTemplate DataType="{x:Type LibParts:RequestLimit}">
                                             <TextBlock x:Name="block" Text="{Binding Amount}" />
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding Amount}" Value="-1">
@@ -154,7 +157,7 @@
                                         </Style>
                                     </Rectangle.Style>
                                 </Rectangle>
-                                <TextBlock Text="{Binding Uploading.Status}" />
+                                <TextBlock Text="{Binding Uploading.Status}" TextWrapping="Wrap" />
                                 <Button Content="Загрузить" Command="{Binding UploadLinksCommand}" Style="{StaticResource ActionButton}" HorizontalAlignment="Right" />
                             </DockPanel>
                         </DockPanel>

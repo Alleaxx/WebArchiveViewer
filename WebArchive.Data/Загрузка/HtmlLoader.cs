@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 namespace WebArchive.Data
 {
     //Получение ссылок
-    public enum LoadState { Waiting, Loading, Success, WebFail, FileFail }
-
     public interface IHtmlLoader
     {
         Task<ILinkLoad> LoadHtmlAsync();

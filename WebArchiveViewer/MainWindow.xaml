@@ -283,7 +283,7 @@
                                 <ListView x:Name="ListLinks" ItemsSource="{Binding LinksPager.PageNow.Source.View}" BorderThickness="0">
                                     <ListView.View>
                                         <GridView>
-                                            <GridViewColumn Width="60">
+                                            <GridViewColumn Width="60" >
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock Text="{Binding Index}" Foreground="Gray" HorizontalAlignment="Center"/>
@@ -480,10 +480,10 @@
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Command="{Binding FileLoader.LoadCommand}" BorderThickness="1,1,0,1">
-                                        <TextBlock Text="Сохраненный файл" FontSize="20" />
+                                        <TextBlock Text="Открыть файл" FontSize="20" />
                                     </Button>
                                     <Button Grid.Column="1" Command="{Binding ArchiveLoader.LoadCommand}">
-                                        <TextBlock Text="Веб-архив" FontSize="20" />
+                                        <TextBlock Text="Загрузить с веб-архива" FontSize="20" />
                                     </Button>
 
                                 </Grid>

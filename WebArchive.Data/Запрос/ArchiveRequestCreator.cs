@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using WebArchive.Data.RequestParts;
+
 namespace WebArchive.Data
 {
     //Запрос из шаблона для архива
@@ -14,8 +16,8 @@ namespace WebArchive.Data
             return $"Архивный построитель запроса - {Request}";
         }
 
-        public IRequestPart Site { get; private set; }
-        public IRequestPart Output { get; private set; }
+        public RequestSite Site { get; private set; }
+        public RequestOutput Output { get; private set; }
         public MatchTypes MatchType { get; private set; }
         public RequestDates Dates { get; private set; }
         public RequestLimit Limit { get; private set; }

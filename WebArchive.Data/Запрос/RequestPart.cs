@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebArchive.Data
+namespace WebArchive.Data.RequestParts
 {
-
     public interface IRequestPart
     {
         string Name { get; }
