@@ -14,30 +14,32 @@ using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-
     //Представление просмотра ссылок с архива
-    public class ArchiveView : NotifyObj
+    public class ArchiveView : NotifyObject
     {
         public override string ToString()
         {
             return $"Представление снапшота: {snapshotView}";
         }
 
+        public event Action<ArchiveView, SnapshotView> OnSnapshotOpened;
+        public event Action<ArchiveView, SnapshotView> OnSnapshotClosed;
+
+
+        private SnapshotView snapshotView;
+        private IPager<ArchiveLink> linksPager;
+
         public ArchiveView()
         {
             SetSnapshot(null);
-            Receiver = new SnapshotReceiver(this);
-        }
-        protected override void InitCommands()
-        {
-            base.InitCommands();
-            CloseSnapCommand = new RelayCommand(CloseSnapshot, IsSnapshotOpened);
+            Receiver = new SnapshotImporter(this);
+            CloseSnapCommand = new RelayCommand(CloseSnapshot, obj => !IsEmptySnapshot);
         }
 
-
+        public ICommand CloseSnapCommand { get; private set; }
 
         //Получение снапшота
-        public SnapshotReceiver Receiver { get; private set; }
+        public SnapshotImporter Receiver { get; private set; }
 
 
         //Открытый снапшот
@@ -50,9 +52,9 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private SnapshotView snapshotView;
         public void SetSnapshot(Snapshot value)
         {
+            var oldSnapshot = snapshotView;
             if(snapshotView != null)
             {
                 snapshotView.ViewOptions.OnUpdated -= UpdatePagerLinks;
@@ -63,20 +65,19 @@ namespace WebArchiveViewer
             {
                 SnapshotView.ViewOptions.OnUpdated += UpdatePagerLinks;
                 UpdatePagerLinks();
+                OnSnapshotOpened?.Invoke(this, SnapshotView);
             }
-        }
-
-
-        public ICommand CloseSnapCommand { get; private set; }
-        private bool IsSnapshotOpened(object obj)
-        {
-            return SnapshotView.Current != null;
+            else
+            {
+                OnSnapshotClosed?.Invoke(this, oldSnapshot);
+            }
         }
         private void CloseSnapshot(object obj)
         {
             SetSnapshot(null);
             LinksPager = null;
         }
+        private bool IsEmptySnapshot => SnapshotView.CurrentSnapshot == null;
 
 
         //Список отображаемых ссылок
@@ -89,19 +90,19 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private IPager<ArchiveLink> linksPager;
         public void UpdatePagerLinks()
         {
-            if(SnapshotView.Current != null)
+            if(IsEmptySnapshot)
             {
-                var options = SnapshotView.ViewOptions;
-                var filteredLinks = options.GetFilteredLinks();
-                filteredLinks = options.ListView.SortLinks(filteredLinks);
-                options.LinksFilteredAmount = filteredLinks.Count();
-
-                LinksPager = new Pager<ArchiveLink>(filteredLinks, options.ListView.GroupSelected, LinksPager);
+                return;
             }
+
+            var options = SnapshotView.ViewOptions;
+            var filteredLinks = options.GetFilteredLinks();
+            filteredLinks = options.ListView.SortLinks(filteredLinks);
+            options.LinksFilteredAmount = filteredLinks.Count();
+
+            LinksPager = new Pager<ArchiveLink>(filteredLinks, options.ListView.GroupSelected, LinksPager);
         }
     }
-
 }

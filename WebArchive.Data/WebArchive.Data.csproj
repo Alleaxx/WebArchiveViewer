@@ -66,7 +66,7 @@
     <Compile Include="Объекты\ArchiveLink.cs" />
     <Compile Include="Категории\CategoriesInfo.cs" />
     <Compile Include="Категории\Category.cs" />
-    <Compile Include="NotifyObj.cs" />
+    <Compile Include="NotifyObject.cs" />
     <Compile Include="Объекты\DateRange.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Категории\RulesStorage.cs" />

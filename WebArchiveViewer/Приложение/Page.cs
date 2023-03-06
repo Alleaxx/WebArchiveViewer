@@ -7,7 +7,7 @@ using System.Windows.Data;
 
 namespace WebArchiveViewer
 {
-    //"Страница", содержащая определенное число элементов
+    //Страница, содержащая определенное число элементов
     public interface IPage<T>
     {
         int Number { get; }

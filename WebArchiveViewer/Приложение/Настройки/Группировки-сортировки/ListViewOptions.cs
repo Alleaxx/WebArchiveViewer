@@ -8,9 +8,12 @@ using WebArchive.Data;
 namespace WebArchiveViewer
 {
     //Сортировки-группировки
-    public class ListViewOptions : NotifyObj
+    public class ListViewOptions : NotifyObject
     {
         public event Action OnUpdated;
+
+        private ISorting sortSelected;
+        private IGrouping groupSelected;
 
         public IEnumerable<IGrouping> Groups { get; private set; } = new IGrouping[]
         {
@@ -41,8 +44,6 @@ namespace WebArchiveViewer
                 Update();
             }
         }
-        private ISorting sortSelected;
-
         public IGrouping GroupSelected
         {
             get => groupSelected;
@@ -53,14 +54,12 @@ namespace WebArchiveViewer
                 Update();
             }
         }
-        private IGrouping groupSelected;
 
         public ListViewOptions()
         {
             sortSelected = Sorts.Last();
             groupSelected = Groups.Last();
         }
-
         private void Update()
         {
             OnUpdated?.Invoke();
@@ -70,26 +69,26 @@ namespace WebArchiveViewer
         {
             var sort = SortSelected;
 
-            if (sort != null)
+            if(sort == null)
             {
-                switch (sort.Name)
-                {
-                    case "Имя":
-                        return links.AsParallel().OrderBy(l => l.Name);
-                    case "Адрес":
-                        return links.AsParallel().OrderBy(l => l.LinkSource);
-                    case "Дата":
-                        return links.AsParallel().OrderBy(l => l.Date);
-                    case "Тип":
-                        return links.AsParallel().OrderBy(l => l.MimeType);
-                    case "Порядок":
-                        return links.AsParallel().OrderBy(l => l.Index);
-                    default:
-                        return links;
-                }
-            }
-            else
                 return links;
+            }
+
+            switch (sort.Name)
+            {
+                case "Имя":
+                    return links.AsParallel().OrderBy(l => l.Name);
+                case "Адрес":
+                    return links.AsParallel().OrderBy(l => l.LinkSource);
+                case "Дата":
+                    return links.AsParallel().OrderBy(l => l.Date);
+                case "Тип":
+                    return links.AsParallel().OrderBy(l => l.MimeType);
+                case "Порядок":
+                    return links.AsParallel().OrderBy(l => l.Index);
+                default:
+                    return links;
+            }
         }
     }
 }

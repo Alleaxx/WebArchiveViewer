@@ -13,7 +13,7 @@ namespace WebArchive.Data.RequestParts
         string RequestString { get; }
         bool Inverted { get; set; }
     }
-    public class RequestPart : NotifyObj, IRequestPart
+    public class RequestPart : NotifyObject, IRequestPart
     {
         public override string ToString()
         {

@@ -16,7 +16,7 @@ namespace WebArchiveViewer
 {
     public partial class LoadWindow : Window
     {
-        public LoadWindow(ArchiveSnapLoader loader)
+        public LoadWindow(ArchiveSnapshotLoader loader)
         {
             InitializeComponent();
             DataContext = loader;

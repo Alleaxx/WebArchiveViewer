@@ -20,47 +20,10 @@ namespace WebArchiveViewer
         IEnumerable<T> Source { get; }
         IPage<T> PageNow { get; }
     }
-    public class Pager<T> : NotifyObj, IPager<T> where T : class
+    public class Pager<T> : NotifyObject, IPager<T> where T : class
     {
-        public int ElementsPerPage
-        {
-            get => elementsPerPage;
-            set
-            {
-                elementsPerPage = value;
-                OnPropertyChanged();
-                Recount();
-            }
-        }
-        private int elementsPerPage = 50;
-
         public IEnumerable<T> Source { get; private set; }
 
-
-        public int PageMinAmount { get; private set; } = 1;
-        public int PageMaxAmount { get; private set; }
-
-        public int PageNowNumber
-        {
-            get => pageNowNumber;
-            set
-            {
-                if (!Updating)
-                {
-                    pageNowNumber = value < PageMinAmount ? PageMinAmount : value > PageMaxAmount ? PageMaxAmount : value;
-                    OnPropertyChanged();
-
-                    PageNow = new Page<T>(PageNowNumber, ElementsPerPage, Source);
-                    if (groupSelected != null)
-                    {
-                        GroupSelected = groupSelected;
-                    }
-
-                    UpdatePagesAvailable();
-                }
-            }
-        }
-        private int pageNowNumber;
 
         public IPage<T> PageNow
         {
@@ -71,9 +34,65 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private IPage<T> pageNow;
+        public int ElementsPerPage
+        {
+            get => elementsPerPage;
+            set
+            {
+                elementsPerPage = value;
+                OnPropertyChanged();
+                RecalculateMaxPageAmount();
+            }
+        }
+        public int PageMinAmount
+        {
+            get => pageMinAmount;
+            set
+            {
+                pageMinAmount = value;
+                OnPropertyChanged();
+            }
+        }
+        public int PageMaxAmount
+        {
+            get => pageMaxAmount;
+            set
+            {
+                pageMaxAmount = value;
+                OnPropertyChanged();
+            }
+        }
+        public int PageNowNumber
+        {
+            get => pageNowNumber;
+            set
+            {
+                if (UpdateInProcess)
+                {
+                    return;
+                }
 
+                pageNowNumber = value < PageMinAmount ? PageMinAmount : value > PageMaxAmount ? PageMaxAmount : value;
+                OnPropertyChanged();
 
+                PageNow = new Page<T>(PageNowNumber, ElementsPerPage, Source);
+                if (groupSelected != null)
+                {
+                    GroupSelected = groupSelected;
+                }
+
+                UpdateAvailablePagesArray();
+            }
+        }
+        public int[] PagesAvailable
+        {
+            get => pagesAvailable;
+            private set
+            {
+                pagesAvailable = value;
+                OnPropertyChanged();
+            }
+        }
         public IGrouping GroupSelected
         {
             get => groupSelected;
@@ -84,7 +103,17 @@ namespace WebArchiveViewer
                 SetGrouping(value);
             }
         }
+
+
+        private IPage<T> pageNow;
+        private int pageNowNumber;
+        public int pageMaxAmount;
+        public int pageMinAmount;
+        private int elementsPerPage;
+        private int[] pagesAvailable;
         private IGrouping groupSelected;
+
+
         private void SetGrouping(IGrouping value)
         {
             var descriptions = PageNow.Source.View.GroupDescriptions;
@@ -98,40 +127,34 @@ namespace WebArchiveViewer
 
 
 
-        public Pager(IEnumerable<T> coll, IGrouping group, IPager prevPager)
+        public Pager(IEnumerable<T> source, IGrouping grouping, IPager previousPager)
         {
-            if(prevPager != null)
+            elementsPerPage = 50;
+            PageMinAmount = 1;
+            if(previousPager != null)
             {
-                elementsPerPage = prevPager.ElementsPerPage;
+                elementsPerPage = previousPager.ElementsPerPage;
             }
-            groupSelected = group;
+            groupSelected = grouping;
 
-            Source = coll;
-            Recount();
+            NextPageCommand = new RelayCommand(NextPage, IsNextPageAvail);
+            PrevPageCommand = new RelayCommand(PrevPage, IsPrevPageAvail);
+            SetPageCommand = new RelayCommand(SetPage);
+
+            Source = source;
+            RecalculateMaxPageAmount();
         }
 
-        private void Recount()
+        private void RecalculateMaxPageAmount()
         {
             PageMaxAmount = Convert.ToInt32(Math.Ceiling((double)Source.Count() / ElementsPerPage));
-            OnPropertyChanged(nameof(PageMaxAmount));
             PageNowNumber = 1;
         }
 
-        public int[] PagesAvailable
+        private bool UpdateInProcess { get; set; }
+        private void UpdateAvailablePagesArray()
         {
-            get => pagesAvailable;
-            private set
-            {
-                pagesAvailable = value;
-                OnPropertyChanged();
-            }
-        }
-        private int[] pagesAvailable;
-
-        private bool Updating { get; set; }
-        private void UpdatePagesAvailable()
-        {
-            Updating = true;
+            UpdateInProcess = true;
             int size = 10;
             List<int> arr = new List<int>(size) { pageNowNumber };
 
@@ -155,16 +178,11 @@ namespace WebArchiveViewer
             }
 
             PagesAvailable = arr.ToArray();
-            Updating = false;
+            UpdateInProcess = false;
         }
 
 
-        protected override void InitCommands()
-        {
-            NextPageCommand = new RelayCommand(NextPage, IsNextPageAvail);
-            PrevPageCommand = new RelayCommand(PrevPage, IsPrevPageAvail);
-            SetPageCommand = new RelayCommand(SetPage);
-        }
+        //Команды
         public ICommand SetPageCommand { get; private set; }
         public ICommand PrevPageCommand { get; private set; }
         public ICommand NextPageCommand { get; private set; }

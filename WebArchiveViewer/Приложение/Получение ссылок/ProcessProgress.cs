@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-    public class ProcessProgress : NotifyObj
+    public class ProcessProgress : NotifyObject
     {
         public override string ToString()
         {

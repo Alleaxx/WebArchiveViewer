@@ -32,4 +32,40 @@ namespace WebArchiveViewer
             return DependencyProperty.UnsetValue;
         }
     }
+    public class ColumnWidthV2Converter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double width = 250;
+            if(parameter != null)
+            {
+                if(double.TryParse(parameter.ToString(), out double res))
+                {
+                    width = res;
+                }
+                else if(parameter is string str && str == "Auto")
+                {
+                    width = double.NaN;
+                }
+            }
+
+            if (value is bool flag)
+            {
+                if (!flag)
+                {
+                    return width;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            return width;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return DependencyProperty.UnsetValue;
+        }
+    }
 }

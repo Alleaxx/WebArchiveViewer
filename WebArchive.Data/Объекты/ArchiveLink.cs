@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data
 {
-    public class ArchiveLink : NotifyObj, ILink
+    public class ArchiveLink : NotifyObject, ILink
     {
         public const string DefaultName = "-";
 

@@ -16,11 +16,11 @@
         <StackPanel Margin="5,0">
             <DockPanel Margin="0,2">
                 <TextBlock Text="Источник:" Foreground="Gray" Width="180"/>
-                <TextBlock Text="{Binding Current.SourceURI}" FontSize="12" />
+                <TextBlock Text="{Binding CurrentSnapshot.SourceURI}" FontSize="12" />
             </DockPanel>
             <DockPanel Margin="0,2">
                 <TextBlock Text="Получено в:" Foreground="Gray" Width="180"/>
-                <TextBlock Text="{Binding Current.ReceivingDate,StringFormat=dd-MM-yyyy; HH:mm}" FontSize="12"/>
+                <TextBlock Text="{Binding CurrentSnapshot.ReceivingDate,StringFormat=dd-MM-yyyy; HH:mm}" FontSize="12"/>
             </DockPanel>
             <DockPanel Margin="0,2">
                 <TextBlock Text="Сохранение:" Foreground="Gray" Width="180"/>
@@ -47,13 +47,13 @@
                         <TextBlock Margin="0,5" Grid.Column="0" Grid.Row="2" Text="Сохраняемый HTML:" Width="180"/>
 
                         <DockPanel>
-                            <Button Grid.Column="2" Grid.Row="2" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding FolderHtmlSavePath.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0">
+                            <Button Grid.Column="2" Grid.Row="2" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding SavingFolderHtmlContent.FullName}" Padding="5,2" Style="{StaticResource ActionButton}" BorderThickness="0,0,0,0" Cursor="Hand">
                                 <TextBlock TextWrapping="Wrap" Text="Открыть" FontSize="12"/>
                             </Button>
                         </DockPanel>
                     </DockPanel>
-                    <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="4" Command="{Binding SelectSaveFolderCommand}" CommandParameter="{Binding Current.FilePath}" Padding="5,2" Style="{StaticResource ActionButton}" HorizontalContentAlignment="Left" BorderThickness="0,0,0,0">
-                        <TextBlock TextWrapping="Wrap" Text="{Binding FolderHtmlSavePath.FullName}" FontSize="9" />
+                    <Button Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="4" Command="{Binding SelectSaveFolderCommand}" CommandParameter="{Binding CurrentSnapshot.FilePath}" Padding="5,2" Style="{StaticResource ActionButton}" HorizontalContentAlignment="Left" BorderThickness="0,0,0,0" Cursor="Hand">
+                        <TextBlock TextWrapping="Wrap" Text="{Binding SavingFolderHtmlContent.FullName}" FontSize="9" />
                     </Button>
 
                     <Button Command="{Binding ClearProgressCommand}" Style="{StaticResource ActionButton}" Margin="0,5">

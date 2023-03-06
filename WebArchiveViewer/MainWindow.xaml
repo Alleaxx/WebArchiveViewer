@@ -11,6 +11,7 @@
         <local:DateTextConverter x:Key="DateConverter" />
         <local:StatusCodeColorConverter x:Key="StatusCodeColorConverter" />
         <local:ColumnWidthConverter x:Key="ColumnWidthConverter" />
+        <local:ColumnWidthV2Converter x:Key="ColumnWidthV2Converter" />
 
     </Window.Resources>
     <Window.DataContext>
@@ -87,7 +88,23 @@
                                                 <TextBlock Text="Группировка"  Style="{DynamicResource PropertyName}" />
                                                 <ComboBox ItemsSource="{Binding ListView.Groups}" SelectedItem="{Binding ListView.GroupSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center" />
                                             </DockPanel>
-                                            <CheckBox x:Name="showName" Content="Показывать имя"></CheckBox>
+                                            <Expander Template="{DynamicResource ExpanderExp}">
+                                                <Expander.Header>
+                                                    <TextBlock Text="Отображаемые столбцы" />
+                                                </Expander.Header>
+                                                <ItemsControl ItemsSource="{Binding ShowColumns.Columns}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsChecked="{Binding Shown}" Margin="15,2">
+                                                                <DockPanel>
+                                                                    <TextBlock Text="{Binding Order,StringFormat=\{0\})}" Margin="2,0" />
+                                                                    <TextBlock Text="{Binding Name}" />
+                                                                </DockPanel>
+                                                            </CheckBox>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </Expander>
                                         </StackPanel>
                                     </Border>
 
@@ -160,7 +177,7 @@
                                         <RowDefinition />
                                     </Grid.RowDefinitions>
                                     <DockPanel Margin="0,4">
-                                        <TextBlock Grid.Row="0" Text="{Binding SnapshotView.Current.SourceURI}" FontSize="24" Margin="0,0,10,0"/>
+                                        <TextBlock Grid.Row="0" Text="{Binding SnapshotView.CurrentSnapshot.SourceURI}" FontSize="24" Margin="0,0,10,0"/>
 
                                         <!--<DockPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
                                             <TextBlock Text="Стр." Margin="5,0" />
@@ -182,7 +199,7 @@
                                         <DockPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
                                             <TextBlock FontSize="18" Text="{Binding SnapshotView.ViewOptions.LinksFilteredAmount}" VerticalAlignment="Center" Margin="5,0" />
                                             <TextBlock FontSize="18" Text="/" VerticalAlignment="Center" Margin="5,0"/>
-                                            <TextBlock FontSize="18" Text="{Binding SnapshotView.Current.Links.Length}" VerticalAlignment="Center" Margin="5,0" />
+                                            <TextBlock FontSize="18" Text="{Binding SnapshotView.CurrentSnapshot.Links.Length}" VerticalAlignment="Center" Margin="5,0" />
                                         </DockPanel>
                                     </DockPanel>
                                     <Border Grid.Row="1" BorderThickness="0,1" BorderBrush="Gainsboro" Padding="0,6">
@@ -283,7 +300,7 @@
                                 <ListView x:Name="ListLinks" ItemsSource="{Binding LinksPager.PageNow.Source.View}" BorderThickness="0">
                                     <ListView.View>
                                         <GridView>
-                                            <GridViewColumn Width="60" >
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[0].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}" >
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock Text="{Binding Index}" Foreground="Gray" HorizontalAlignment="Center"/>
@@ -291,7 +308,7 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="№" HorizontalAlignment="Left" />
                                             </GridViewColumn>
-                                            <GridViewColumn>
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[1].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock ToolTip="{Binding Date, Converter={StaticResource DateConverter}}" Text="{Binding Date, ConverterParameter=dd-MMM-yyyy, Converter={StaticResource DateConverter}}" FontFamily="Consolas" FontSize="14" Foreground="#404040" />
@@ -299,7 +316,7 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Дата"/>
                                             </GridViewColumn>
-                                            <GridViewColumn>
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[2].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <DockPanel >
@@ -309,7 +326,7 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Время" />
                                             </GridViewColumn>
-                                            <GridViewColumn>
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[3].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock x:Name="code" Text="{Binding StatusCode}" FontSize="11" HorizontalAlignment="Center" Foreground="{Binding StatusCode, Converter={StaticResource StatusCodeColorConverter}}" />
@@ -322,7 +339,7 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Код" />
                                             </GridViewColumn>
-                                            <GridViewColumn>
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[4].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock Text="{Binding MimeType}" FontSize="11" Foreground="Gray" MinWidth="100" />
@@ -330,8 +347,7 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Тип" />
                                             </GridViewColumn>
-                                            <GridViewColumn>
-
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[5].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock Text="{Binding Category}" Foreground="Black" />
@@ -344,11 +360,11 @@
                                                     </Button>-->
                                                 </DockPanel>
                                             </GridViewColumn>
-                                            <GridViewColumn Width="250">
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[6].Hidden, ConverterParameter=250,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <DockPanel>
-                                                            <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
+                                                            <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.LinkLoader.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
                                                                 <TextBlock x:Name="text" Text="{Binding Name}" FontSize="14" Foreground="Black" />
                                                             </Button>
                                                         </DockPanel>
@@ -358,7 +374,7 @@
                                                     <TextBlock Text="Имя страницы" />
                                                 </DockPanel>
                                             </GridViewColumn>
-                                            <GridViewColumn>
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[7].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <Button Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding LinkSource}">
@@ -368,7 +384,7 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Ссылка" />
                                             </GridViewColumn>
-                                            <GridViewColumn>
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[8].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <Button Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding Link}">
@@ -378,7 +394,7 @@
                                                 </GridViewColumn.CellTemplate>
                                                 <TextBlock Text="Веб-архив" />
                                             </GridViewColumn>
-                                            <GridViewColumn>
+                                            <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[9].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" CommandParameter="{Binding HtmlFilePath}" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
@@ -463,7 +479,7 @@
                             <StatusBar Grid.Row="3" Grid.Column="2" Background="WhiteSmoke" BorderThickness="0,1,0,0" Padding="0,5" BorderBrush="Gainsboro" >
                                 <TextBlock Text="{Binding SnapshotView.Status}" Margin="5,0"/>
                                 <TextBlock Text="{Binding SnapshotView.File.Name, StringFormat=\{0\}, TargetNullValue=Файл не открыт}" Margin="5,0"/>
-                                <TextBlock Text="{Binding SnapshotView.Current.Links.Length, Mode=OneWay, StringFormat=Всего: \{0\}, TargetNullValue=-}" Margin="5,0"/>
+                                <TextBlock Text="{Binding SnapshotView.CurrentSnapshot.Links.Length, Mode=OneWay, StringFormat=Всего: \{0\}, TargetNullValue=-}" Margin="5,0"/>
                                 <TextBlock Text="{Binding SnapshotView.ViewOptions.LinksFilteredAmount, Mode=OneWay, StringFormat=По условию: \{0\}, TargetNullValue=-}" Margin="5,0"/>
                                 <TextBlock Text="{Binding LinksPager.PageNow.Source.Source.Count, Mode=OneWay, StringFormat=Показано: \{0\}, TargetNullValue=-}" Margin="5,0"/>
                             </StatusBar>
@@ -491,7 +507,7 @@
                         </Grid>
                     </Grid>
                     <DataTemplate.Triggers>
-                        <DataTrigger Binding="{Binding SnapshotView.Current}" Value="{x:Null}">
+                        <DataTrigger Binding="{Binding SnapshotView.CurrentSnapshot}" Value="{x:Null}">
                             <Setter TargetName="snapshot" Property="Visibility" Value="Collapsed" />
                             <Setter TargetName="nosnapshot" Property="Visibility" Value="Visible" />
                         </DataTrigger>

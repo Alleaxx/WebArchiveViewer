@@ -14,7 +14,7 @@ namespace WebArchive.Data
     }
 
     //Запрос из заданной строки
-    public class DefaultRequestCreator : NotifyObj, IRequestCreator
+    public class DefaultRequestCreator : NotifyObject, IRequestCreator
     {
         public override string ToString()
         {

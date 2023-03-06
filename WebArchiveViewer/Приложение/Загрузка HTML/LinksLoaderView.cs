@@ -18,8 +18,7 @@ using WebArchive.Data;
 
 namespace WebArchiveViewer
 {
-
-    public class LinksLoaderView : NotifyObj
+    public class LinksLoaderView : NotifyObject
     {
         public override string ToString()
         {
@@ -29,7 +28,7 @@ namespace WebArchiveViewer
 
         public LinksLoaderView(SnapshotView snapshot) : base()
         {
-            if(snapshot == null || snapshot.Current == null)
+            if(snapshot == null || snapshot.CurrentSnapshot == null)
             {
                 throw new ArgumentNullException();
             }
@@ -115,9 +114,9 @@ namespace WebArchiveViewer
 
 
         //Откуда и куда
-        public Snapshot Snapshot => SnapshotView.Current;
+        public Snapshot Snapshot => SnapshotView.CurrentSnapshot;
         public SnapshotView SnapshotView { get; private set; }
-        public DirectoryInfo FolderWrite => SnapshotView.FolderHtmlSavePath;
+        public DirectoryInfo FolderWrite => SnapshotView.SavingFolderHtmlContent;
         private HttpClient Client { get; set; }
         private CancellationTokenSource TokenSource { get; set; }
         private CancellationToken TokenCancel { get; set; }

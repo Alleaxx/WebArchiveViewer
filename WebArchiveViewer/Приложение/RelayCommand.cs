@@ -11,7 +11,7 @@ namespace WebArchiveViewer
     {
         public override string ToString()
         {
-            return $"Команда {(canExecute == IsTrue ? "с условием" : ", активна всегда")}";
+            return $"Команда {(canExecute == IsAlwaysAvailable ? "с условием" : ", активна всегда")}";
         }
 
         private readonly Action<object> execute;
@@ -23,7 +23,7 @@ namespace WebArchiveViewer
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public RelayCommand(Action<object> execute) : this(execute, IsTrue)
+        public RelayCommand(Action<object> execute) : this(execute, IsAlwaysAvailable)
         {
 
         }
@@ -43,7 +43,7 @@ namespace WebArchiveViewer
         }
 
 
-        public static bool IsTrue(object obj) => true;
+        public static bool IsAlwaysAvailable(object obj) => true;
     }
 
 }

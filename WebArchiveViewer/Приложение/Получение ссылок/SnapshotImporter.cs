@@ -9,7 +9,7 @@ using WebArchive.Data;
 namespace WebArchiveViewer
 {
     //Получатель снапшота
-    public class SnapshotReceiver : NotifyObj
+    public class SnapshotImporter : NotifyObject
     {
         public override string ToString()
         {
@@ -18,23 +18,28 @@ namespace WebArchiveViewer
 
         private readonly ArchiveView ArchiveView;
 
-        public ArchiveSnapLoader ArchiveLoader { get; private set; }
-        public FileSnapLoader FileLoader { get; private set; }
+        public ArchiveSnapshotLoader ArchiveLoader { get; private set; }
+        public FileSnapshotLoader FileLoader { get; private set; }
 
-        public SnapshotReceiver() : this(null) { }
-        public SnapshotReceiver(ArchiveView view)
+        public SnapshotImporter() : this(null)
+        {
+
+        }
+        public SnapshotImporter(ArchiveView view)
         {
             ArchiveView = view;
-            ArchiveLoader = new ArchiveSnapLoader(this);
-            FileLoader = new FileSnapLoader(this);
+            ArchiveLoader = new ArchiveSnapshotLoader(this);
+            FileLoader = new FileSnapshotLoader(this);
         }
 
         public void ReceiveSnapshot(Snapshot snapshot)
         {
-            if(ArchiveView != null)
+            if(ArchiveView == null)
             {
-                ArchiveView.SetSnapshot(snapshot);
+                return;
             }
+
+            ArchiveView.SetSnapshot(snapshot);
         }
     }
 }

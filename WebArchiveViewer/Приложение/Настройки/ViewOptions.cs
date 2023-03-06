@@ -10,9 +10,17 @@ using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-    public class ViewOptions : NotifyObj
+    //Настройки отображения ссылок
+    //Фильтрация, сортировка, группировка, отображаемые колонки
+    public class ViewOptions : NotifyObject
     {
         public event Action OnUpdated;
+
+        private MimeType[] types;
+        private StatusCode[] codes;
+        private ICategory[] categories;
+        private string search;
+        private int linksFilteredAmount;
 
         //Для снапшота
         public Snapshot Snapshot { get; private set; }
@@ -27,19 +35,53 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private string search = "";
         public DateRange DateRange { get; private set; }
 
 
-        public StatusCode[] Codes { get; private set; }
-        public MimeType[] Types { get; private set; }
-        public ICategory[] Categories { get; private set; }
+        public StatusCode[] Codes
+        {
+            get => codes;
+            private set
+            {
+                codes = value;
+                OnPropertyChanged();
+            }
+        }
+        public MimeType[] Types
+        {
+            get => types;
+            private set
+            {
+                types = value;
+                OnPropertyChanged();
+            }
+        }
+        public ICategory[] Categories
+        {
+            get => categories;
+            private set
+            {
+                categories = value;
+                OnPropertyChanged();
+            }
+        }
+        public ColumnsInfo ShowColumns { get; private set; }
+        public ListViewOptions ListView { get; private set; }
         private Dictionary<string, ICategory> CategoriesDictionary { get; set; }
 
-        public ListViewOptions ListView { get; private set; }
-
-        public bool? ShowOnlyLoaded { get; set; } = null;
-
+        public bool? ShowOnlyLoaded { get; set; }
+        public int LinksFilteredAmount
+        {
+            get => linksFilteredAmount;
+            set
+            {
+                linksFilteredAmount = value;
+                UpdateBlocking = true;
+                OnPropertyChanged();
+                UpdateBlocking = false;
+            }
+        }
+        private bool UpdateBlocking { get; set; }
 
         private bool Filter(object obj)
         {
@@ -64,10 +106,15 @@ namespace WebArchiveViewer
         }
         private bool FilterSearch(ArchiveLink link)
         {
-            bool linkSearchNotFound = !string.IsNullOrEmpty(Search) && !link.LinkSource.Contains(Search);
-            bool nameSearchNotFound = !string.IsNullOrEmpty(Search) && !link.Name.Contains(Search);
+            if (string.IsNullOrEmpty(Search))
+            {
+                return true;
+            }
 
-            return (linkSearchNotFound && nameSearchNotFound) ? false : true;
+            bool linkSearchFound = link.LinkSource.Contains(Search);
+            bool nameSearchFound = link.Name.Contains(Search);
+
+            return linkSearchFound || !nameSearchFound;
         }
         private bool FilterTypes(ArchiveLink link)
         {
@@ -111,44 +158,49 @@ namespace WebArchiveViewer
             }
         }
 
-        public int LinksFilteredAmount
+
+        public ViewOptions() : this(null)
         {
-            get => linksFilteredAmount;
-            set
-            {
-                linksFilteredAmount = value;
-                UpdateBlock = true;
-                OnPropertyChanged();
-                UpdateBlock = false;
-            }
+
         }
-        private int linksFilteredAmount;
-
-
-
-        public ViewOptions(Snapshot snap = null)
+        public ViewOptions(Snapshot snap)
         {
+            search = "";
+            ShowOnlyLoaded = null;
             ListView = new ListViewOptions();
             ListView.OnUpdated += Update;
             PropertyChanged += ViewOptions_PropertyChanged;
+
+            ShowColumns = new ColumnsInfo();
+            ShowColumns
+                .AddColumn("№")
+                .AddColumn("Дата")
+                .AddColumn("Время")
+                .AddColumn("Код")
+                .AddColumn("Тип")
+                .AddColumn("Категория")
+                .AddColumn("Имя страницы")
+                .AddColumn("Ссылка")
+                .AddColumn("Веб-архив")
+                .AddColumn("Загрузка");
+
             if(snap != null)
             {
                 SetSnapshot(snap);
             }
         }
-        private bool UpdateBlock { get; set; }
         private void ViewOptions_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (!UpdateBlock)
-            {
-                Update();
-            }
+            Update();
+        }
+        private void Dates_Updated(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            Update();
         }
 
 
         protected override void InitCommands()
         {
-            base.InitCommands();
             ToggleCategoriesCommand = new RelayCommand(ToggleCategories);
         }
         public ICommand ToggleCategoriesCommand { get; private set; }
@@ -166,13 +218,14 @@ namespace WebArchiveViewer
 
         public void SetSnapshot(Snapshot snap)
         {
-            if(snap.Links.Any())
+            if (!snap.Links.Any())
             {
-                Snapshot = snap;
-                LoadDates(snap);
-                LoadCodesTypes(snap);
-                LoadCategories(snap);
+                return;
             }
+            Snapshot = snap;
+            LoadDates(snap);
+            LoadCodesTypes(snap);
+            LoadCategories(snap);
         }
         private void LoadDates(Snapshot snap)
         {
@@ -189,8 +242,6 @@ namespace WebArchiveViewer
             var types = snap.Links.Select(l => l.MimeType).Distinct();
             Codes = codes.Select(c => new StatusCode(c)).ToArray();
             Types = types.Select(t => new MimeType(t)).ToArray();
-            OnPropertyChanged(nameof(Codes));
-            OnPropertyChanged(nameof(Types));
         }
         public void LoadCategories(Snapshot snap)
         {
@@ -202,12 +253,12 @@ namespace WebArchiveViewer
         }
 
 
-        private void Dates_Updated(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            Update();
-        }
         protected void Update()
         {
+            if (UpdateBlocking)
+            {
+                return;
+            }
             OnUpdated?.Invoke();
         }
     }

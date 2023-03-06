@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data
 {
-    public class NotifyObj : INotifyPropertyChanged
+    public class NotifyObject : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName] string prop = "")
@@ -16,7 +16,7 @@ namespace WebArchive.Data
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
 
-        public NotifyObj()
+        public NotifyObject()
         {
             InitCommands();
         }

@@ -8,10 +8,10 @@ namespace WebArchiveViewer
 {
     public enum SaveMode
     {
-        AllShowed,
-        AllFiltered,
-        AllNotFiltered,
-        All,
-        AllDefaultPath,
+        AllShowed,              //все показанные на странице
+        AllFiltered,            //все прошедшие фильтрацию
+        AllNotFiltered,         //все не прошедшие фильтрацию
+        All,                    //все
+        AllDefaultPath,         //все, сохранение по стандартному пути
     }
 }

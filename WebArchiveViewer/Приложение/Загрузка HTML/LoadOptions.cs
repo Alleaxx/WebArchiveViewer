@@ -8,7 +8,7 @@ using WebArchive.Data;
 namespace WebArchiveViewer
 {
     //Настройкf процесса загрузки
-    public class LoadOptions : NotifyObj
+    public class LoadOptions : NotifyObject
     {
         public override string ToString()
         {
@@ -27,9 +27,7 @@ namespace WebArchiveViewer
         }
         private int timeoutMinutes;
 
-
-
-        public int SavingLatencyLinks { get; set; } = 10;
+        public int SavingLatencyLinks { get; set; }
         private int CreateLatencyFromLinks(int links)
         {
             int latency = links / 10;
@@ -42,9 +40,13 @@ namespace WebArchiveViewer
         }
 
 
-        public LoadOptions() : this(500) { }
+        public LoadOptions() : this(500)
+        {
+
+        }
         public LoadOptions(int totalLinksAmount)
         {
+            SavingLatencyLinks = 10;
             TimeoutMinutes = 10;
             SavingLatencyLinks = CreateLatencyFromLinks(totalLinksAmount);
         }

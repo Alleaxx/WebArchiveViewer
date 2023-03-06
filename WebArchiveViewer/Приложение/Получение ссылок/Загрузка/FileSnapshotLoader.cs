@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-
-    public class FileSnapLoader : SnapLoader
+    //Загрузчик снапшота из файла
+    public class FileSnapshotLoader : SnapshotLoader
     {
         public override string ToString()
         {
             return "Файловый загрузчик снапшота";
         }
 
-        public FileSnapLoader(SnapshotReceiver receiver) : base(receiver)
+        public FileSnapshotLoader(SnapshotImporter receiver) : base(receiver)
         {
 
         }
@@ -23,12 +23,14 @@ namespace WebArchiveViewer
         protected async override void LoadSnapshot()
         {
             var file = FileDialog.Open();
-            if (file != null && file.Exists)
+            if(file == null || !file.Exists)
             {
-                string path = file.FullName;
-                await Task.Run(() => OpenFrom(path));
-                SendSnapshot();
+                return;
             }
+
+            string path = file.FullName;
+            await Task.Run(() => OpenFrom(path));
+            SendSnapshot();
         }
         private void OpenFrom(string path)
         {

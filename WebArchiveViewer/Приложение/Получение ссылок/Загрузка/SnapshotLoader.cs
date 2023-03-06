@@ -8,15 +8,17 @@ using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-    public abstract class SnapLoader : NotifyObj
+    //Базовый класс для загрузчика снапшота
+    public abstract class SnapshotLoader : NotifyObject
     {
         public override string ToString()
         {
             return "Загрузчик снапшота";
         }
 
-        private readonly SnapshotReceiver Receiver;
+        protected readonly SnapshotImporter Importer;
         protected readonly IFileDialog FileDialog;
+        private Snapshot snapshot;
 
         public Snapshot Snapshot
         {
@@ -27,29 +29,26 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private Snapshot snapshot;
 
-
-        protected SnapLoader(SnapshotReceiver receiver)
+        protected SnapshotLoader(SnapshotImporter importer)
         {
-            Receiver = receiver;
+            Importer = importer;
             FileDialog = new FileDialog();
         }
 
-
         protected override void InitCommands()
         {
-            base.InitCommands();
-            LoadCommand = new RelayCommand(obj => LoadSnapshot(), RelayCommand.IsTrue);
+            LoadCommand = new RelayCommand(obj => LoadSnapshot(), RelayCommand.IsAlwaysAvailable);
         }
         public ICommand LoadCommand { get; private set; }
         protected abstract void LoadSnapshot();
         protected void SendSnapshot()
         {
-            if (Receiver != null)
+            if(Importer == null)
             {
-                Receiver.ReceiveSnapshot(Snapshot);
+                return;
             }
+            Importer.ReceiveSnapshot(Snapshot);
         }
     }
 }

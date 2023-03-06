@@ -39,7 +39,7 @@
                     <TextBlock Text="Папка:" Style="{StaticResource PropertyName}" />
                     <DockPanel>
                         <Button Command="{Binding SnapshotView.SelectSaveFolderCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
-                            <TextBlock Text="{Binding SnapshotView.FolderHtmlSavePath.Name,StringFormat=({0})}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
+                            <TextBlock Text="{Binding SnapshotView.SavingFolderHtmlContent.Name,StringFormat=({0})}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
                         </Button>
                         <Button Command="{Binding SnapshotView.OpenLinkCommand}" CommandParameter="{Binding Snapshot.FolderHtmlSavePath}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                             <TextBlock Text="Открыть" />

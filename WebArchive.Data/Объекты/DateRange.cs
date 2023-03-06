@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data
 {
-    public class DateRange : NotifyObj
+    public class DateRange : NotifyObject
     {
         public DateTime From
         {

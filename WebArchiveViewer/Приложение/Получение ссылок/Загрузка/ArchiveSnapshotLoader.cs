@@ -10,23 +10,23 @@ using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-
-    public class ArchiveSnapLoader : SnapLoader
+    //Загрузчик снапшота с веб-архива
+    public class ArchiveSnapshotLoader : SnapshotLoader
     {
         public override string ToString()
         {
             return $"Архивный загрузчик снапшота - {RequestArchiveCreator.Site.Value}";
         }
 
-        public ArchiveSnapLoader() : this(null)
+        public ArchiveSnapshotLoader() : this(null)
         {
 
         }
-        public ArchiveSnapLoader(SnapshotReceiver receiver) : base(receiver)
+        public ArchiveSnapshotLoader(SnapshotImporter receiver) : base(receiver)
         {
             RequestArchiveCreator = new ArchiveRequestCreator();
 
-            Uploading = new ProcessProgress("Ожидание старта загрузки", 10);
+            UploadingStatus = new ProcessProgress("Ожидание старта загрузки", 10);
         }
 
         protected override void LoadSnapshot()
@@ -69,33 +69,41 @@ namespace WebArchiveViewer
 
 
         //Процесс получения ссылки
-        private bool IsUploadingAvailable(object obj) => (!string.IsNullOrEmpty(RequestCreator.GetRequest())) && !Uploading.InProgress;
-        public ProcessProgress Uploading { get; private set; }
+        private bool IsUploadingAvailable(object obj)
+        {
+            return (!string.IsNullOrEmpty(RequestCreator.GetRequest())) && !UploadingStatus.InProgress;
+        }
+        private bool IsNotEmptySnapshotReceived(object obj)
+        {
+            return Snapshot != null && Snapshot.Links.Length > 0;
+        }
+
+        public ProcessProgress UploadingStatus { get; private set; }
 
 
         public async Task<Snapshot> UploadLinks(object obj = null)
         {
-            Uploading.SetStatus("Загрузка данных с сервера...", 3);
+            UploadingStatus.SetStatus("Загрузка данных с сервера...", 3);
             using(HttpClient client = new HttpClient())
             {
                 try
                 {
                     string responceText = await client.GetStringAsync(RequestString);
 
-                    Uploading.SetStatus("Обработка загруженных данных...", 7);
+                    UploadingStatus.SetStatus("Обработка загруженных данных...", 7);
                     Snapshot = await Task.Run(() => CreateSnapshotFromJson(responceText));
 
-                    Uploading.SetStatus("Загрузка завершена...", Uploading.Maximum);
+                    UploadingStatus.SetStatus("Загрузка завершена...", UploadingStatus.Maximum);
                     return Snapshot;
                 }
                 catch (WebException ex)
                 {
-                    Uploading.SetStatus($"Ошибка соединения: {ex.Message}", Uploading.Maximum);
+                    UploadingStatus.SetStatus($"Ошибка соединения: {ex.Message}", UploadingStatus.Maximum);
                     return null;
                 }
                 catch (Exception ex)
                 {
-                    Uploading.SetStatus($"Неопределенная ошибка: {ex.Message}", Uploading.Maximum);
+                    UploadingStatus.SetStatus($"Неопределенная ошибка: {ex.Message}", UploadingStatus.Maximum);
                     return null;
                 }
             }
@@ -151,7 +159,6 @@ namespace WebArchiveViewer
 
 
         //Задание полученного снапшота в качестве источника для просмотра
-        private bool IsNotEmptySnapshotReceived(object obj) => Snapshot != null && Snapshot.Links.Length > 0;
         private void SetSnapshotSource(object obj)
         {
             SendSnapshot();
@@ -163,7 +170,7 @@ namespace WebArchiveViewer
         private void ClearStatus()
         {
             Snapshot = null;
-            Uploading.SetStatus("Ожидание старта новой загрузки", 0);
+            UploadingStatus.SetStatus("Ожидание старта новой загрузки", 0);
         }
     }
 }

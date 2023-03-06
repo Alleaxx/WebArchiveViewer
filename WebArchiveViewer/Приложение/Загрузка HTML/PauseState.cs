@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-    public class PauseState : NotifyObj
+    public class PauseState : NotifyObject
     {
         public override string ToString()
         {
             return $"Пауза: {(IsPaused ? "активна" : "выключена")}";
         }
+
+        private bool isPaused;
+        private DateTime startDateTime;
 
         public bool IsPaused
         {
@@ -24,7 +27,6 @@ namespace WebArchiveViewer
                 OnPropertyChanged(nameof(IsPlayed));
             }
         }
-        private bool isPaused;
         public bool IsPlayed
         {
             get => !isPaused;
@@ -35,7 +37,6 @@ namespace WebArchiveViewer
             }
         }
 
-
         public DateTime StartDateTime
         {
             get => startDateTime;
@@ -45,7 +46,6 @@ namespace WebArchiveViewer
                 OnPropertyChanged();
             }
         }
-        private DateTime startDateTime;
         public TimeSpan FromStart => DateTime.Now - StartDateTime;
 
         public PauseState(bool paused)

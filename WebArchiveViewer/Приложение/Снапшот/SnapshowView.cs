@@ -9,33 +9,42 @@ using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-    public class SnapshotView : NotifyObj
+    public class SnapshotView : NotifyObject
     {
         public override string ToString()
         {
-            return Current != null ? $"Модель {Current}" : "Нулевой снапшот";
+            return CurrentSnapshot != null ? $"Модель {CurrentSnapshot}" : "Нулевой снапшот";
         }
 
         public string Status
         {
             get
             {
-                if(Current == null)
+                string status;
+                if(CurrentSnapshot == null)
                 {
                     return "Не открыт";
                 }
-                return string.IsNullOrEmpty(Current.FilePath) ? "Снапшот из архива, не сохранен" : "Снапшот сохранен";
+                if (string.IsNullOrEmpty(CurrentSnapshot.FilePath))
+                {
+                    status = "Снапшот из архива, не сохранен";
+                }
+                else
+                {
+                    status = "Снапшот сохранен";
+                }
+                return status;
             }
         }
         public FileInfo File
         {
             get
             {
-                if(Current == null)
+                if(CurrentSnapshot == null)
                 {
                     return null;
                 }
-                return string.IsNullOrEmpty(Current.FilePath) ? null : new FileInfo(Current.FilePath);
+                return string.IsNullOrEmpty(CurrentSnapshot.FilePath) ? null : new FileInfo(CurrentSnapshot.FilePath);
             }
         }
 
@@ -51,21 +60,23 @@ namespace WebArchiveViewer
         private DateTime lastSaveDate;
 
 
-        public Snapshot Current { get; private set; }
+        public Snapshot CurrentSnapshot { get; private set; }
         public RulesView RulesView { get; private set; }
         public ViewOptions ViewOptions { get; private set; }
-        public DirectoryInfo FolderHtmlSavePath => new DirectoryInfo(Current.FolderHtmlSavePath);
+        public HtmlLinkLoader LinkLoader { get; private set; }
+        public DirectoryInfo SavingFolderHtmlContent => new DirectoryInfo(CurrentSnapshot.FolderHtmlSavePath);
 
         public SnapshotView(Snapshot snap)
         {
-            Current = snap;
+            CurrentSnapshot = snap;
             LastSaveDate = DateTime.Now;
             RulesView = new RulesView(this);
-            ViewOptions = new ViewOptions(Current);
+            ViewOptions = new ViewOptions(CurrentSnapshot);
+            LinkLoader = new HtmlLinkLoader();
+            CreateCommands();
         }
-        protected override void InitCommands()
+        private void CreateCommands()
         {
-            base.InitCommands();
             OpenLinkCommand = new RelayCommand(OpenLink, IsCorrectLink);
             SelectSaveFolderCommand = new RelayCommand(SelectFolderSave, NotNull);
             SaveSnapFileCommand = new RelayCommand(Save, NotNull);
@@ -75,11 +86,9 @@ namespace WebArchiveViewer
 
             UpdateCategoriesCommand = new RelayCommand(UpdateCategories, NotNull);
             ClearProgressCommand = new RelayCommand(ClearProgress, NotNull);
-            LoadLinkNameCommand = new RelayCommand(LoadNameAsync, IsLoadNameAvailable);
         }
 
         public ICommand OpenLinkCommand { get; private set; }
-
 
         public ICommand SelectSaveFolderCommand { get; private set; }
         public ICommand UpdateCategoriesCommand { get; private set; }
@@ -91,9 +100,10 @@ namespace WebArchiveViewer
         public ICommand OpenLoadOptionsCommand { get; private set; }
 
 
+        //Условия
         private bool NotNull(object obj)
         {
-            return Current != null;
+            return CurrentSnapshot != null;
         }
         private bool IsCorrectLink(object obj)
         {
@@ -108,7 +118,7 @@ namespace WebArchiveViewer
         }
 
 
-
+        //Команды
         public void Save(SaveMode mode)
         {
             Save(mode as object);
@@ -118,17 +128,17 @@ namespace WebArchiveViewer
             IFileDialog fileDialog = new FileDialog();
             SaveMode mod = GetSaveMode(obj);
 
-            Snapshot saveCopy = Current.CloneThis(ViewOptions.GetFilteredLinks(mod));
+            Snapshot saveCopy = CurrentSnapshot.CloneThis(ViewOptions.GetFilteredLinks(mod));
 
             string filePath = null;
-            if (Current.FilePath != null && File.Exists && mod == SaveMode.AllDefaultPath)
+            if (CurrentSnapshot.FilePath != null && File.Exists && mod == SaveMode.AllDefaultPath)
             {
-                filePath = Current.FilePath;
+                filePath = CurrentSnapshot.FilePath;
             }
             else
             {
                 int linksCount = saveCopy.Links.Count();
-                var file = new FileDialog().Save($"{Current.ReceivingDate:yyyy-MM-dd} снапшот - {linksCount} ссылок");
+                var file = new FileDialog().Save($"{CurrentSnapshot.ReceivingDate:yyyy-MM-dd} снапшот - {linksCount} ссылок");
                 if(file != null)
                 {
                     filePath = file.FullName;
@@ -147,7 +157,7 @@ namespace WebArchiveViewer
             }
             void SaveComplete(string path)
             {
-                Current.FilePath = path;
+                CurrentSnapshot.FilePath = path;
                 LastSaveDate = DateTime.Now;
                 OnPropertyChanged(nameof(File));
             }
@@ -178,46 +188,20 @@ namespace WebArchiveViewer
             var folder = dialog.SelectFolder();
             if (folder != null && folder.Exists)
             {
-                Current.FolderHtmlSavePath = folder.FullName;
-                OnPropertyChanged(nameof(FolderHtmlSavePath));
+                CurrentSnapshot.FolderHtmlSavePath = folder.FullName;
+                OnPropertyChanged(nameof(SavingFolderHtmlContent));
             }
         }
         private void ClearProgress(object obj)
         {
-            foreach (var link in Current.Links)
+            foreach (var link in CurrentSnapshot.Links)
             {
                 link.HtmlFilePath = null;
             }
         }
         public void UpdateCategories(object obj)
         {
-            ViewOptions.LoadCategories(Current);
-        }
-
-
-
-        //Загрузка имени страницы
-        private List<ArchiveLink> LoadingLinks { get; set; } = new List<ArchiveLink>(); 
-        private readonly string[] ForbiddenCodes = new string[] { "404", "502", "302" };
-        private bool IsLoadNameAvailable(object obj)
-        {
-            return obj is ArchiveLink Link && !ForbiddenCodes.Contains(Link.StatusCode) && Link.MimeType == "text/html" && !LoadingLinks.Contains(Link);
-        }
-
-        public ICommand LoadLinkNameCommand { get; private set; }
-        private async void LoadNameAsync(object obj)
-        {
-            if (obj is ArchiveLink Link)
-            {
-                LoadingLinks.Add(Link);
-                using (System.Net.Http.HttpClient client = new System.Net.Http.HttpClient())
-                {
-                    IHtmlLoader loader = new HttpClientHTMLoader(client, Link, new LoadHtmlOptions());
-                    ILinkLoad res = await loader.LoadHtmlAsync();
-                    await Task.Run(res.Process);
-                }
-                LoadingLinks.Remove(Link);
-            }
+            ViewOptions.LoadCategories(CurrentSnapshot);
         }
     }
 }

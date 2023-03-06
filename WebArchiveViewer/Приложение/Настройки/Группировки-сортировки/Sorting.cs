@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-
-
     public interface ISorting
     {
         string Name { get; }
@@ -24,7 +22,6 @@ namespace WebArchiveViewer
         {
             Name = name;
             KeySelector = func;
-
         }
     }
 }

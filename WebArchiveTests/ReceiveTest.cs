@@ -16,7 +16,7 @@ namespace WebArchive.Tests
         [TestMethod]
         public void EmptyRequestDefaultAvailable_Check()
         {
-            ArchiveSnapLoader receiving = new ArchiveSnapLoader();
+            ArchiveSnapshotLoader receiving = new ArchiveSnapshotLoader();
             receiving.RequestDefaultCreator = new DefaultRequestCreator("");
             bool executeAvailable = receiving.UploadLinksCommand.CanExecute(null);
             Assert.IsFalse(executeAvailable, "Команда загрузки ссылок доступна при нулевом прямом запросе");
@@ -24,7 +24,7 @@ namespace WebArchive.Tests
         [TestMethod]
         public void EmptyRequestArhiveAvailable_Check()
         {
-            ArchiveSnapLoader receiving = new ArchiveSnapLoader();
+            ArchiveSnapshotLoader receiving = new ArchiveSnapshotLoader();
             receiving.RequestArchiveCreator.Site.Value = "";
             bool executeAvailable = receiving.UploadLinksCommand.CanExecute(null);
             Assert.IsFalse(executeAvailable, "Команда загрузки ссылок доступна при нулевом запросе");
@@ -36,7 +36,7 @@ namespace WebArchive.Tests
         [TestMethod]
         public async Task LoadDirectSnapshot_Check()
         {
-            ArchiveSnapLoader receiving = new ArchiveSnapLoader
+            ArchiveSnapshotLoader receiving = new ArchiveSnapshotLoader
             {
                 RequestDefaultCreator = new DefaultRequestCreator("http://web.archive.org/cdx/search/cdx?url=https://www.noob-club.ru/&matchType=prefix&output=json&limit=59&from=20170209100353&to=20170831025157")
             };
@@ -51,7 +51,7 @@ namespace WebArchive.Tests
         [TestMethod]
         public async Task LoadSnapshot_Check()
         {
-            ArchiveSnapLoader receiving = new ArchiveSnapLoader();
+            ArchiveSnapshotLoader receiving = new ArchiveSnapshotLoader();
             var creator = receiving.RequestArchiveCreator;
             creator.Site.Value = "http://ru-minecraft.ru/forum";
             creator.Limit.Amount = 100;
@@ -68,7 +68,7 @@ namespace WebArchive.Tests
         [TestMethod]
         public async Task LoadEmptySnapshot_Check()
         {
-            ArchiveSnapLoader receiving = new ArchiveSnapLoader();
+            ArchiveSnapshotLoader receiving = new ArchiveSnapshotLoader();
             var creator = receiving.RequestArchiveCreator;
             creator.Site.Value = "http://ru-minecraft.ru/forum";
             creator.Limit.Amount = 2;

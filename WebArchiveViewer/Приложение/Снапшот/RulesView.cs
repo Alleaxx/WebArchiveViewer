@@ -8,7 +8,7 @@ using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-    public class RulesView : NotifyObj
+    public class RulesView : NotifyObject
     {
         public readonly SnapshotView Owner;
         public GroupRule RulesControl { get; private set; }
@@ -21,7 +21,7 @@ namespace WebArchiveViewer
         public RulesView(SnapshotView snap)
         {
             Owner = snap;
-            RulesControl = snap?.Current?.RulesControl;
+            RulesControl = snap?.CurrentSnapshot?.RulesControl;
             CreateCommands();
         }
         private void CreateCommands()
@@ -36,7 +36,7 @@ namespace WebArchiveViewer
         public ICommand RemoveRuleCommand { get; private set; }
         public ICommand AddRuleCommand { get; private set; }
 
-
+        //Условия
         private bool Exist(object obj)
         {
             return RulesControl != null;
@@ -46,7 +46,7 @@ namespace WebArchiveViewer
             return Exist(obj) && obj != RulesControl;
         }
 
-
+        //Команды
         private void ShowRules(object obj)
         {
             RulesWindow window = new RulesWindow(this);

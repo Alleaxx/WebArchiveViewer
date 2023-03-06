@@ -17,28 +17,28 @@ namespace WebArchiveViewer
 {
     public partial class MainWindow : Window
     {
-        private readonly ArchiveView MainView;
+        private readonly ArchiveView ArchiveContext;
         public MainWindow()
         {
             InitializeComponent();
-            MainView = new ArchiveView();
-            DataContext = MainView;
+            ArchiveContext = new ArchiveView();
+            DataContext = ArchiveContext;
         }
 
         private void EntryInfo_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            FrameworkElement elem = sender as FrameworkElement;
+            var elem = sender as FrameworkElement;
             System.Diagnostics.Process.Start(elem.Tag.ToString());
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            MainView.UpdatePagerLinks();
+            ArchiveContext.UpdatePagerLinks();
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            var closeCommand = MainView.CloseSnapCommand;
+            var closeCommand = ArchiveContext.CloseSnapCommand;
             if (closeCommand.CanExecute(null))
             {
                 closeCommand?.Execute(null);

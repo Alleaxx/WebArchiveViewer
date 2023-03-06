@@ -26,7 +26,7 @@ namespace WebArchiveViewer
     {
         public override string ToString()
         {
-            return $"Файловый диалог: {Extension ?? "без четкого расширения"}";
+            return $"Файловый диалог: {Extension ?? "без расширения"}";
         }
 
         private string DefaultDirectory { get; set; }
@@ -54,7 +54,10 @@ namespace WebArchiveViewer
             return null;
         }
 
-        public FileInfo Save() => Save("Имя файла");
+        public FileInfo Save()
+        {
+            return Save("Имя файла");
+        }
         public FileInfo Save(string name)
         {
             Microsoft.Win32.SaveFileDialog dialog = new Microsoft.Win32.SaveFileDialog
