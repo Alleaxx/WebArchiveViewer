@@ -11,11 +11,6 @@ namespace WebArchive.Data
     //Запрос из шаблона для архива
     public class ArchiveRequestBuilder : IRequestBuilder
     {
-        public override string ToString()
-        {
-            return $"Архивный построитель запроса - {Request}";
-        }
-
         public RequestSite Site { get; private set; }
         public RequestOutput Output { get; private set; }
         public MatchTypes MatchType { get; private set; }

@@ -12,6 +12,8 @@ using System.Windows.Data;
 using System.Windows.Input;
 
 using WebArchive.Data;
+using WebArchiveViewer.ViewModels;
+
 namespace WebArchiveViewer
 {
     //Представление просмотра ссылок с архива
@@ -32,14 +34,14 @@ namespace WebArchiveViewer
         public ArchiveMainWindowViewModel()
         {
             SetSnapshot(null);
-            Receiver = new SnapshotImporter(this);
+            SnapshotLoader = new SnapshotLoaderViewModel(this);
             CloseSnapCommand = new RelayCommand(CloseSnapshot, obj => !IsEmptySnapshot);
         }
 
         public ICommand CloseSnapCommand { get; private set; }
 
         //Получение снапшота
-        public SnapshotImporter Receiver { get; private set; }
+        public SnapshotLoaderViewModel SnapshotLoader { get; private set; }
 
 
         //Открытый снапшот

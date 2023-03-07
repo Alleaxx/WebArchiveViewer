@@ -19,8 +19,8 @@
 
         <Menu IsMainMenu="True" Padding="3,6" FontSize="14" VerticalAlignment="Top" Background="WhiteSmoke" BorderThickness="0,0,0,1" BorderBrush="Gainsboro">
             <MenuItem Header="Открыть">
-                <MenuItem Header="Файл" Command="{Binding Receiver.FileLoader.LoadCommand}" />
-                <MenuItem Header="Веб-архив" Command="{Binding Receiver.ArchiveLoader.LoadCommand}"  />
+                <MenuItem Header="Файл" Command="{Binding SnapshotLoader.LoadFromFileCommand}" />
+                <MenuItem Header="Веб-архив" Command="{Binding SnapshotLoader.OpenRequestWindowCommand}"  />
             </MenuItem>
 
             <MenuItem x:Name="SaveHTML" Header="Загрузить">
@@ -480,7 +480,7 @@
 
                         </Grid>
 
-                        <Grid x:Name="nosnapshot" Visibility="Collapsed" DataContext="{Binding Receiver}">
+                        <Grid x:Name="nosnapshot" Visibility="Collapsed" DataContext="{Binding SnapshotLoader}">
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <TextBlock Text="Ссылки не загружены" FontSize="36" HorizontalAlignment="Center" />
                                 <TextBlock Text="Достать их можно следующими способами" FontSize="24" Foreground="Gray" Margin="0,10" />
@@ -489,10 +489,10 @@
                                         <ColumnDefinition />
                                         <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Command="{Binding FileLoader.LoadCommand}" BorderThickness="1,1,0,1">
+                                    <Button Grid.Column="0" Command="{Binding Path=LoadFromFileCommand}" BorderThickness="1,1,0,1">
                                         <TextBlock Text="Открыть файл" FontSize="20" />
                                     </Button>
-                                    <Button Grid.Column="1" Command="{Binding ArchiveLoader.LoadCommand}">
+                                    <Button Grid.Column="1" Command="{Binding Path=OpenRequestWindowCommand}">
                                         <TextBlock Text="Загрузить с веб-архива" FontSize="20" />
                                     </Button>
 

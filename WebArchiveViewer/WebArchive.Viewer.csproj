@@ -68,6 +68,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ViewModels\Загрузка ссылок\SnapshotLoaderViewModel.cs" />
     <Compile Include="Views\Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
@@ -85,10 +86,6 @@
     <Compile Include="ViewModels\Настройки\Типы\StatusCode.cs" />
     <Compile Include="ViewModels\Настройки\Колонки\ListViewColumn.cs" />
     <Compile Include="ViewModels\Загрузка ссылок\ProcessProgress.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\Загрузчики\SnapshotLoader.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\LoadWindowViewModel.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\Загрузчики\FileSnapshotLoader.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\SnapshotImporter.cs" />
     <Compile Include="ViewModels\SaveMode.cs" />
     <Compile Include="ViewModels\Настройки\Группировки-сортировки\Grouping.cs" />
     <Compile Include="ViewModels\Настройки\Группировки-сортировки\Sorting.cs" />

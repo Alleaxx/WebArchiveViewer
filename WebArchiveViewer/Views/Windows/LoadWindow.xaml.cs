@@ -11,12 +11,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using WebArchiveViewer.ViewModels;
 
 namespace WebArchiveViewer
 {
     public partial class LoadWindow : Window
     {
-        public LoadWindow(LoadWindowViewModel loader)
+        public LoadWindow(SnapshotLoaderViewModel loader)
         {
             InitializeComponent();
             DataContext = loader;

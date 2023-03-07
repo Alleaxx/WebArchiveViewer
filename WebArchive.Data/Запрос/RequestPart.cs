@@ -6,14 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data.RequestParts
 {
-    public interface IRequestPart
-    {
-        string Name { get; }
-        string Value { get; set; }
-        string RequestString { get; }
-        bool Inverted { get; set; }
-    }
-    public class RequestPart : NotifyObject, IRequestPart
+    public class RequestPart : NotifyObject
     {
         public override string ToString()
         {

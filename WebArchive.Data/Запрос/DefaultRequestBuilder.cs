@@ -9,11 +9,6 @@ namespace WebArchive.Data
     //Запрос из заданной строки
     public class DefaultRequestBuilder : NotifyObject, IRequestBuilder
     {
-        public override string ToString()
-        {
-            return $"Построитель запроса: {Request}";
-        }
-
         public string GetRequest()
         {
             return Request;
