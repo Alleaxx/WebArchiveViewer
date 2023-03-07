@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data.Loaders
 {
-    public class FileSnapshotLoader : ISnapshotLoader
+    public class SnapshotFileLoader : ISnapshotLoader
     {
         public string FilePath { get; private set; }
         public Snapshot Snapshot { get; private set; }
 
-        public FileSnapshotLoader(string path)
+        public SnapshotFileLoader(string path)
         {
             FilePath = path;
         }

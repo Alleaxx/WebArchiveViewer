@@ -19,30 +19,17 @@ namespace WebArchiveViewer
     //Представление просмотра ссылок с архива
     public class ArchiveMainWindowViewModel : NotifyObject
     {
-        public override string ToString()
-        {
-            return $"Представление снапшота: {snapshotView}";
-        }
-
-        public event Action<ArchiveMainWindowViewModel, SnapshotView> OnSnapshotOpened;
-        public event Action<ArchiveMainWindowViewModel, SnapshotView> OnSnapshotClosed;
-
-
-        private SnapshotView snapshotView;
-        private IPager<ArchiveLink> linksPager;
+        //Получение снапшота
+        public SnapshotLoaderViewModel SnapshotLoader { get; private set; }
 
         public ArchiveMainWindowViewModel()
         {
             SetSnapshot(null);
             SnapshotLoader = new SnapshotLoaderViewModel(this);
-            CloseSnapCommand = new RelayCommand(CloseSnapshot, obj => !IsEmptySnapshot);
+            CloseSnapCommand = new RelayCommand(CloseSnapshot, obj => !SnapshotIsNull);
         }
 
         public ICommand CloseSnapCommand { get; private set; }
-
-        //Получение снапшота
-        public SnapshotLoaderViewModel SnapshotLoader { get; private set; }
-
 
         //Открытый снапшот
         public SnapshotView SnapshotView
@@ -50,6 +37,8 @@ namespace WebArchiveViewer
             get => snapshotView;
             private set => Set(ref snapshotView, value);
         }
+        private SnapshotView snapshotView;
+        private bool SnapshotIsNull => SnapshotView.CurrentSnapshot == null;
         public void SetSnapshot(Snapshot value)
         {
             var oldSnapshot = snapshotView;
@@ -63,11 +52,6 @@ namespace WebArchiveViewer
             {
                 SnapshotView.ViewOptions.OnUpdated += UpdatePagerLinks;
                 UpdatePagerLinks();
-                OnSnapshotOpened?.Invoke(this, SnapshotView);
-            }
-            else
-            {
-                OnSnapshotClosed?.Invoke(this, oldSnapshot);
             }
         }
         private void CloseSnapshot(object obj)
@@ -75,7 +59,6 @@ namespace WebArchiveViewer
             SetSnapshot(null);
             LinksPager = null;
         }
-        private bool IsEmptySnapshot => SnapshotView.CurrentSnapshot == null;
 
 
         //Список отображаемых ссылок
@@ -84,9 +67,10 @@ namespace WebArchiveViewer
             get => linksPager;
             private set => Set(ref linksPager, value);
         }
+        private IPager<ArchiveLink> linksPager;
         public void UpdatePagerLinks()
         {
-            if(IsEmptySnapshot)
+            if(SnapshotIsNull)
             {
                 return;
             }

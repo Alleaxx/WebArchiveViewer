@@ -98,7 +98,7 @@ namespace WebArchiveViewer.ViewModels
             }
             string path = file.FullName;
 
-            var fileLoader = new FileSnapshotLoader(path);
+            var fileLoader = new SnapshotFileLoader(path);
             fileLoader.OnStatusChanged += Loader_OnStatusChanged;
             Snapshot = await fileLoader.GetSnapshotAsync();
             fileLoader.OnStatusChanged -= Loader_OnStatusChanged;
@@ -112,7 +112,7 @@ namespace WebArchiveViewer.ViewModels
 
         public async Task<Snapshot> LoadFromRequestString(string request)
         {
-            var requestLoader = new RequestSnapshotLoader(request);
+            var requestLoader = new SnapshotRequestLoader(request);
 
             Snapshot = null;
 

@@ -106,7 +106,7 @@
                                         <DockPanel>
                                             <TextBlock Text="Категории:"  Style="{DynamicResource Header}" />
                                             <DockPanel HorizontalAlignment="Right">
-                                                <Button Command="{Binding SnapshotView.RulesView.ShowRulesCommand}" ToolTip="Показать правила построения категорий" Content="[ ? ]" Margin="4,0" Padding="1,0" BorderThickness="0"  />
+                                                <Button Command="{Binding SnapshotView.RulesView.OpenRulesWindowCommand}" ToolTip="Показать правила построения категорий" Content="[ ? ]" Margin="4,0" Padding="1,0" BorderThickness="0"  />
                                                 <Button Command="{Binding SnapshotView.ViewOptions.ToggleCategoriesCommand}" ToolTip="Переключить видимость всех категорий" Content="[ ~ ]" Margin="1,0" Padding="1,0" BorderThickness="0"  />
                                             </DockPanel>
                                         </DockPanel>

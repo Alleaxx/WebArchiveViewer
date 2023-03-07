@@ -78,7 +78,7 @@
     <Compile Include="UI\Converters\ColumnWidthConverter.cs" />
     <Compile Include="UI\Converters\Round.cs" />
     <Compile Include="UI\Page.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\HtmlLinkLoader.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LinkProcessingViewModel.cs" />
     <Compile Include="ViewModels\Загрузка HTML\LoadOptions.cs" />
     <Compile Include="ViewModels\Загрузка HTML\PauseState.cs" />
     <Compile Include="ViewModels\Настройки\Колонки\ColumnsInfo.cs" />
@@ -91,7 +91,7 @@
     <Compile Include="ViewModels\Настройки\Группировки-сортировки\Sorting.cs" />
     <Compile Include="ViewModels\Настройки\Типы\Option.cs" />
     <Compile Include="ViewModels\Настройки\Группировки-сортировки\ListViewOptions.cs" />
-    <Compile Include="ViewModels\RulesWindowViewModel.cs" />
+    <Compile Include="ViewModels\RulesViewModel.cs" />
     <Compile Include="ViewModels\SnapshowView.cs" />
     <Compile Include="Services\FileDialog.cs" />
     <Compile Include="UI\Converters\Date.cs" />

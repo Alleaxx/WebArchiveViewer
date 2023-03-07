@@ -16,8 +16,8 @@ namespace WebArchiveViewer
 {
     public partial class RulesWindow : Window
     {
-        public RulesWindowViewModel View { get; set; }
-        public RulesWindow(RulesWindowViewModel view)
+        public RulesViewModel View { get; set; }
+        public RulesWindow(RulesViewModel view)
         {
             InitializeComponent();
             DataContext = view;
@@ -26,7 +26,7 @@ namespace WebArchiveViewer
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            View.Owner.UpdateCategories(null);
+            View.SnapshotView.UpdateCategories(null);
         }
     }
 }

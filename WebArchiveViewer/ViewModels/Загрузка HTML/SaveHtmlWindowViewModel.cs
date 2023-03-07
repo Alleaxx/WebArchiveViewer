@@ -15,17 +15,12 @@ using System.Windows;
 using System.Windows.Input;
 
 using WebArchive.Data;
+using WebArchive.Data.HtmlLoading;
 
 namespace WebArchiveViewer
 {
     public class SaveHtmlWindowViewModel : NotifyObject
     {
-        public override string ToString()
-        {
-            return "Контроль загрузки ссылок";
-        }
-
-
         public SaveHtmlWindowViewModel(SnapshotView snapshot) : base()
         {
             if(snapshot == null || snapshot.CurrentSnapshot == null)
@@ -35,7 +30,12 @@ namespace WebArchiveViewer
 
             SnapshotView = snapshot;
             Options = new LoadOptions(Snapshot.Links.Length);
-            ProcessOptions = new LoadHtmlOptions(true, true, FolderWrite.FullName);
+            ProcessingConfiguration = new LinkProcessingConfiguration()
+            {
+                LoadingTitle = true,
+                SavingHtml = true,
+                FolderPath = FolderWrite.FullName
+            };
 
             InitCollections();
             InitDates();
@@ -43,9 +43,9 @@ namespace WebArchiveViewer
 
             void InitCollections()
             {
-                CurrentRequests = new ObservableCollection<IHtmlLoader>();
-                SuccessfullRequests = new ObservableCollection<IHtmlLoader>();
-                ErrorRequests = new ObservableCollection<IHtmlLoader>();
+                CurrentRequests = new ObservableCollection<LinkProcessing>();
+                SuccessfullRequests = new ObservableCollection<LinkProcessing>();
+                ErrorRequests = new ObservableCollection<LinkProcessing>();
                 var remainingLinks = Snapshot.Links.Where(l => l.MimeType == "text/html" && string.IsNullOrEmpty(l.HtmlFilePath));
                 LinksRemaining = new ObservableCollection<ArchiveLink>(remainingLinks);
                 LinksLoadedCount = Snapshot.Links.Length - remainingLinks.Count();
@@ -123,7 +123,7 @@ namespace WebArchiveViewer
 
         //Настройки загрузки
         public LoadOptions Options { get; private set; }
-        public LoadHtmlOptions ProcessOptions { get; private set; }
+        public LinkProcessingConfiguration ProcessingConfiguration { get; private set; }
 
 
 
@@ -169,9 +169,9 @@ namespace WebArchiveViewer
         }
         private ArchiveLink lastLink;
 
-        public ObservableCollection<IHtmlLoader> CurrentRequests { get; private set; }
-        public ObservableCollection<IHtmlLoader> SuccessfullRequests { get; private set; }
-        public ObservableCollection<IHtmlLoader> ErrorRequests { get; private set; }
+        public ObservableCollection<LinkProcessing> CurrentRequests { get; private set; }
+        public ObservableCollection<LinkProcessing> SuccessfullRequests { get; private set; }
+        public ObservableCollection<LinkProcessing> ErrorRequests { get; private set; }
 
 
         //Скорость загрузки
@@ -205,44 +205,53 @@ namespace WebArchiveViewer
         //Обработка ссылки
         private async Task LinkLoadAsync(ArchiveLink link)
         {
-            IHtmlLoader loader = new HttpClientHTMLoader(Client, link, ProcessOptions, TokenCancel);
-            ExeInDispatcher(() => CurrentRequests.Add(loader));
-            ILinkLoad loadResult = await loader.LoadHtmlAsync();
-            if (loadResult.Success)
+            var linkProcess = new LinkProcessing(link, ProcessingConfiguration);
+            linkProcess.SetClient(Client);
+            linkProcess.SetIndex(SuccessfullRequests.Count + CurrentRequests.Count);
+
+            ExeInDispatcher(() => CurrentRequests.Add(linkProcess));
+
+            linkProcess.OnEnded += LinkProcess_OnEnded;
+            await linkProcess.StartProcessing();
+        }
+        private async void LinkProcess_OnEnded(LinkProcessingEventArgs arg1, string arg2, string arg3, FileInfo arg4)
+        {
+            var linkProcessing = arg1.Sender;
+            bool success = !arg1.Error;
+
+            if (success)
             {
-                await ProcessSuccess();
+                ProcessSuccess(linkProcessing);
             }
             else
             {
-                ProcessFail();
+                ProcessFail(linkProcessing);
             }
 
-            ExeInDispatcher(() => CurrentRequests.Remove(loader));
-            async Task ProcessSuccess()
-            {
-                await Task.Run(loadResult.Process);
-                LinksLoadedCount++;
-                LastLink = link;
-                ExeInDispatcher(() => SuccessfullRequests.Add(loader));
-                bool saveCounter = link.Index % Options.SavingLatencyLinks == 0;
-                if (saveCounter)
-                {
-                    SaveProgress(null);
-                    UpdateSpeed();
-                }
-            }
-            void ProcessFail()
-            {
-                ExeInDispatcher(() => ErrorRequests.Add(loader));
-            }
-
-            void ExeInDispatcher(Action action)
-            {
-                Application.Current.Dispatcher.BeginInvoke(action);
-            }
+            ExeInDispatcher(() => CurrentRequests.Remove(linkProcessing));
         }
 
-
+        private void ProcessSuccess(LinkProcessing linkProcessing)
+        {
+            LinksLoadedCount++;
+            LastLink = linkProcessing.Link as ArchiveLink;
+            ExeInDispatcher(() => SuccessfullRequests.Add(linkProcessing));
+            bool saveCounter = linkProcessing.Index % Options.SavingLatencyLinks == 0;
+            if (saveCounter)
+            {
+                SaveProgress(null);
+                UpdateSpeed();
+            }
+        }
+        private void ProcessFail(LinkProcessing linkProcessing)
+        {
+            ExeInDispatcher(() => ErrorRequests.Add(linkProcessing));
+        }
+        
+        private void ExeInDispatcher(Action action)
+        {
+            Application.Current.Dispatcher.BeginInvoke(action);
+        }
 
 
         //Состояние паузы

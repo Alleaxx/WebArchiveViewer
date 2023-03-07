@@ -8,63 +8,70 @@ using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-    public class RulesWindowViewModel : NotifyObject
+    public class RulesViewModel : NotifyObject
     {
-        public readonly SnapshotView Owner;
+        #region Ссылки
+
+        public readonly SnapshotView SnapshotView;
         public GroupRule RulesControl { get; private set; }
+        
+        #endregion
 
-
-        public RulesWindowViewModel()
+        public RulesViewModel()
         {
             RulesControl = new GroupRule();
         }
-        public RulesWindowViewModel(SnapshotView snap)
+        public RulesViewModel(SnapshotView snap)
         {
-            Owner = snap;
+            SnapshotView = snap;
             RulesControl = snap?.CurrentSnapshot?.RulesControl;
             CreateCommands();
         }
+
+        #region Команды
+
         private void CreateCommands()
         {
-            ShowRulesCommand = new RelayCommand(ShowRules, Exist);
-            RemoveRuleCommand = new RelayCommand(RemoveRule, IsNotMainRule);
-            AddRuleCommand = new RelayCommand(AddRule, Exist);
+            OpenRulesWindowCommand = new RelayCommand(OnOpenRulesWindowCommandExecuted, IsNotNull);
+            RemoveRuleCommand = new RelayCommand(OnRemoveRuleCommandExecuted, IsNotMainRule);
+            AddRuleCommand = new RelayCommand(OnAddRuleCommandExecuted, IsNotNull);
         }
 
-
-        public ICommand ShowRulesCommand { get; private set; }
+        public ICommand OpenRulesWindowCommand { get; private set; }
         public ICommand RemoveRuleCommand { get; private set; }
         public ICommand AddRuleCommand { get; private set; }
 
         //Условия
-        private bool Exist(object obj)
+        private bool IsNotNull(object obj)
         {
             return RulesControl != null;
         }
         private bool IsNotMainRule(object obj)
         {
-            return Exist(obj) && obj != RulesControl;
+            return IsNotNull(obj) && obj != RulesControl;
         }
 
         //Команды
-        private void ShowRules(object obj)
+        private void OnOpenRulesWindowCommandExecuted(object obj)
         {
             RulesWindow window = new RulesWindow(this);
             window.ShowDialog();
         }
-        private void RemoveRule(object obj)
+        private void OnRemoveRuleCommandExecuted(object obj)
         {
             if (obj is GroupRule ruleToRemove)
             {
                 RulesControl.RemoveInner(ruleToRemove);
             }
         }
-        private void AddRule(object obj)
+        private void OnAddRuleCommandExecuted(object obj)
         {
             if (obj is GroupRule rule)
             {
                 rule.Rules.Insert(0, new GroupRule("Новое правило", "???"));
             }
         }
+
+        #endregion
     }
 }

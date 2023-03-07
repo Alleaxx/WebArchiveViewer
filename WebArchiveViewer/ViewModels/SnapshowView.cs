@@ -57,18 +57,18 @@ namespace WebArchiveViewer
 
 
         public Snapshot CurrentSnapshot { get; private set; }
-        public RulesWindowViewModel RulesView { get; private set; }
+        public RulesViewModel RulesView { get; private set; }
         public ViewOptions ViewOptions { get; private set; }
-        public HtmlLinkLoader LinkLoader { get; private set; }
+        public LinksProcessingViewModel LinkLoader { get; private set; }
         public DirectoryInfo SavingFolderHtmlContent => new DirectoryInfo(CurrentSnapshot.FolderHtmlSavePath);
 
         public SnapshotView(Snapshot snap)
         {
             CurrentSnapshot = snap;
             LastSaveDate = DateTime.Now;
-            RulesView = new RulesWindowViewModel(this);
+            RulesView = new RulesViewModel(this);
             ViewOptions = new ViewOptions(CurrentSnapshot);
-            LinkLoader = new HtmlLinkLoader();
+            LinkLoader = new LinksProcessingViewModel();
             CreateCommands();
         }
         private void CreateCommands()

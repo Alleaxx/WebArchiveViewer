@@ -46,13 +46,12 @@
   <ItemGroup>
     <Compile Include="FileDialog.cs" />
     <Compile Include="Option.cs" />
-    <Compile Include="Загрузка Html\HtmlClientLoader.cs" />
-    <Compile Include="Загрузка Html\HtmlLoader.cs" />
-    <Compile Include="Загрузка Html\HtmlLoadOptions.cs" />
-    <Compile Include="Загрузка Html\LinkLoad.cs" />
-    <Compile Include="Загрузка Html\LoadState.cs" />
-    <Compile Include="Загрузка ссылок\FileSnapshotLoader.cs" />
-    <Compile Include="Загрузка ссылок\RequestSnapshotLoader.cs" />
+    <Compile Include="Загрузка Html\LinkProcessing.cs" />
+    <Compile Include="Загрузка Html\LinkProcessingConfiguration.cs" />
+    <Compile Include="Загрузка Html\LinkProcessingEventArgs.cs" />
+    <Compile Include="Загрузка Html\LinkProcessingHelper.cs" />
+    <Compile Include="Загрузка ссылок\SnapshotFileLoader.cs" />
+    <Compile Include="Загрузка ссылок\SnapshotRequestLoader.cs" />
     <Compile Include="Загрузка ссылок\SnapshotLoader.cs" />
     <Compile Include="Загрузка ссылок\SnapshotLoaderEventArgs.cs" />
     <Compile Include="Запрос\ArchiveRequestBuilder.cs" />

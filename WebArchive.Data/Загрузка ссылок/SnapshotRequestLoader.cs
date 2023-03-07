@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data.Loaders
 {
-    public class RequestSnapshotLoader : ISnapshotLoader
+    public class SnapshotRequestLoader : ISnapshotLoader
     {
         public readonly string RequestString;
         public Snapshot Snapshot { get; private set; }
-        public RequestSnapshotLoader(string request)
+        public SnapshotRequestLoader(string request)
         {
             RequestString = request;
         }

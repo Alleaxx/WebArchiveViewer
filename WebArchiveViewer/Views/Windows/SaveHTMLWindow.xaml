@@ -55,10 +55,10 @@
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Что загружать:" Style="{StaticResource PropertyName}" />
                     <DockPanel VerticalAlignment="Center">
-                        <CheckBox IsChecked="{Binding ProcessOptions.LoadingTitle}">
+                        <CheckBox IsChecked="{Binding ProcessingConfiguration.LoadingTitle}">
                             <TextBlock Text="Имена страниц" />
                         </CheckBox>
-                        <CheckBox IsChecked="{Binding ProcessOptions.SavingHtml}" Margin="5,0">
+                        <CheckBox IsChecked="{Binding ProcessingConfiguration.SavingHtml}" Margin="5,0">
                             <TextBlock Text="HTML" />
                         </CheckBox>
                     </DockPanel>
@@ -196,7 +196,7 @@
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Link.Index}" FontSize="12" Margin="4,0"/>
-                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Status}" FontSize="9" Foreground="Gray" TextWrapping="Wrap" Margin="5,0" VerticalAlignment="Center"/>
+                                <!--<TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Status}" FontSize="9" Foreground="Gray" TextWrapping="Wrap" Margin="5,0" VerticalAlignment="Center"/>-->
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -209,7 +209,7 @@
                         </DockPanel>
 
                     </TabItem.Header>
-                    <ScrollViewer MaxHeight="400">
+                    <ScrollViewer MaxHeight="250">
                         <ItemsControl ItemsSource="{Binding CurrentRequests}" ItemTemplate="{DynamicResource Request}" />
                     </ScrollViewer>
                 </TabItem>
@@ -221,7 +221,7 @@
                         </DockPanel>
 
                     </TabItem.Header>
-                    <ScrollViewer MaxHeight="400">
+                    <ScrollViewer MaxHeight="250">
                         <ItemsControl ItemsSource="{Binding ErrorRequests}" ItemTemplate="{DynamicResource Request}" />
                     </ScrollViewer>
                 </TabItem>
