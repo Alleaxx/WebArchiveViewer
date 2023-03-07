@@ -16,19 +16,19 @@ namespace WebArchiveViewer
             return "Импортер снапшотов";
         }
 
-        private readonly ArchiveView ArchiveView;
+        private readonly ArchiveMainWindowViewModel ArchiveView;
 
-        public ArchiveSnapshotLoader ArchiveLoader { get; private set; }
+        public LoadWindowViewModel ArchiveLoader { get; private set; }
         public FileSnapshotLoader FileLoader { get; private set; }
 
         public SnapshotImporter() : this(null)
         {
 
         }
-        public SnapshotImporter(ArchiveView view)
+        public SnapshotImporter(ArchiveMainWindowViewModel view)
         {
             ArchiveView = view;
-            ArchiveLoader = new ArchiveSnapshotLoader(this);
+            ArchiveLoader = new LoadWindowViewModel(this);
             FileLoader = new FileSnapshotLoader(this);
         }
 

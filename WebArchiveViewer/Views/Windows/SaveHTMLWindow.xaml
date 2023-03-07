@@ -6,9 +6,9 @@
         xmlns:local="clr-namespace:WebArchiveViewer"
     xmlns:Lib="clr-namespace:WebArchive.Data;assembly=WebArchive.Data"
         x:Class="WebArchiveViewer.SaveHTMLWindow"
-        d:DataContext="{d:DesignInstance {x:Type local:LinksLoaderView}}"
+        d:DataContext="{d:DesignInstance {x:Type local:SaveHtmlWindowViewModel}}"
         mc:Ignorable="d"
-        Icon="Resources/Веб-архив.png"
+        Icon="../../Resources/Веб-архив.png"
         Title="{Binding Snapshot.SourceURI}" Height="750" Width="550" MaxWidth="550" Closing="Window_Closing">
     <Window.Resources>
         <local:MathRoundConverter x:Key="MathRound" />
@@ -112,8 +112,8 @@
                                 <ColumnDefinition Width="1*" />
                                 <ColumnDefinition Width="1*" />
                             </Grid.ColumnDefinitions>
-                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource Default}"/>
-                            <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding PauseState.IsPlayed}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" Style="{DynamicResource Default}"/>
+                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
+                            <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding PauseState.IsPlayed}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
                         </Grid>
                     </StackPanel>
                 </DockPanel>

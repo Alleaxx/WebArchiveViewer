@@ -15,21 +15,21 @@ using WebArchive.Data;
 namespace WebArchiveViewer
 {
     //Представление просмотра ссылок с архива
-    public class ArchiveView : NotifyObject
+    public class ArchiveMainWindowViewModel : NotifyObject
     {
         public override string ToString()
         {
             return $"Представление снапшота: {snapshotView}";
         }
 
-        public event Action<ArchiveView, SnapshotView> OnSnapshotOpened;
-        public event Action<ArchiveView, SnapshotView> OnSnapshotClosed;
+        public event Action<ArchiveMainWindowViewModel, SnapshotView> OnSnapshotOpened;
+        public event Action<ArchiveMainWindowViewModel, SnapshotView> OnSnapshotClosed;
 
 
         private SnapshotView snapshotView;
         private IPager<ArchiveLink> linksPager;
 
-        public ArchiveView()
+        public ArchiveMainWindowViewModel()
         {
             SetSnapshot(null);
             Receiver = new SnapshotImporter(this);

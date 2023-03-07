@@ -68,90 +68,90 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AboutWindow.xaml.cs">
+    <Compile Include="Views\Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="PathOptionsWindow.xaml.cs">
+    <Compile Include="Views\Windows\PathOptionsWindow.xaml.cs">
       <DependentUpon>PathOptionsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Конвертеры\ColumnWidthConverter.cs" />
-    <Compile Include="Конвертеры\Round.cs" />
-    <Compile Include="Приложение\Page.cs" />
-    <Compile Include="Приложение\Загрузка HTML\HtmlLinkLoader.cs" />
-    <Compile Include="Приложение\Загрузка HTML\LoadOptions.cs" />
-    <Compile Include="Приложение\Загрузка HTML\PauseState.cs" />
-    <Compile Include="Приложение\Настройки\Колонки\ColumnsInfo.cs" />
-    <Compile Include="Приложение\Настройки\Типы\MimeType.cs" />
-    <Compile Include="Приложение\Настройки\Типы\StatusCode.cs" />
-    <Compile Include="Приложение\Настройки\Колонки\ListViewColumn.cs" />
-    <Compile Include="Приложение\Получение ссылок\ProcessProgress.cs" />
-    <Compile Include="Приложение\Получение ссылок\Загрузка\SnapshotLoader.cs" />
-    <Compile Include="Приложение\Получение ссылок\Загрузка\ArchiveSnapshotLoader.cs" />
-    <Compile Include="Приложение\Получение ссылок\Загрузка\FileSnapshotLoader.cs" />
-    <Compile Include="Приложение\Получение ссылок\SnapshotImporter.cs" />
-    <Compile Include="Приложение\Снапшот\SaveMode.cs" />
-    <Compile Include="Приложение\Настройки\Группировки-сортировки\Grouping.cs" />
-    <Compile Include="Приложение\Настройки\Группировки-сортировки\Sorting.cs" />
-    <Compile Include="Приложение\Настройки\Типы\Option.cs" />
-    <Compile Include="Приложение\Настройки\Группировки-сортировки\ListViewOptions.cs" />
-    <Compile Include="Приложение\Снапшот\RulesView.cs" />
-    <Compile Include="Приложение\Снапшот\SnapshowView.cs" />
-    <Compile Include="Приложение\FileDialog.cs" />
-    <Compile Include="Конвертеры\Date.cs" />
-    <Compile Include="Конвертеры\StatusCode.cs" />
-    <Compile Include="Элементы\IntervalSlider.xaml.cs">
+    <Compile Include="UI\Converters\ColumnWidthConverter.cs" />
+    <Compile Include="UI\Converters\Round.cs" />
+    <Compile Include="UI\Page.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\HtmlLinkLoader.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LoadOptions.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\PauseState.cs" />
+    <Compile Include="ViewModels\Настройки\Колонки\ColumnsInfo.cs" />
+    <Compile Include="ViewModels\Настройки\Типы\MimeType.cs" />
+    <Compile Include="ViewModels\Настройки\Типы\StatusCode.cs" />
+    <Compile Include="ViewModels\Настройки\Колонки\ListViewColumn.cs" />
+    <Compile Include="ViewModels\ProcessProgress.cs" />
+    <Compile Include="ViewModels\Загрузка ссылок\SnapshotLoader.cs" />
+    <Compile Include="ViewModels\Загрузка ссылок\LoadWindowViewModel.cs" />
+    <Compile Include="ViewModels\Загрузка ссылок\FileSnapshotLoader.cs" />
+    <Compile Include="ViewModels\SnapshotImporter.cs" />
+    <Compile Include="Models\SaveMode.cs" />
+    <Compile Include="ViewModels\Настройки\Группировки-сортировки\Grouping.cs" />
+    <Compile Include="ViewModels\Настройки\Группировки-сортировки\Sorting.cs" />
+    <Compile Include="ViewModels\Настройки\Типы\Option.cs" />
+    <Compile Include="ViewModels\Настройки\Группировки-сортировки\ListViewOptions.cs" />
+    <Compile Include="ViewModels\RulesWindowViewModel.cs" />
+    <Compile Include="ViewModels\SnapshowView.cs" />
+    <Compile Include="Services\FileDialog.cs" />
+    <Compile Include="UI\Converters\Date.cs" />
+    <Compile Include="UI\Converters\StatusCode.cs" />
+    <Compile Include="Views\Controls\IntervalSlider.xaml.cs">
       <DependentUpon>IntervalSlider.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ReceiveWindow.xaml.cs">
-      <DependentUpon>ReceiveWindow.xaml</DependentUpon>
+    <Compile Include="Views\Windows\LoadWindow.xaml.cs">
+      <DependentUpon>LoadWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="RulesWindow.xaml.cs">
+    <Compile Include="Views\Windows\RulesWindow.xaml.cs">
       <DependentUpon>RulesWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SaveHTMLWindow.xaml.cs">
+    <Compile Include="Views\Windows\SaveHTMLWindow.xaml.cs">
       <DependentUpon>SaveHTMLWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Приложение\Pager.cs" />
-    <Compile Include="Приложение\Загрузка HTML\LinksLoaderView.cs" />
-    <Compile Include="Элементы\IntervalDateSelector.xaml.cs">
+    <Compile Include="UI\Pager.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\SaveHtmlWindowViewModel.cs" />
+    <Compile Include="Views\Controls\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Приложение\ArchiveView.cs" />
-    <Compile Include="Приложение\Настройки\ViewOptions.cs" />
-    <Compile Include="Приложение\RelayCommand.cs" />
-    <Page Include="AboutWindow.xaml">
+    <Compile Include="ViewModels\ArchiveMainWindowViewModel.cs" />
+    <Compile Include="ViewModels\Настройки\ViewOptions.cs" />
+    <Compile Include="UI\RelayCommand.cs" />
+    <Page Include="Views\Windows\AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="PathOptionsWindow.xaml">
+    <Page Include="Views\Windows\PathOptionsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Элементы\IntervalSlider.xaml">
+    <Page Include="Views\Controls\IntervalSlider.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ReceiveWindow.xaml">
+    <Page Include="Views\Windows\LoadWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="RulesWindow.xaml">
+    <Page Include="Views\Windows\RulesWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="SaveHTMLWindow.xaml">
+    <Page Include="Views\Windows\SaveHTMLWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Словари\Text.xaml">
+    <Page Include="Resources\Styles\Text.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Элементы\IntervalDateSelector.xaml">
+    <Page Include="Views\Controls\IntervalDateSelector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="Views\Windows\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -159,7 +159,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Views\Windows\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>

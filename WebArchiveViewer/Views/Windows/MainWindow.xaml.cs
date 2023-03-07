@@ -17,11 +17,11 @@ namespace WebArchiveViewer
 {
     public partial class MainWindow : Window
     {
-        private readonly ArchiveView ArchiveContext;
+        private readonly ArchiveMainWindowViewModel ArchiveContext;
         public MainWindow()
         {
             InitializeComponent();
-            ArchiveContext = new ArchiveView();
+            ArchiveContext = new ArchiveMainWindowViewModel();
             DataContext = ArchiveContext;
         }
 

@@ -61,7 +61,7 @@ namespace WebArchiveViewer
 
 
         public Snapshot CurrentSnapshot { get; private set; }
-        public RulesView RulesView { get; private set; }
+        public RulesWindowViewModel RulesView { get; private set; }
         public ViewOptions ViewOptions { get; private set; }
         public HtmlLinkLoader LinkLoader { get; private set; }
         public DirectoryInfo SavingFolderHtmlContent => new DirectoryInfo(CurrentSnapshot.FolderHtmlSavePath);
@@ -70,7 +70,7 @@ namespace WebArchiveViewer
         {
             CurrentSnapshot = snap;
             LastSaveDate = DateTime.Now;
-            RulesView = new RulesView(this);
+            RulesView = new RulesWindowViewModel(this);
             ViewOptions = new ViewOptions(CurrentSnapshot);
             LinkLoader = new HtmlLinkLoader();
             CreateCommands();
@@ -173,7 +173,7 @@ namespace WebArchiveViewer
         }
         private void OpenLoadHtml(object obj)
         {
-            LinksLoaderView saveHTMLView = new LinksLoaderView(this);
+            SaveHtmlWindowViewModel saveHTMLView = new SaveHtmlWindowViewModel(this);
             SaveHTMLWindow w = new SaveHTMLWindow(saveHTMLView);
             w.Show();
         }

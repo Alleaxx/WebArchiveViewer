@@ -14,19 +14,17 @@ using System.Windows.Shapes;
 
 namespace WebArchiveViewer
 {
-    public partial class RulesWindow : Window
+    public partial class LoadWindow : Window
     {
-        public RulesView View { get; set; }
-        public RulesWindow(RulesView view)
+        public LoadWindow(LoadWindowViewModel loader)
         {
             InitializeComponent();
-            DataContext = view;
-            View = view;
+            DataContext = loader;
         }
 
-        private void Window_Closed(object sender, EventArgs e)
+        private void BtnSaveFile_Click(object sender, RoutedEventArgs e)
         {
-            View.Owner.UpdateCategories(null);
+            Close();
         }
     }
 }

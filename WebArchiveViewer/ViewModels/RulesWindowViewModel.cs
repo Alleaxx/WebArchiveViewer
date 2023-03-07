@@ -8,17 +8,17 @@ using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
-    public class RulesView : NotifyObject
+    public class RulesWindowViewModel : NotifyObject
     {
         public readonly SnapshotView Owner;
         public GroupRule RulesControl { get; private set; }
 
 
-        public RulesView()
+        public RulesWindowViewModel()
         {
             RulesControl = new GroupRule();
         }
-        public RulesView(SnapshotView snap)
+        public RulesWindowViewModel(SnapshotView snap)
         {
             Owner = snap;
             RulesControl = snap?.CurrentSnapshot?.RulesControl;

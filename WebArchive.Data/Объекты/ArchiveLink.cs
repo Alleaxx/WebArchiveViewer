@@ -15,7 +15,6 @@ namespace WebArchive.Data
             return Link;
         }
 
-
         public string Name
         {
             get => name;
@@ -25,7 +24,7 @@ namespace WebArchive.Data
                 OnPropertyChanged();
             }
         }
-        private string name = DefaultName;
+        private string name;
 
         public int Index { get; set; }
         public string TimeStamp { get; set; }
@@ -44,7 +43,7 @@ namespace WebArchive.Data
                 OnPropertyChanged();
             }
         }
-        private string category = "Общее";
+        private string category;
 
         public string HtmlFilePath
         {
@@ -59,7 +58,8 @@ namespace WebArchive.Data
 
         public ArchiveLink()
         {
-
+            name = DefaultName;
+            category = "Общее";
         }
     }
 }

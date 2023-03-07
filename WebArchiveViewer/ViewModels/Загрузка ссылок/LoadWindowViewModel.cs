@@ -11,18 +11,18 @@ using WebArchive.Data;
 namespace WebArchiveViewer
 {
     //Загрузчик снапшота с веб-архива
-    public class ArchiveSnapshotLoader : SnapshotLoader
+    public class LoadWindowViewModel : SnapshotLoader
     {
         public override string ToString()
         {
             return $"Архивный загрузчик снапшота - {RequestArchiveCreator.Site.Value}";
         }
 
-        public ArchiveSnapshotLoader() : this(null)
+        public LoadWindowViewModel() : this(null)
         {
 
         }
-        public ArchiveSnapshotLoader(SnapshotImporter receiver) : base(receiver)
+        public LoadWindowViewModel(SnapshotImporter receiver) : base(receiver)
         {
             RequestArchiveCreator = new ArchiveRequestCreator();
 

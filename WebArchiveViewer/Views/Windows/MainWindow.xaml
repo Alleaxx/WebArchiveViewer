@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="WebArchiveViewer.MainWindow"
-        mc:Ignorable="d" Icon="Resources/Веб-архив.png"
+        mc:Ignorable="d" Icon="../../Resources/Веб-архив.png"
         Title="Исследователь Веб-Архива" Height="800" Width="1280" Closed="Window_Closed">
     <Window.Resources>
         <local:DateTextConverter x:Key="DateConverter" />
@@ -15,7 +15,7 @@
 
     </Window.Resources>
     <Window.DataContext>
-        <local:ArchiveView />
+        <local:ArchiveMainWindowViewModel />
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>

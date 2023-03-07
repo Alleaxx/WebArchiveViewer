@@ -18,7 +18,7 @@ using WebArchive.Data;
 
 namespace WebArchiveViewer
 {
-    public class LinksLoaderView : NotifyObject
+    public class SaveHtmlWindowViewModel : NotifyObject
     {
         public override string ToString()
         {
@@ -26,7 +26,7 @@ namespace WebArchiveViewer
         }
 
 
-        public LinksLoaderView(SnapshotView snapshot) : base()
+        public SaveHtmlWindowViewModel(SnapshotView snapshot) : base()
         {
             if(snapshot == null || snapshot.CurrentSnapshot == null)
             {
