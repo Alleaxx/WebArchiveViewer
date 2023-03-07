@@ -22,8 +22,7 @@ namespace WebArchiveViewer
             get => isPaused;
             set
             {
-                isPaused = value;
-                OnPropertyChanged();
+                Set(ref isPaused, value);
                 OnPropertyChanged(nameof(IsPlayed));
             }
         }
@@ -40,11 +39,7 @@ namespace WebArchiveViewer
         public DateTime StartDateTime
         {
             get => startDateTime;
-            set
-            {
-                startDateTime = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref startDateTime, value);
         }
         public TimeSpan FromStart => DateTime.Now - StartDateTime;
 

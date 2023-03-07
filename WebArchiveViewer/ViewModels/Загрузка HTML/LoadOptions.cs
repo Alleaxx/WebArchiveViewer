@@ -19,11 +19,7 @@ namespace WebArchiveViewer
         public int TimeoutMinutes
         {
             get => timeoutMinutes;
-            set
-            {
-                timeoutMinutes = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref timeoutMinutes, value);
         }
         private int timeoutMinutes;
 

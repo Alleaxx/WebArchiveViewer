@@ -11,11 +11,7 @@ namespace WebArchive.Data
         public virtual bool Enabled
         {
             get => enabled;
-            set
-            {
-                enabled = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref enabled, value);
         }
         private bool enabled = true;
     }

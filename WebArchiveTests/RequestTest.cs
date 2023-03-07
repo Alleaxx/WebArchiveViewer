@@ -16,7 +16,7 @@ namespace WebArchive.Tests
         public void RequestBuild1_Check()
         {
             string expected = "http://web.archive.org/cdx/search/cdx?url=https://www.noob-club.ru/&matchType=prefix&output=json&limit=10";
-            ArchiveRequestCreator creator = new ArchiveRequestCreator();
+            ArchiveRequestBuilder creator = new ArchiveRequestBuilder();
             creator.Site.Value = "https://www.noob-club.ru/";
             creator.Dates.Enabled = false;
             creator.Limit.Amount = 10;
@@ -31,7 +31,7 @@ namespace WebArchive.Tests
         public void RequestBuild2_Check()
         {
             string expected = "http://web.archive.org/cdx/search/cdx?url=https://ru-minecraft.ru/forum&matchType=exact&output=json&limit=70&from=20110727120000&to=20120727120000";
-            ArchiveRequestCreator creator = new ArchiveRequestCreator();
+            ArchiveRequestBuilder creator = new ArchiveRequestBuilder();
             creator.Site.Value = "https://ru-minecraft.ru/forum";
             creator.MatchType.Selected = new LinkMatchType(MatchType.exact);
             creator.Limit.Amount = 70;
@@ -46,7 +46,7 @@ namespace WebArchive.Tests
         public void RequestBuild3_Check()
         {
             string expected = "http://web.archive.org/cdx/search/cdx?url=https://www.noob-club.ru/&matchType=prefix&output=json&filter=!statuscode:200&filter=!statuscode:502&filter=mimetype:text/html";
-            ArchiveRequestCreator creator = new ArchiveRequestCreator();
+            ArchiveRequestBuilder creator = new ArchiveRequestBuilder();
             creator.Site.Value = "https://www.noob-club.ru/";
             creator.Dates.Enabled = false;
             creator.Codes.FiltersString = "!200; !502";
@@ -62,7 +62,7 @@ namespace WebArchive.Tests
         public void RequestDefault_Check()
         {
             string expected = "https://test.ru";
-            DefaultRequestCreator creator = new DefaultRequestCreator(expected);
+            DefaultRequestBuilder creator = new DefaultRequestBuilder(expected);
 
             string request = creator.GetRequest();
 

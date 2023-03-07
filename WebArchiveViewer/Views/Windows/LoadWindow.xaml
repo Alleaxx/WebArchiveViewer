@@ -9,10 +9,6 @@
         mc:Ignorable="d" d:DataContext="{d:DesignInstance {x:Type local:LoadWindowViewModel }}"
         Icon="../../Resources/Веб-архив.png" 
         Title="Загрузка с веб-архива" Height="700" Width="450" ResizeMode="CanMinimize">
-    <Window.Resources>
-        <local:DateTextConverter x:Key="DateConverter" />
-    </Window.Resources>
-
     <ScrollViewer x:Name="elem" VerticalScrollBarVisibility="Auto">
         <StackPanel>
             <StackPanel Margin="5,0">

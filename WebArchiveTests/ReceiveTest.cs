@@ -17,7 +17,7 @@ namespace WebArchive.Tests
         public void EmptyRequestDefaultAvailable_Check()
         {
             LoadWindowViewModel receiving = new LoadWindowViewModel();
-            receiving.RequestDefaultCreator = new DefaultRequestCreator("");
+            receiving.RequestDefaultCreator = new DefaultRequestBuilder("");
             bool executeAvailable = receiving.UploadLinksCommand.CanExecute(null);
             Assert.IsFalse(executeAvailable, "Команда загрузки ссылок доступна при нулевом прямом запросе");
         }
@@ -38,7 +38,7 @@ namespace WebArchive.Tests
         {
             LoadWindowViewModel receiving = new LoadWindowViewModel
             {
-                RequestDefaultCreator = new DefaultRequestCreator("http://web.archive.org/cdx/search/cdx?url=https://www.noob-club.ru/&matchType=prefix&output=json&limit=59&from=20170209100353&to=20170831025157")
+                RequestDefaultCreator = new DefaultRequestBuilder("http://web.archive.org/cdx/search/cdx?url=https://www.noob-club.ru/&matchType=prefix&output=json&limit=59&from=20170209100353&to=20170831025157")
             };
 
             Snapshot snapshot = await receiving.UploadLinks();

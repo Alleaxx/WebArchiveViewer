@@ -29,11 +29,7 @@ namespace WebArchiveViewer
         public string Search
         {
             get => search;
-            set
-            {
-                search = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref search, value);
         }
         public DateRange DateRange { get; private set; }
 
@@ -41,29 +37,17 @@ namespace WebArchiveViewer
         public StatusCode[] Codes
         {
             get => codes;
-            private set
-            {
-                codes = value;
-                OnPropertyChanged();
-            }
+            private set => Set(ref codes, value);
         }
         public MimeType[] Types
         {
             get => types;
-            private set
-            {
-                types = value;
-                OnPropertyChanged();
-            }
+            private set => Set(ref types, value);
         }
         public ICategory[] Categories
         {
             get => categories;
-            private set
-            {
-                categories = value;
-                OnPropertyChanged();
-            }
+            private set => Set(ref categories, value);
         }
         public ColumnsInfo ShowColumns { get; private set; }
         public ListViewOptions ListView { get; private set; }
@@ -75,9 +59,8 @@ namespace WebArchiveViewer
             get => linksFilteredAmount;
             set
             {
-                linksFilteredAmount = value;
                 UpdateBlocking = true;
-                OnPropertyChanged();
+                Set(ref linksFilteredAmount, value);
                 UpdateBlocking = false;
             }
         }

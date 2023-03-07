@@ -46,11 +46,7 @@ namespace WebArchiveViewer
         public SnapshotView SnapshotView
         {
             get => snapshotView;
-            private set
-            {
-                snapshotView = value;
-                OnPropertyChanged();
-            }
+            private set => Set(ref snapshotView, value);
         }
         public void SetSnapshot(Snapshot value)
         {
@@ -84,11 +80,7 @@ namespace WebArchiveViewer
         public IPager<ArchiveLink> LinksPager
         {
             get => linksPager;
-            private set
-            {
-                linksPager = value;
-                OnPropertyChanged();
-            }
+            private set => Set(ref linksPager, value);
         }
         public void UpdatePagerLinks()
         {

@@ -6,15 +6,8 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data
 {
-    //Построитель запроса
-    public interface IRequestCreator
-    {
-        string GetRequest();
-        string Request { get; }
-    }
-
     //Запрос из заданной строки
-    public class DefaultRequestCreator : NotifyObject, IRequestCreator
+    public class DefaultRequestBuilder : NotifyObject, IRequestBuilder
     {
         public override string ToString()
         {
@@ -29,14 +22,11 @@ namespace WebArchive.Data
         public string Request
         {
             get => request;
-            set
-            {
-                request = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref request, value);
         }
         private string request;
-        public DefaultRequestCreator(string request)
+
+        public DefaultRequestBuilder(string request)
         {
             Request = request;
         }

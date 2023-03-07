@@ -51,11 +51,7 @@ namespace WebArchiveViewer
         public DateTime LastSaveDate
         {
             get => lastSaveDate;
-            set
-            {
-                lastSaveDate = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref lastSaveDate, value);
         }
         private DateTime lastSaveDate;
 

@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:WebArchiveViewer"
              StartupUri="Views/Windows/MainWindow.xaml">
     <Application.Resources>
-        <ResourceDictionary Source="Resources/Styles/Text.xaml" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Text.xaml" />
+                <ResourceDictionary Source="Resources/Converters.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

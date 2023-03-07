@@ -53,9 +53,8 @@ namespace WebArchive.Data.RequestParts
             get => filtersString;
             set
             {
-                filtersString = value;
+                Set(ref filtersString, value);
                 requestString = CreateRequestString();
-                OnPropertyChanged();
             }
         }
         private string filtersString;

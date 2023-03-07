@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:WebArchiveViewer">
+
+
+    <local:DateTextConverter x:Key="DateConverter" />
+    <local:StatusCodeColorConverter x:Key="StatusCodeColorConverter" />
+    <local:ColumnWidthConverter x:Key="ColumnWidthConverter" />
+    <local:ColumnWidthV2Converter x:Key="ColumnWidthV2Converter" />
+    <local:MathRoundConverter x:Key="MathRound" />
+
+</ResourceDictionary>

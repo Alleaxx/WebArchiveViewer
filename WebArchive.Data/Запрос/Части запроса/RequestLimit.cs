@@ -19,17 +19,16 @@ namespace WebArchive.Data.RequestParts
             {
                 if (value < Min)
                 {
-                    amount = Min;
+                    Set(ref amount, Min);
                 }
                 else if (value > Max)
                 {
-                    amount = Max;
+                    Set(ref amount, Max);
                 }
                 else
                 {
-                    amount = value;
+                    Set(ref amount, value);
                 }
-                OnPropertyChanged();
             }
         }
         private int amount = -1;

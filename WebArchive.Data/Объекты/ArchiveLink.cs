@@ -18,11 +18,7 @@ namespace WebArchive.Data
         public string Name
         {
             get => name;
-            set
-            {
-                name = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref name, value);
         }
         private string name;
 
@@ -37,22 +33,14 @@ namespace WebArchive.Data
         public string Category
         {
             get => category;
-            set
-            {
-                category = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref category, value);
         }
         private string category;
 
         public string HtmlFilePath
         {
             get => htmlFilePath;
-            set
-            {
-                htmlFilePath = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref htmlFilePath, value);
         }
         private string htmlFilePath;
 

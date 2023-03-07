@@ -28,39 +28,26 @@ namespace WebArchiveViewer
         public IPage<T> PageNow
         {
             get => pageNow;
-            set
-            {
-                pageNow = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref pageNow, value);
         }
         public int ElementsPerPage
         {
             get => elementsPerPage;
             set
             {
-                elementsPerPage = value;
-                OnPropertyChanged();
+                Set(ref elementsPerPage, value);
                 RecalculateMaxPageAmount();
             }
         }
         public int PageMinAmount
         {
             get => pageMinAmount;
-            set
-            {
-                pageMinAmount = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref pageMinAmount, value);
         }
         public int PageMaxAmount
         {
             get => pageMaxAmount;
-            set
-            {
-                pageMaxAmount = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref pageMaxAmount, value);
         }
         public int PageNowNumber
         {
@@ -72,8 +59,7 @@ namespace WebArchiveViewer
                     return;
                 }
 
-                pageNowNumber = value < PageMinAmount ? PageMinAmount : value > PageMaxAmount ? PageMaxAmount : value;
-                OnPropertyChanged();
+                Set(ref pageNowNumber, value < PageMinAmount ? PageMinAmount : value > PageMaxAmount ? PageMaxAmount : value);
 
                 PageNow = new Page<T>(PageNowNumber, ElementsPerPage, Source);
                 if (groupSelected != null)
@@ -87,19 +73,14 @@ namespace WebArchiveViewer
         public int[] PagesAvailable
         {
             get => pagesAvailable;
-            private set
-            {
-                pagesAvailable = value;
-                OnPropertyChanged();
-            }
+            private set => Set(ref pagesAvailable, value);
         }
         public IGrouping GroupSelected
         {
             get => groupSelected;
             set
             {
-                groupSelected = value;
-                OnPropertyChanged();
+                Set(ref groupSelected, value);
                 SetGrouping(value);
             }
         }

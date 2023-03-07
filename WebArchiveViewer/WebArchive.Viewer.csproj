@@ -84,12 +84,12 @@
     <Compile Include="ViewModels\Настройки\Типы\MimeType.cs" />
     <Compile Include="ViewModels\Настройки\Типы\StatusCode.cs" />
     <Compile Include="ViewModels\Настройки\Колонки\ListViewColumn.cs" />
-    <Compile Include="ViewModels\ProcessProgress.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\SnapshotLoader.cs" />
+    <Compile Include="ViewModels\Загрузка ссылок\ProcessProgress.cs" />
+    <Compile Include="ViewModels\Загрузка ссылок\Загрузчики\SnapshotLoader.cs" />
     <Compile Include="ViewModels\Загрузка ссылок\LoadWindowViewModel.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\FileSnapshotLoader.cs" />
-    <Compile Include="ViewModels\SnapshotImporter.cs" />
-    <Compile Include="Models\SaveMode.cs" />
+    <Compile Include="ViewModels\Загрузка ссылок\Загрузчики\FileSnapshotLoader.cs" />
+    <Compile Include="ViewModels\Загрузка ссылок\SnapshotImporter.cs" />
+    <Compile Include="ViewModels\SaveMode.cs" />
     <Compile Include="ViewModels\Настройки\Группировки-сортировки\Grouping.cs" />
     <Compile Include="ViewModels\Настройки\Группировки-сортировки\Sorting.cs" />
     <Compile Include="ViewModels\Настройки\Типы\Option.cs" />
@@ -119,6 +119,10 @@
     <Compile Include="ViewModels\ArchiveMainWindowViewModel.cs" />
     <Compile Include="ViewModels\Настройки\ViewOptions.cs" />
     <Compile Include="UI\RelayCommand.cs" />
+    <Page Include="Resources\Converters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

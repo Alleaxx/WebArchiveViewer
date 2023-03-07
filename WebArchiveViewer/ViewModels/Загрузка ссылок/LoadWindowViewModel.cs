@@ -24,7 +24,7 @@ namespace WebArchiveViewer
         }
         public LoadWindowViewModel(SnapshotImporter receiver) : base(receiver)
         {
-            RequestArchiveCreator = new ArchiveRequestCreator();
+            RequestArchiveCreator = new ArchiveRequestBuilder();
 
             UploadingStatus = new ProcessProgress("Ожидание старта загрузки", 10);
         }
@@ -37,7 +37,7 @@ namespace WebArchiveViewer
 
 
         //Сайт и настройки получения
-        public IRequestCreator RequestCreator
+        public IRequestBuilder RequestCreator
         {
             get
             {
@@ -51,8 +51,8 @@ namespace WebArchiveViewer
                 }
             }
         }
-        public DefaultRequestCreator RequestDefaultCreator { get; set; }
-        public ArchiveRequestCreator RequestArchiveCreator { get; private set; }
+        public DefaultRequestBuilder RequestDefaultCreator { get; set; }
+        public ArchiveRequestBuilder RequestArchiveCreator { get; private set; }
 
 
 

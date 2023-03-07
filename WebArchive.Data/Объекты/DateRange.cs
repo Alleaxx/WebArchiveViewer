@@ -11,21 +11,13 @@ namespace WebArchive.Data
         public DateTime From
         {
             get => from;
-            set
-            {
-                from = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref from, value);
         }
         private DateTime from;
         public DateTime To
         {
             get => to;
-            set
-            {
-                to = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref to, value);
         }
         private DateTime to;
 

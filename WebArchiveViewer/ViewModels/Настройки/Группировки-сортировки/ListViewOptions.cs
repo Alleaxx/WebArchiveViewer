@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,16 @@ namespace WebArchiveViewer
 
         private ISorting sortSelected;
         private IGrouping groupSelected;
+
+        protected override bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        {
+            var res = base.Set(ref field, value, propertyName);
+            if (res)
+            {
+                Update();
+            }
+            return res;
+        }
 
         public IEnumerable<IGrouping> Groups { get; private set; } = new IGrouping[]
         {
@@ -37,22 +48,12 @@ namespace WebArchiveViewer
         public ISorting SortSelected
         {
             get => sortSelected;
-            set
-            {
-                sortSelected = value;
-                OnPropertyChanged();
-                Update();
-            }
+            set => Set(ref sortSelected, value);
         }
         public IGrouping GroupSelected
         {
             get => groupSelected;
-            set
-            {
-                groupSelected = value;
-                OnPropertyChanged();
-                Update();
-            }
+            set => Set(ref groupSelected, value);
         }
 
         public ListViewOptions()

@@ -31,11 +31,7 @@ namespace WebArchive.Data.RequestParts
         public bool Inverted
         {
             get => inverted;
-            set
-            {
-                inverted = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref inverted, value);
         }
         private bool inverted;
         public bool Enabled
@@ -43,8 +39,7 @@ namespace WebArchive.Data.RequestParts
             get => !Inverted;
             set
             {
-                Inverted = !value;
-                OnPropertyChanged();
+                Set(ref inverted, !value);
                 OnPropertyChanged(nameof(Inverted));
             }
         }

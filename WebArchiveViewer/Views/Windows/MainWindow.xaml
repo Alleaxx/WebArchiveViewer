@@ -6,14 +6,8 @@
         xmlns:local="clr-namespace:WebArchiveViewer"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="WebArchiveViewer.MainWindow"
         mc:Ignorable="d" Icon="../../Resources/Веб-архив.png"
-        Title="Исследователь Веб-Архива" Height="800" Width="1280" Closed="Window_Closed">
-    <Window.Resources>
-        <local:DateTextConverter x:Key="DateConverter" />
-        <local:StatusCodeColorConverter x:Key="StatusCodeColorConverter" />
-        <local:ColumnWidthConverter x:Key="ColumnWidthConverter" />
-        <local:ColumnWidthV2Converter x:Key="ColumnWidthV2Converter" />
-
-    </Window.Resources>
+        Title="Исследователь Веб-Архива" Height="800" Width="1280"
+        Closed="Window_Closed">
     <Window.DataContext>
         <local:ArchiveMainWindowViewModel />
     </Window.DataContext>

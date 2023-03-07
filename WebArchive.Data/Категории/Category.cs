@@ -47,11 +47,7 @@ namespace WebArchive.Data
         public int ItemsAmount
         {
             get => itemsAmount;
-            set
-            {
-                itemsAmount = value;
-                OnPropertyChanged();
-            }
+            set => Set(ref itemsAmount, value);
         }
         private int itemsAmount;
         //Элементов в категории и во всех подкатегориях

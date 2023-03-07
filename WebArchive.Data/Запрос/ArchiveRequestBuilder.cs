@@ -9,7 +9,7 @@ using WebArchive.Data.RequestParts;
 namespace WebArchive.Data
 {
     //Запрос из шаблона для архива
-    public class ArchiveRequestCreator : IRequestCreator
+    public class ArchiveRequestBuilder : IRequestBuilder
     {
         public override string ToString()
         {
@@ -25,7 +25,7 @@ namespace WebArchive.Data
         public RequestTypes Types { get; private set; }
         public RequestSearch Search { get; private set; }
 
-        public ArchiveRequestCreator()
+        public ArchiveRequestBuilder()
         {
             Site = new RequestSite();
             Output = new RequestOutput();
@@ -43,6 +43,8 @@ namespace WebArchive.Data
         
         //Образец формируемой ссылки
         //http://web.archive.org/cdx/search/cdx?url=http://ru-minecraft.ru*&output=json&from=2010&to=2011
+        
+        
         public string Request => GetRequest();
         public string GetRequest()
         {

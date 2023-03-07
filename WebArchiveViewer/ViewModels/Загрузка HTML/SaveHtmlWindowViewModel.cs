@@ -158,22 +158,14 @@ namespace WebArchiveViewer
         public int LinksLoadedCount
         {
             get => linksLoadedCount;
-            private set
-            {
-                linksLoadedCount = value;
-                OnPropertyChanged();
-            }
+            private set => Set(ref linksLoadedCount, value);
         }
         private int linksLoadedCount;
 
         public ArchiveLink LastLink
         {
             get => lastLink;
-            private set
-            {
-                lastLink = value;
-                OnPropertyChanged();
-            }
+            private set => Set(ref lastLink, value);
         }
         private ArchiveLink lastLink;
 
@@ -259,8 +251,7 @@ namespace WebArchiveViewer
             get => isStarted;
             private set
             {
-                isStarted = value;
-                OnPropertyChanged();
+                Set(ref isStarted, value);
                 PauseState.StartDateTime = DateTime.Now;
                 OnPropertyChanged(nameof(IsPauseEnabled));
             }

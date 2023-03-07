@@ -50,9 +50,10 @@
     <Compile Include="Загрузка\HtmlLoadOptions.cs" />
     <Compile Include="Загрузка\LinkLoad.cs" />
     <Compile Include="Загрузка\LoadState.cs" />
-    <Compile Include="Запрос\ArchiveRequestCreator.cs" />
+    <Compile Include="Запрос\ArchiveRequestBuilder.cs" />
+    <Compile Include="Запрос\DefaultRequestBuilder.cs" />
     <Compile Include="Запрос\Части запроса\RequestSite.cs" />
-    <Compile Include="Запрос\RequestCreator.cs" />
+    <Compile Include="Запрос\IRequestCreator.cs" />
     <Compile Include="Запрос\RequestPart.cs" />
     <Compile Include="Запрос\Части запроса\RequestCodes.cs" />
     <Compile Include="Запрос\Части запроса\RequestDates.cs" />

@@ -15,8 +15,7 @@ namespace WebArchiveViewer
             get => hidden;
             set
             {
-                hidden = value;
-                OnPropertyChanged();
+                Set(ref hidden, value);
                 OnPropertyChanged(nameof(Shown));
             }
         }

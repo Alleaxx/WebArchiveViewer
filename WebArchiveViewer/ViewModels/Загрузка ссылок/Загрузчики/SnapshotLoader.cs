@@ -23,11 +23,7 @@ namespace WebArchiveViewer
         public Snapshot Snapshot
         {
             get => snapshot;
-            protected set
-            {
-                snapshot = value;
-                OnPropertyChanged();
-            }
+            protected set => Set(ref snapshot, value);
         }
 
         protected SnapshotLoader(SnapshotImporter importer)
