@@ -50,6 +50,7 @@
     <Compile Include="Загрузка Html\LinkProcessingConfiguration.cs" />
     <Compile Include="Загрузка Html\LinkProcessingEventArgs.cs" />
     <Compile Include="Загрузка Html\LinkProcessingHelper.cs" />
+    <Compile Include="Объекты\ProcessStatus.cs" />
     <Compile Include="Объекты\SnapshotDatesStatistics.cs" />
     <Compile Include="Загрузка ссылок\SnapshotFileLoader.cs" />
     <Compile Include="Загрузка ссылок\SnapshotRequestLoader.cs" />

@@ -58,7 +58,7 @@ namespace WebArchiveViewer
 
         public ListViewOptions()
         {
-            sortSelected = Sorts.Last();
+            sortSelected = Sorts.ElementAt(Sorts.Count() - 1);
             groupSelected = Groups.Last();
         }
         private void Update()

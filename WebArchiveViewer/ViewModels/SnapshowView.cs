@@ -32,7 +32,6 @@ namespace WebArchiveViewer
             }
         }
 
-
         public FileInfo File
         {
             get
@@ -51,22 +50,24 @@ namespace WebArchiveViewer
         }
         private DateTime lastSaveDate;
 
-
         public Snapshot CurrentSnapshot { get; private set; }
         public SnapshotDateStatistics DatesStatistics { get; private set; }
         public RulesViewModel RulesView { get; private set; }
         public ViewOptions ViewOptions { get; private set; }
-        public LinksProcessingViewModel LinkLoader { get; private set; }
         public DirectoryInfo SavingFolderHtmlContent => new DirectoryInfo(CurrentSnapshot.FolderHtmlSavePath);
 
         public SnapshotView(Snapshot snap)
         {
+            if(snap == null)
+            {
+                throw new ArgumentNullException(nameof(snap));
+            }
+
             CurrentSnapshot = snap;
             LastSaveDate = DateTime.Now;
             RulesView = new RulesViewModel(this);
             ViewOptions = new ViewOptions(CurrentSnapshot);
             DatesStatistics = new SnapshotDateStatistics(CurrentSnapshot);
-            LinkLoader = new LinksProcessingViewModel();
             CreateCommands();
         }
 
@@ -93,7 +94,7 @@ namespace WebArchiveViewer
         public bool IsNotEmptySnapshot => NotNull(CurrentSnapshot);
         private bool NotNull(object obj)
         {
-            return CurrentSnapshot != null;
+            return !CurrentSnapshot.IsEmpty;
         }
 
 

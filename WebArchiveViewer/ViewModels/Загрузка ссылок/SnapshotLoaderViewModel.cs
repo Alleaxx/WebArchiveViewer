@@ -7,6 +7,7 @@ using System.Windows.Forms.Design;
 using System.Windows.Input;
 using WebArchive.Data;
 using WebArchive.Data.Loaders;
+using WebArchiveViewer.Services;
 
 namespace WebArchiveViewer.ViewModels
 {
@@ -14,7 +15,7 @@ namespace WebArchiveViewer.ViewModels
     {
         #region Ссылки
 
-        public ArchiveMainWindowViewModel MainModel { get; private set; }
+        public MainWindowViewModel MainModel { get; private set; }
 
         #endregion
 
@@ -29,7 +30,7 @@ namespace WebArchiveViewer.ViewModels
         {
 
         }
-        public SnapshotLoaderViewModel(ArchiveMainWindowViewModel mainModel)
+        public SnapshotLoaderViewModel(MainWindowViewModel mainModel)
         {
             MainModel = mainModel;
 
@@ -112,7 +113,7 @@ namespace WebArchiveViewer.ViewModels
 
         public async Task<Snapshot> LoadFromRequestString(string request)
         {
-            var requestLoader = new SnapshotRequestLoader(request);
+            var requestLoader = new SnapshotRequestLoader(request, HttpService.GetHttpClient());
 
             Snapshot = null;
 
@@ -128,7 +129,8 @@ namespace WebArchiveViewer.ViewModels
 
         private void Loader_OnStatusChanged(SnapshotLoaderEventArgs obj)
         {
-            UploadingStatus.SetStatus(obj.Message, (int)obj.ReadyPersentage);
+            UploadingStatus.SetStatus(obj.State.Status, obj.State.ReadyPercentage);
+            MainModel.SetOperation(obj.State);
         }
         private void SendSnapshot()
         {

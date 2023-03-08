@@ -53,7 +53,11 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <ItemsControl x:Name="items" ItemsSource="{Binding ElementName=root, Path=Statistics.DayLinkStats}" HorizontalAlignment="Left">
+                <ItemsControl x:Name="items"
+                              ItemsSource="{Binding ElementName=root, Path=Statistics.DayLinkStats}"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Bottom"
+                              Margin="0,2">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel />

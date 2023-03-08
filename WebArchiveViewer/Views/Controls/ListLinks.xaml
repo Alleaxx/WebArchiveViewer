@@ -1,0 +1,211 @@
+﻿<UserControl x:Class="WebArchiveViewer.Views.Controls.ListLinks"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WebArchiveViewer.Views.Controls"
+             mc:Ignorable="d" Name="root"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <ListView x:Name="links" ItemsSource="{Binding ElementName=root, Path=LinksPager.PageNow.Source.View}" BorderThickness="0"
+              FontFamily="Consolas" FontSize="10">
+        <ListView.Resources>
+            <Style TargetType="{x:Type Button}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Gainsboro" />
+                <Setter Property="BorderThickness" Value="0,0,0,1" />
+                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="Padding" Value="2,0,10,0" />
+                <Setter Property="Height" Value="18" />
+                <Setter Property="Cursor" Value="Hand" />
+            </Style>
+            <Style x:Key="ColumnText" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="HorizontalAlignment" Value="Left" />
+            </Style>
+            <Style x:Key="ColumnNumber" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="HorizontalAlignment" Value="Right" />
+            </Style>
+            <Style x:Key="ColumnUsualText" BasedOn="{StaticResource ColumnText}" TargetType="{x:Type TextBlock}">
+                <Setter Property="FontFamily" Value="Segoe UI" />
+            </Style>
+        </ListView.Resources>
+        <ListView.View>
+            <GridView>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[0].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}" >
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Index}"
+                                       Style="{StaticResource ColumnNumber}"
+                                       Foreground="Gray" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <TextBlock Text="№" HorizontalAlignment="Left" />
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[1].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock ToolTip="{Binding Date, Converter={StaticResource DateConverter}}"
+                                       Text="{Binding Date, ConverterParameter=dd-MMM-yyyy, Converter={StaticResource DateConverter}}"
+                                       Style="{StaticResource ColumnNumber}"
+                                       Foreground="#404040" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <TextBlock Text="Дата"/>
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[2].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <DockPanel >
+                                <TextBlock ToolTip="{Binding Date, Converter={StaticResource DateConverter}}"
+                                           Text="{Binding Date, ConverterParameter=HH:mm, Converter={StaticResource DateConverter}}"
+                                            Style="{StaticResource ColumnText}"
+                                           Foreground="#404040" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <TextBlock Text="Время" />
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[3].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock x:Name="code" Text="{Binding StatusCode}"
+                                       Style="{StaticResource ColumnNumber}"
+                                       Foreground="{Binding StatusCode, Converter={StaticResource StatusCodeColorConverter}}" />
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding StatusCode}" Value="200">
+                                    <Setter TargetName="code" Property="Foreground" Value="green" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <TextBlock Text="Код" />
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[4].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding MimeType}"
+                                       Foreground="Gray"
+                                       Style="{StaticResource ColumnUsualText}"
+                                       MinWidth="60" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <TextBlock Text="Тип" />
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[5].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Category}"
+                                       Foreground="Black"
+                                       Style="{StaticResource ColumnUsualText}" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <DockPanel>
+                        <TextBlock Text="Категория" />
+                    </DockPanel>
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[6].Hidden, ConverterParameter=250,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <Button x:Name="load" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type TabControl}}, Path=DataContext.SnapshotView.LinkLoader.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
+                                    <TextBlock x:Name="text"
+                                               Text="{Binding Name}"
+                                                Style="{StaticResource ColumnUsualText}"
+                                               Foreground="Black" />
+                                </Button>
+                            </DockPanel>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <DockPanel>
+                        <TextBlock Text="Имя страницы" />
+                    </DockPanel>
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[7].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Command="{StaticResource OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding LinkSource}">
+                                <TextBlock Text="{Binding LinkSource}" FontFamily="Segoe UI" ToolTip="{Binding LinkSource}" Style="{DynamicResource TextBlockLink}"  />
+                            </Button>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <TextBlock Text="Ссылка" />
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[8].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Command="{StaticResource OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding Link}">
+                                <TextBlock Text="Архив" Tag="{Binding Link}" FontFamily="Segoe UI" ToolTip="{Binding Link}" Style="{DynamicResource TextBlockLink}" />
+                            </Button>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <TextBlock Text="Веб-архив" />
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[9].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button x:Name="load" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding HtmlFilePath}" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
+                                <TextBlock x:Name="text" Style="{StaticResource ColumnUsualText}" Text="файл" Foreground="Black" />
+                            </Button>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding HtmlFilePath}" Value="{x:Null}">
+                                    <Setter TargetName="text" Property="Text" Value="нет" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding HtmlFilePath}" Value="">
+                                    <Setter TargetName="text" Property="Text" Value="нет" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <DockPanel>
+                        <TextBlock Text="Загрузка" />
+                    </DockPanel>
+                </GridViewColumn>
+
+            </GridView>
+        </ListView.View>
+        <ListView.GroupStyle>
+            <GroupStyle>
+                <GroupStyle.ContainerStyle>
+                    <Style TargetType="{x:Type GroupItem}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Expander IsExpanded="True">
+                                        <Expander.Header>
+                                            <DockPanel Margin="0,0,0,2">
+                                                <TextBlock>
+                                                    <Run Text="{Binding Name,Mode=OneWay}" />
+                                                    <Run Text="{Binding ItemCount,StringFormat=[{0} знач.],Mode=OneWay}" />
+                                                </TextBlock>
+                                            </DockPanel>
+                                        </Expander.Header>
+                                        <Border BorderThickness="0,1,0,1" BorderBrush="Gainsboro">
+                                            <ItemsPresenter />
+                                        </Border>
+                                    </Expander>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </GroupStyle.ContainerStyle>
+            </GroupStyle>
+
+
+        </ListView.GroupStyle>
+        <ListView.ItemContainerStyle>
+            <Style TargetType="{x:Type ListViewItem}">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+        </ListView.ItemContainerStyle>
+        <ListView.ItemsPanel>
+            <ItemsPanelTemplate>
+                <VirtualizingStackPanel
+                    VirtualizingPanel.IsVirtualizing="true"
+                    VirtualizingPanel.VirtualizationMode="Standard">
+                    
+                </VirtualizingStackPanel>
+            </ItemsPanelTemplate>
+        </ListView.ItemsPanel>
+    </ListView>
+</UserControl>

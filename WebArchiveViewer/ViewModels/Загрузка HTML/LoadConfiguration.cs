@@ -36,15 +36,20 @@ namespace WebArchiveViewer
         }
 
 
-        public LoadConfiguration() : this(500)
+        public LoadConfiguration()
         {
-
+            UpdateWithLinksAmount(500);
         }
         public LoadConfiguration(int totalLinksAmount)
         {
+            UpdateWithLinksAmount(totalLinksAmount);
+        }
+
+        public void UpdateWithLinksAmount(int amount)
+        {
             SavingLatencyLinks = 10;
             TimeoutMinutes = 10;
-            SavingLatencyLinks = CreateLatencyFromLinks(totalLinksAmount);
+            SavingLatencyLinks = CreateLatencyFromLinks(amount);
         }
     }
 }

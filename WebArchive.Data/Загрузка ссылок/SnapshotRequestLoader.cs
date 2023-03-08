@@ -10,11 +10,12 @@ namespace WebArchive.Data.Loaders
 {
     public class SnapshotRequestLoader : ISnapshotLoader
     {
-        public readonly string RequestString;
-        public Snapshot Snapshot { get; private set; }
-        public SnapshotRequestLoader(string request)
+        private readonly string RequestString;
+        private readonly HttpClient HttpClient;
+        public SnapshotRequestLoader(string request, HttpClient httpClient = null)
         {
             RequestString = request;
+            HttpClient = httpClient;
         }
 
         public event Action<SnapshotLoaderEventArgs> OnStatusChanged;
@@ -29,28 +30,34 @@ namespace WebArchive.Data.Loaders
         }
         public async Task<Snapshot> GetSnapshotAsync()
         {
-            OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok("Загрузка данных с сервера...", 3));
-            using (HttpClient client = new HttpClient())
+            OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Загрузка снапшота с архива", 10));
+
+            var client = HttpClient ?? new HttpClient();
+            try
             {
-                try
-                {
-                    string responceText = await client.GetStringAsync(RequestString);
+                string responceText = await client.GetStringAsync(RequestString);
 
-                    OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok("Обработка загруженных данных...", 7));
-                    Snapshot = await Task.Run(() => CreateSnapshotFromJson(responceText));
+                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Обработка данных снапшота", 80));
+                var snapshot = await Task.Run(() => CreateSnapshotFromJson(responceText));
 
-                    OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok("Загрузка завершена...", 100));
-                    return Snapshot;
-                }
-                catch (WebException ex)
+                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Загрузка снапшота с архива завершена", 100));
+                return snapshot;
+            }
+            catch (WebException ex)
+            {
+                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.FinishedWithError(this, $"Ошибка соединения с архивом", ex));
+                return Snapshot.GetEmptySnapshot();
+            }
+            catch (Exception ex)
+            {
+                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.FinishedWithError(this, $"Ошибка получения архива", ex));
+                return Snapshot.GetEmptySnapshot();
+            }
+            finally
+            {
+                if (HttpClient == null)
                 {
-                    OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Error($"Ошибка соединения: {ex.Message}", 100));
-                    return Snapshot.Empty();
-                }
-                catch (Exception ex)
-                {
-                    OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Error($"Неопределенная ошибка: {ex.Message}", 100));
-                    return Snapshot.Empty();
+                    client.Dispose();
                 }
             }
         }

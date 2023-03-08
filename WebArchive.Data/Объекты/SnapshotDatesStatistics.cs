@@ -14,7 +14,7 @@ namespace WebArchive.Data
         public SnapshotDateStatistics(Snapshot snapshot)
         {
             DayLinkStats = new List<DayLinkStat>();
-            if(snapshot == null)
+            if(snapshot.IsEmpty)
             {
                 MaxLinksForDay = 1;
                 return;

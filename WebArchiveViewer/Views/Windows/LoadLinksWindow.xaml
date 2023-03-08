@@ -154,7 +154,7 @@
                                         </Style>
                                     </Rectangle.Style>
                                 </Rectangle>
-                                <TextBlock Text="{Binding UploadingStatus.Status}" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding UploadingStatus.Status}" TextWrapping="Wrap" MaxWidth="200" />
                                 <Button Content="Загрузить" Command="{Binding LoadFromRequestBuilderCommand}" Style="{StaticResource ActionButton}" HorizontalAlignment="Right" />
                             </DockPanel>
                         </DockPanel>

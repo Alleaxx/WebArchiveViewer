@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace WebArchive.Data
         public GroupRule RulesControl { get; set; }
         public ArchiveLink[] Links { get; set; }
 
-
+        public bool IsEmpty => !Links.Any();
 
 
         //Из сохранения
@@ -42,12 +43,19 @@ namespace WebArchive.Data
 
             SetRulesIfNull();
         }
-        public static Snapshot Empty()
+        public static Snapshot GetEmptySnapshot()
         {
-            return new Snapshot();
+            var empty = new Snapshot();
+
+            empty.Links = Array.Empty<ArchiveLink>();
+            empty.FolderHtmlSavePath = Directory.GetCurrentDirectory();
+            empty.SourceURI = "";
+            empty.ReceivingDate = DateTime.Now;
+
+            return empty;
         }
 
-        public void InitAfterLoad()
+        public void ClearNonExistantFilePathes()
         {
             foreach (var link in Links)
             {
@@ -69,13 +77,14 @@ namespace WebArchive.Data
         }
         private void SetRulesIfNull()
         {
-            if (RulesControl == null)
+            if(RulesControl != null)
             {
-                RulesControl = new GroupRule();
-                if (SourceURI.Contains("ru-minecraft.ru"))
-                {
-                    RulesControl.AddInner(RulesStorage.Rumine());
-                }
+                return;
+            }
+            RulesControl = new GroupRule();
+            if (SourceURI.Contains("ru-minecraft.ru"))
+            {
+                RulesControl.AddInner(RulesStorage.Rumine());
             }
         }
 

@@ -6,26 +6,44 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data.Loaders
 {
+    /// <summary>
+    /// Информация о состоянии загрузки снапшота
+    /// </summary>
     public class SnapshotLoaderEventArgs : EventArgs
     {
-        public readonly string Message;
-        public readonly double ReadyPersentage;
-        public readonly bool IsError;
+        public ISnapshotLoader Loader { get; private set; }
+        public ProcessStatus State { get; private set; }
+        public Snapshot Result { get; private set; }
 
-        private SnapshotLoaderEventArgs(string message, double readyPersentage, bool error = false)
+
+        private SnapshotLoaderEventArgs(ISnapshotLoader loader, ProcessStatus state)
         {
-            Message = message;
-            ReadyPersentage = readyPersentage;
-            this.IsError = error;
+            Loader = loader;
+            State = state;
+        }
+        public SnapshotLoaderEventArgs SetResult(Snapshot snapshot)
+        {
+            this.Result = snapshot;
+            return this;
         }
 
-        public static SnapshotLoaderEventArgs Ok(string message, double ready)
+
+        public static SnapshotLoaderEventArgs Ok(ISnapshotLoader loader, string message, int ready)
         {
-            return new SnapshotLoaderEventArgs(message, ready, false);
+            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, ready, false));
         }
-        public static SnapshotLoaderEventArgs Error(string message, double ready)
+        public static SnapshotLoaderEventArgs Error(ISnapshotLoader loader, string message, int ready, Exception ex)
         {
-            return new SnapshotLoaderEventArgs(message, ready, true);
+            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, ready, false, false));
+        }
+        
+        public static SnapshotLoaderEventArgs FinishedSuccessfuly(ISnapshotLoader loader, string message)
+        {
+            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, 100, true, true));
+        }
+        public static SnapshotLoaderEventArgs FinishedWithError(ISnapshotLoader loader, string message, Exception ex)
+        {
+            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, 100, false, true));
         }
     }
 }

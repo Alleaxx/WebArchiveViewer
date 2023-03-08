@@ -17,7 +17,6 @@ namespace WebArchive.Data.HtmlLoading
     public class LinkProcessing
     {
         public event Action<LinkProcessingEventArgs> OnStatusChanged;
-        public event Action<LinkProcessingEventArgs> OnEnded;
 
         public ILink Link { get; private set; }
         public int Index { get; private set; }
@@ -43,12 +42,10 @@ namespace WebArchive.Data.HtmlLoading
         public async Task StartProcessing()
         {
             FileInfo file = null;
-            OnStatusChanged?.Invoke(new LinkProcessingEventArgs(this, "Обработка ссылки начинается"));
+            OnStatusChanged?.Invoke(LinkProcessingEventArgs.Ok(this, "Обработка ссылки начинается", 3));
             if(!Configuration.SavingHtml && !Configuration.LoadingTitle)
             {
-                var endEventArgs = new LinkProcessingEventArgs(this, "Конец обработки ссылки: обработка не указана");
-                OnStatusChanged?.Invoke(endEventArgs);
-                OnEnded?.Invoke(endEventArgs);
+                OnStatusChanged?.Invoke(LinkProcessingEventArgs.EndedSuccessfuly(this, "Конец обработки ссылки: обработка не указана"));
                 return;
             }
 
@@ -60,33 +57,31 @@ namespace WebArchive.Data.HtmlLoading
             }
             catch (Exception ex)
             {
-                OnEnded?.Invoke(new LinkProcessingEventArgs(this, "Обработка ссылки завершена с ошибкой", true));
+                OnStatusChanged?.Invoke(LinkProcessingEventArgs.EndedWithErrors(this, "Обработка ссылки завершена с ошибкой", ex));
                 return;
             }
-            OnStatusChanged?.Invoke(new LinkProcessingEventArgs(this, "Получен html-контент", pageContent: htmlContent));
+            OnStatusChanged?.Invoke(LinkProcessingEventArgs.Ok(this, "Получен html-контент", 50).SetResult(pageContent: htmlContent));
 
 
             if (Configuration.LoadingTitle)
             {
                 Link.Name = LinkProcessingHelper.GetNameFromHtmlAsync(htmlContent);
-                OnStatusChanged?.Invoke(new LinkProcessingEventArgs(this, $"Загружено имя страницы", pageName:Link.Name));
+                OnStatusChanged?.Invoke(LinkProcessingEventArgs.Ok(this, $"Загружено имя страницы", 65).SetResult(pageName:Link.Name));
             }
             if (Configuration.SavingHtml && !string.IsNullOrEmpty(Configuration.FolderPath))
             {
                 try
                 {
                     file = LinkProcessingHelper.SaveToFileAsync(Link, Configuration.FolderPath, htmlContent);
-                    OnStatusChanged?.Invoke(new LinkProcessingEventArgs(this, $"Содержимое страницы сохранено в файл", fileInfo: file));
+                    OnStatusChanged?.Invoke(LinkProcessingEventArgs.Ok(this, $"Содержимое страницы сохранено в файл", 100).SetResult(fileInfo: file));
                 }
                 catch (Exception ex)
                 {
-                    OnStatusChanged?.Invoke(new LinkProcessingEventArgs(this, "Обработка ссылки завершена с ошибкой", true));
+                    OnStatusChanged?.Invoke(LinkProcessingEventArgs.Error(this, "Обработка ссылки завершена с ошибкой", 100, ex));
                 }
             }
 
-            var lastEventArgs = new LinkProcessingEventArgs(this, "Обработка ссылки завершена", true, Link.Name, htmlContent, file);
-            OnStatusChanged?.Invoke(lastEventArgs);
-            OnEnded?.Invoke(lastEventArgs);
+            OnStatusChanged?.Invoke(LinkProcessingEventArgs.EndedSuccessfuly(this, "Обработка ссылки завершена").SetResult(Link.Name, htmlContent, file));
         }
     }
 }

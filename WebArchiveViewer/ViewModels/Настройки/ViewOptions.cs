@@ -158,19 +158,20 @@ namespace WebArchiveViewer
             ShowColumns
                 .AddColumn("№")
                 .AddColumn("Дата")
-                .AddColumn("Время")
+                .AddColumn("Время", true)
                 .AddColumn("Код")
                 .AddColumn("Тип")
                 .AddColumn("Категория")
                 .AddColumn("Имя страницы")
                 .AddColumn("Ссылка")
                 .AddColumn("Веб-архив")
-                .AddColumn("Загрузка");
+                .AddColumn("Загрузка", true);
 
             if(snap != null)
             {
                 SetSnapshot(snap);
             }
+            ListView.SortSelected = ListView.Sorts.First(s => s.Name.Equals("Порядок"));
         }
         private void ViewOptions_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {

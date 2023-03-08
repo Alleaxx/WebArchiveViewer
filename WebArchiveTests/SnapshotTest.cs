@@ -33,7 +33,7 @@ namespace WebArchive.Tests
         [TestMethod]
         public void NewSnapshotFilePath_IsEmpty()
         {
-            Snapshot snap = new Snapshot();
+            Snapshot snap = Snapshot.GetEmptySnapshot();
             Assert.AreEqual(null, snap.FilePath);
         }
 

@@ -110,7 +110,7 @@ namespace WebArchiveViewer
 
         public Pager(IEnumerable<T> source, IGrouping grouping, IPager previousPager)
         {
-            elementsPerPage = 50;
+            elementsPerPage = 1000;
             PageMinAmount = 1;
             if(previousPager != null)
             {

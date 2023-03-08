@@ -18,22 +18,32 @@ using WebArchiveViewer.ViewModels;
 namespace WebArchiveViewer
 {
     //Представление просмотра ссылок с архива
-    public class ArchiveMainWindowViewModel : NotifyObject
+    public class MainWindowViewModel : NotifyObject
     {
         //Получение снапшота
         public SnapshotLoaderViewModel SnapshotLoader { get; private set; }
+        public LinksProcessor LinkLoader { get; private set; }
 
-        public ArchiveMainWindowViewModel()
+        /// <summary> Текущая операция, отображается в статусе </summary>
+        public ProcessStatus Operation
         {
+            get => operation;
+            set => Set(ref operation, value);
+        }
+        private ProcessStatus operation;
+
+        public MainWindowViewModel()
+        {
+            LoadHtmlView = new LoadHtmlWindowViewModel(this);
             SetNullSnapshot();
             SnapshotLoader = new SnapshotLoaderViewModel(this);
+            LinkLoader = new LinksProcessor();
 
+            SetOperation(new ProcessStatus("Ожидание ссылок...", 0));
 
             CloseSnapCommand = new RelayCommand(OnCloseSnapshotCommandExecuted, obj => !SnapshotIsNull);
-            OpenLoadHtmlWindowCommand = new RelayCommand(OnOpenLoadHtmlWindowCommandExecuted, obj => !SnapshotIsNull);
         }
 
-        public ICommand OpenLoadHtmlWindowCommand { get; private set; }
         public ICommand CloseSnapCommand { get; private set; }
 
         //Открытый снапшот
@@ -44,7 +54,9 @@ namespace WebArchiveViewer
         }
         private SnapshotView snapshotView;
 
-        private bool SnapshotIsNull => SnapshotView.CurrentSnapshot == null;
+        public LoadHtmlWindowViewModel LoadHtmlView { get; private set; }
+
+        private bool SnapshotIsNull => SnapshotView.CurrentSnapshot.IsEmpty;
         public void SetSnapshot(Snapshot value)
         {
             var oldSnapshot = snapshotView;
@@ -56,25 +68,26 @@ namespace WebArchiveViewer
             SnapshotView = new SnapshotView(value);
             if (value != null)
             {
+                LoadHtmlView.SetSnapshot(SnapshotView);
                 SnapshotView.ViewOptions.OnUpdated += UpdatePagerLinks;
                 UpdatePagerLinks();
             }
         }
         public void SetNullSnapshot()
         {
-            SetSnapshot(null);
+            SetSnapshot(Snapshot.GetEmptySnapshot());
+        }
+
+        public void SetOperation(ProcessStatus status)
+        {
+            Operation = status;
         }
 
         private void OnCloseSnapshotCommandExecuted(object obj)
         {
             SetNullSnapshot();
             LinksPager = null;
-        }
-        private void OnOpenLoadHtmlWindowCommandExecuted(object obj)
-        {
-            LoadHtmlWindowViewModel saveHTMLView = new LoadHtmlWindowViewModel(SnapshotView);
-            SaveHTMLWindow w = new SaveHTMLWindow(saveHTMLView);
-            w.Show();
+            SetOperation(new ProcessStatus("Снапшот закрыт", 0));
         }
 
 

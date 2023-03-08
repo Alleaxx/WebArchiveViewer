@@ -69,13 +69,18 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Services\DispatcherService.cs" />
+    <Compile Include="Services\HttpService.cs" />
     <Compile Include="UI\Commands\OpenLinkCommand.cs" />
     <Compile Include="UI\Converters\DivideConverter.cs" />
     <Compile Include="UI\Converters\DivideMultiplyConverter.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LinkProcessingViewModel.cs" />
     <Compile Include="ViewModels\Загрузка HTML\LoadConfiguration.cs" />
     <Compile Include="ViewModels\Загрузка ссылок\SnapshotLoaderViewModel.cs" />
     <Compile Include="Views\Controls\IntervalSliderLinks.xaml.cs">
       <DependentUpon>IntervalSliderLinks.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ListLinks.xaml.cs">
+      <DependentUpon>ListLinks.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
@@ -86,7 +91,7 @@
     <Compile Include="UI\Converters\ColumnWidthConverter.cs" />
     <Compile Include="UI\Converters\Round.cs" />
     <Compile Include="UI\Page.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LinksProcessingViewModel.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LinksProcessor.cs" />
     <Compile Include="ViewModels\Загрузка HTML\PauseState.cs" />
     <Compile Include="ViewModels\Настройки\Колонки\ColumnsInfo.cs" />
     <Compile Include="ViewModels\Настройки\Типы\MimeType.cs" />
@@ -120,7 +125,7 @@
     <Compile Include="Views\Controls\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\ArchiveMainWindowViewModel.cs" />
+    <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\Настройки\ViewOptions.cs" />
     <Compile Include="UI\Commands\RelayCommand.cs" />
     <Page Include="Resources\Converters.xaml">
@@ -128,6 +133,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\IntervalSliderLinks.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\ListLinks.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

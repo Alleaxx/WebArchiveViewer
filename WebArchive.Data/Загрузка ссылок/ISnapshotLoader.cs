@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace WebArchive.Data.Loaders
 {
+    /// <summary>
+    /// Общий интерфейс загрузки архивного снапшота ссылок
+    /// </summary>
     public interface ISnapshotLoader
     {
         event Action<SnapshotLoaderEventArgs> OnStatusChanged;

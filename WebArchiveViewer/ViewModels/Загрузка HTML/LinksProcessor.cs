@@ -7,18 +7,16 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using WebArchive.Data;
 using WebArchive.Data.HtmlLoading;
+using WebArchiveViewer.Services;
 
 namespace WebArchiveViewer
 {
     //Контрол на загрузку ссылок
-    public class LinksProcessingViewModel
+    public class LinksProcessor
     {
-        private readonly HttpClient HttpClient;
-
-        public LinksProcessingViewModel()
+        public LinksProcessor()
         {
             LoadingLinksList = new List<ArchiveLink>();
-            HttpClient = new HttpClient();
             LoadLinkNameCommand = new RelayCommand(LoadNameAsync, IsLoadingLinkNameAvailable);
         }
 
@@ -36,7 +34,7 @@ namespace WebArchiveViewer
             if (obj is ArchiveLink Link)
             {
                 LoadingLinksList.Add(Link);
-                Link.Name = await LinkProcessingHelper.GetNameFromURIAsync(Link.Link, HttpClient, default);
+                Link.Name = await LinkProcessingHelper.GetNameFromURIAsync(Link.Link, HttpService.GetHttpClient(), default);
                 LoadingLinksList.Remove(Link);
             }
         }
