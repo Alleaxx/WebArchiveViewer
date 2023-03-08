@@ -68,7 +68,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Services\DispatcherService.cs" />
+    <Compile Include="UI\Commands\OpenLinkCommand.cs" />
+    <Compile Include="UI\Converters\DivideConverter.cs" />
+    <Compile Include="UI\Converters\DivideMultiplyConverter.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LoadConfiguration.cs" />
     <Compile Include="ViewModels\Загрузка ссылок\SnapshotLoaderViewModel.cs" />
+    <Compile Include="Views\Controls\IntervalSliderLinks.xaml.cs">
+      <DependentUpon>IntervalSliderLinks.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
@@ -78,8 +86,7 @@
     <Compile Include="UI\Converters\ColumnWidthConverter.cs" />
     <Compile Include="UI\Converters\Round.cs" />
     <Compile Include="UI\Page.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LinkProcessingViewModel.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LoadOptions.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LinksProcessingViewModel.cs" />
     <Compile Include="ViewModels\Загрузка HTML\PauseState.cs" />
     <Compile Include="ViewModels\Настройки\Колонки\ColumnsInfo.cs" />
     <Compile Include="ViewModels\Настройки\Типы\MimeType.cs" />
@@ -99,24 +106,28 @@
     <Compile Include="Views\Controls\IntervalSlider.xaml.cs">
       <DependentUpon>IntervalSlider.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Windows\LoadWindow.xaml.cs">
-      <DependentUpon>LoadWindow.xaml</DependentUpon>
+    <Compile Include="Views\Windows\LoadLinksWindow.xaml.cs">
+      <DependentUpon>LoadLinksWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\RulesWindow.xaml.cs">
       <DependentUpon>RulesWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Windows\SaveHTMLWindow.xaml.cs">
-      <DependentUpon>SaveHTMLWindow.xaml</DependentUpon>
+    <Compile Include="Views\Windows\LoadHtmlWindow.xaml.cs">
+      <DependentUpon>LoadHtmlWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Pager.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\SaveHtmlWindowViewModel.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LoadHtmlWindowViewModel.cs" />
     <Compile Include="Views\Controls\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\ArchiveMainWindowViewModel.cs" />
     <Compile Include="ViewModels\Настройки\ViewOptions.cs" />
-    <Compile Include="UI\RelayCommand.cs" />
+    <Compile Include="UI\Commands\RelayCommand.cs" />
     <Page Include="Resources\Converters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\IntervalSliderLinks.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -132,7 +143,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Windows\LoadWindow.xaml">
+    <Page Include="Views\Windows\LoadLinksWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -140,7 +151,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Windows\SaveHTMLWindow.xaml">
+    <Page Include="Views\Windows\LoadHtmlWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

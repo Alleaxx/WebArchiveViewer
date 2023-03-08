@@ -42,6 +42,10 @@ namespace WebArchive.Data
 
             SetRulesIfNull();
         }
+        public static Snapshot Empty()
+        {
+            return new Snapshot();
+        }
 
         public void InitAfterLoad()
         {

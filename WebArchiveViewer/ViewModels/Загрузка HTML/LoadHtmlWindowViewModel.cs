@@ -16,12 +16,13 @@ using System.Windows.Input;
 
 using WebArchive.Data;
 using WebArchive.Data.HtmlLoading;
+using WebArchiveViewer.Services;
 
 namespace WebArchiveViewer
 {
-    public class SaveHtmlWindowViewModel : NotifyObject
+    public class LoadHtmlWindowViewModel : NotifyObject
     {
-        public SaveHtmlWindowViewModel(SnapshotView snapshot) : base()
+        public LoadHtmlWindowViewModel(SnapshotView snapshot)
         {
             if(snapshot == null || snapshot.CurrentSnapshot == null)
             {
@@ -29,7 +30,7 @@ namespace WebArchiveViewer
             }
 
             SnapshotView = snapshot;
-            Options = new LoadOptions(Snapshot.Links.Length);
+            Options = new LoadConfiguration(Snapshot.Links.Length);
             ProcessingConfiguration = new LinkProcessingConfiguration()
             {
                 LoadingTitle = true,
@@ -44,8 +45,8 @@ namespace WebArchiveViewer
             void InitCollections()
             {
                 CurrentRequests = new ObservableCollection<LinkProcessing>();
-                SuccessfullRequests = new ObservableCollection<LinkProcessing>();
-                ErrorRequests = new ObservableCollection<LinkProcessing>();
+                Log = new ObservableCollection<LinkProcessingEventArgs>();
+                LogError = new ObservableCollection<LinkProcessingEventArgs>();
                 var remainingLinks = Snapshot.Links.Where(l => l.MimeType == "text/html" && string.IsNullOrEmpty(l.HtmlFilePath));
                 LinksRemaining = new ObservableCollection<ArchiveLink>(remainingLinks);
                 LinksLoadedCount = Snapshot.Links.Length - remainingLinks.Count();
@@ -84,7 +85,6 @@ namespace WebArchiveViewer
             {
                 FolderWrite.Create();
             }
-            ErrorRequests.Clear();
 
             Stopped = false;
             IsStarted = true;
@@ -122,7 +122,7 @@ namespace WebArchiveViewer
         private CancellationToken TokenCancel { get; set; }
 
         //Настройки загрузки
-        public LoadOptions Options { get; private set; }
+        public LoadConfiguration Options { get; private set; }
         public LinkProcessingConfiguration ProcessingConfiguration { get; private set; }
 
 
@@ -169,9 +169,9 @@ namespace WebArchiveViewer
         }
         private ArchiveLink lastLink;
 
-        public ObservableCollection<LinkProcessing> CurrentRequests { get; private set; }
-        public ObservableCollection<LinkProcessing> SuccessfullRequests { get; private set; }
-        public ObservableCollection<LinkProcessing> ErrorRequests { get; private set; }
+        public IList<LinkProcessing> CurrentRequests { get; private set; }
+        public IList<LinkProcessingEventArgs> Log { get; private set; }
+        public IList<LinkProcessingEventArgs> LogError { get; private set; }
 
 
         //Скорость загрузки
@@ -207,50 +207,47 @@ namespace WebArchiveViewer
         {
             var linkProcess = new LinkProcessing(link, ProcessingConfiguration);
             linkProcess.SetClient(Client);
-            linkProcess.SetIndex(SuccessfullRequests.Count + CurrentRequests.Count);
 
-            ExeInDispatcher(() => CurrentRequests.Add(linkProcess));
+            DispatcherService.ExeInDispatcher(() => CurrentRequests.Add(linkProcess));
 
+            linkProcess.OnStatusChanged += LinkProcess_OnStatusChanged;
             linkProcess.OnEnded += LinkProcess_OnEnded;
             await linkProcess.StartProcessing();
         }
-        private async void LinkProcess_OnEnded(LinkProcessingEventArgs arg1, string arg2, string arg3, FileInfo arg4)
+
+        private void LinkProcess_OnStatusChanged(LinkProcessingEventArgs obj)
         {
-            var linkProcessing = arg1.Sender;
-            bool success = !arg1.Error;
+            if (!obj.Successfull)
+            {
+                DispatcherService.ExeInDispatcher(() => LogError.Insert(0, obj));
+            }
+            DispatcherService.ExeInDispatcher(() => Log.Insert(0, obj));
+        }
+        private async void LinkProcess_OnEnded(LinkProcessingEventArgs eventArgs)
+        {
+            var linkProcessing = eventArgs.Sender;
+            bool success = eventArgs.Successfull;
 
             if (success)
             {
-                ProcessSuccess(linkProcessing);
+                LinksLoadedCount++;
+                LastLink = linkProcessing.Link as ArchiveLink;
+
+                bool saveCounter = linkProcessing.Index % Options.SavingLatencyLinks == 0;
+                if (saveCounter)
+                {
+                    SaveProgress(null);
+                    UpdateSpeed();
+                }
             }
             else
             {
-                ProcessFail(linkProcessing);
+                //
             }
 
-            ExeInDispatcher(() => CurrentRequests.Remove(linkProcessing));
-        }
-
-        private void ProcessSuccess(LinkProcessing linkProcessing)
-        {
-            LinksLoadedCount++;
-            LastLink = linkProcessing.Link as ArchiveLink;
-            ExeInDispatcher(() => SuccessfullRequests.Add(linkProcessing));
-            bool saveCounter = linkProcessing.Index % Options.SavingLatencyLinks == 0;
-            if (saveCounter)
-            {
-                SaveProgress(null);
-                UpdateSpeed();
-            }
-        }
-        private void ProcessFail(LinkProcessing linkProcessing)
-        {
-            ExeInDispatcher(() => ErrorRequests.Add(linkProcessing));
-        }
-        
-        private void ExeInDispatcher(Action action)
-        {
-            Application.Current.Dispatcher.BeginInvoke(action);
+            DispatcherService.ExeInDispatcher(() => CurrentRequests.Remove(linkProcessing));
+            linkProcessing.OnEnded -= LinkProcess_OnEnded;
+            linkProcessing.OnStatusChanged -= LinkProcess_OnStatusChanged;
         }
 
 

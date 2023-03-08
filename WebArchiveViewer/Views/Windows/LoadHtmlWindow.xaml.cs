@@ -16,9 +16,9 @@ namespace WebArchiveViewer
 {
     public partial class SaveHTMLWindow : Window
     {
-        private SaveHtmlWindowViewModel View { get; set; }
+        private LoadHtmlWindowViewModel View { get; set; }
 
-        public SaveHTMLWindow(SaveHtmlWindowViewModel view)
+        public SaveHTMLWindow(LoadHtmlWindowViewModel view)
         {
             InitializeComponent();
             View = view;

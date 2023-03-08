@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
     xmlns:Lib="clr-namespace:WebArchive.Data;assembly=WebArchive.Data"
+    
+    xmlns:htmload="clr-namespace:WebArchive.Data.HtmlLoading;assembly=WebArchive.Data"
         x:Class="WebArchiveViewer.SaveHTMLWindow"
-        d:DataContext="{d:DesignInstance {x:Type local:SaveHtmlWindowViewModel}}"
+        d:DataContext="{d:DesignInstance {x:Type local:LoadHtmlWindowViewModel}}"
         mc:Ignorable="d"
         Icon="../../Resources/Веб-архив.png"
         Title="{Binding Snapshot.SourceURI}" Height="750" Width="550" MaxWidth="550" Closing="Window_Closing">
@@ -38,7 +40,7 @@
                         <Button Command="{Binding SnapshotView.SelectSaveFolderCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                             <TextBlock Text="{Binding SnapshotView.SavingFolderHtmlContent.Name,StringFormat=({0})}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
                         </Button>
-                        <Button Command="{Binding SnapshotView.OpenLinkCommand}" CommandParameter="{Binding Snapshot.FolderHtmlSavePath}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
+                        <Button Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding Snapshot.FolderHtmlSavePath}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                             <TextBlock Text="Открыть" />
                         </Button>
                     </DockPanel>
@@ -127,8 +129,8 @@
                 <DockPanel Style="{StaticResource Property}">
                     <TextBlock Text="Ошибки:" Style="{StaticResource PropertyName}" />
                     <DockPanel>
-                        <TextBlock Text="{Binding ErrorRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="16" Foreground="Red"/>
-                        <TextBlock Text="{Binding Snapshot.Links.Length, StringFormat=из \{0\}}" Margin="3,0"  FontSize="16"/>
+                        <TextBlock Text="{Binding LogError.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="16" Foreground="Red"/>
+                        <TextBlock Text="{Binding Log.Count, StringFormat=из \{0\}}" Margin="3,0"  FontSize="16"/>
                     </DockPanel>
                     
                 </DockPanel>
@@ -188,7 +190,7 @@
             </Expander.Header>
             <TabControl Grid.Row="3" Margin="25,-3,0,0">
                 <TabControl.Resources>
-                    <DataTemplate x:Key="Request" DataType="{x:Type Lib:HttpClientHTMLoader}">
+                    <DataTemplate x:Key="Request" DataType="{x:Type htmload:LinkProcessing}">
                         <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="WhiteSmoke">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -199,6 +201,36 @@
                                 <!--<TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Status}" FontSize="9" Foreground="Gray" TextWrapping="Wrap" Margin="5,0" VerticalAlignment="Center"/>-->
                             </Grid>
                         </Border>
+                    </DataTemplate>
+                    <DataTemplate x:Key="Log" DataType="{x:Type htmload:LinkProcessingEventArgs}">
+                        <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="WhiteSmoke">
+                            <Grid ToolTip="{Binding Date}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Column="0" Grid.Row="1"
+                                           x:Name="date" Text="{Binding Date, Converter={StaticResource DateConverter},ConverterParameter=dd-MMM-yyyy\, HH:mm:ss, FallbackValue=Даты пока нет}"
+                                           FontSize="12"
+                                           Margin="0,0,10,0"/>
+                                <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2"
+                                           Text="{Binding Sender.Link.Link}" 
+                                           FontSize="9" Foreground="Gray" />
+                                <TextBlock Grid.Column="1" Grid.Row="1"
+                                           x:Name="message"
+                                           Text="{Binding Message}"
+                                           FontSize="12" />
+                            </Grid>
+                        </Border>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding Successfull}" Value="false">
+                                <Setter TargetName="message" Property="Foreground" Value="Red" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
                     </DataTemplate>
                 </TabControl.Resources>
                 <TabItem>
@@ -216,25 +248,19 @@
                 <TabItem>
                     <TabItem.Header>
                         <DockPanel>
-                            <TextBlock Text="{Binding ErrorRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
-                            <TextBlock Text="Ошибочные" />
+                            <TextBlock Text="{Binding Log.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                            <TextBlock Text="История" />
                         </DockPanel>
 
                     </TabItem.Header>
-                    <ScrollViewer MaxHeight="250">
-                        <ItemsControl ItemsSource="{Binding ErrorRequests}" ItemTemplate="{DynamicResource Request}" />
-                    </ScrollViewer>
-                </TabItem>
-                <TabItem>
-                    <TabItem.Header>
-                        <DockPanel>
-                            <TextBlock Text="{Binding SuccessfullRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
-                            <TextBlock Text="Завершенные" />
-                        </DockPanel>
-
-                    </TabItem.Header>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"  MaxHeight="300">
-                        <ItemsControl ItemsSource="{Binding SuccessfullRequests}" ItemTemplate="{DynamicResource Request}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"  MaxHeight="250">
+                        <ItemsControl ItemsSource="{Binding Log}" ItemTemplate="{StaticResource Log}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel VirtualizingPanel.IsVirtualizing="true" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
                     </ScrollViewer>
                 </TabItem>
             </TabControl>

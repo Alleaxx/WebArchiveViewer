@@ -46,7 +46,7 @@ namespace WebArchive.Data.HtmlLoading
         }
 
         //2 - Получить имя из HTML страницы
-        public static async Task<string> GetNameFromHtmlAsync(string htmlContent)
+        public static string GetNameFromHtmlAsync(string htmlContent)
         {
             if (string.IsNullOrEmpty(htmlContent))
             {
@@ -60,12 +60,12 @@ namespace WebArchive.Data.HtmlLoading
         public static async Task<string> GetNameFromURIAsync(string URI, HttpClient client = null, CancellationToken token = default)
         {
             string html = await GetHtmlAsync(URI, client, token);
-            string name = await GetNameFromHtmlAsync(html);
+            string name = GetNameFromHtmlAsync(html);
             return name;
         }
 
         //3 - Сохранить HTML-контент по пути с именем
-        public static async Task<FileInfo> SaveToFileAsync(string fileName, string folderPath, string htmlContent)
+        public static FileInfo SaveToFileAsync(string fileName, string folderPath, string htmlContent)
         {
             if (string.IsNullOrEmpty(htmlContent))
             {
@@ -79,7 +79,7 @@ namespace WebArchive.Data.HtmlLoading
         }
 
         //4 - Сохранить HTML-контент с автогенерацией имени
-        public static async Task<FileInfo> SaveToFileAsync(ILink Link, string folderPath, string htmlContent)
+        public static FileInfo SaveToFileAsync(ILink Link, string folderPath, string htmlContent)
         {
             if (string.IsNullOrEmpty(htmlContent))
             {

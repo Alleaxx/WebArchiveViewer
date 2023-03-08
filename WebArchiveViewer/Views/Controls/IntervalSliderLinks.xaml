@@ -1,0 +1,118 @@
+﻿<UserControl x:Class="WebArchiveViewer.Views.Controls.IntervalSliderLinks"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WebArchiveViewer.Views.Controls"
+             xmlns:sys="clr-namespace:System;assembly=System"
+             mc:Ignorable="d" 
+             Name="root"
+             d:DesignHeight="200" d:DesignWidth="500" d:Background="White" >
+    <UserControl.Resources>
+        <ControlTemplate x:Key="simpleSlider" TargetType="{x:Type Slider}">
+            <Border SnapsToDevicePixels="true"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Rectangle x:Name="PART_SelectionRange"/>
+
+                    <Track x:Name="PART_Track" Grid.Row="1">
+                        <Track.Thumb>
+                            <Thumb x:Name="Thumb">
+                                <Thumb.Template>
+                                    <ControlTemplate TargetType="Thumb">
+                                        <Rectangle Fill="{StaticResource ActiveLighterColor}"
+                                            Stroke="Black"
+                                            StrokeThickness="1"
+                                            Width="10"
+                                            Height="18"
+                                            SnapsToDevicePixels="True"/>
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track.Thumb>
+                    </Track>
+                </Grid>
+            </Border>
+        </ControlTemplate>
+    </UserControl.Resources>
+
+
+    <Grid>
+        <DockPanel>
+            <!--<TextBlock Text="{Binding ElementName=root, Path=LowerValue}" DockPanel.Dock="Left"/>
+            <TextBlock Text="{Binding ElementName=root, Path=UpperValue}" DockPanel.Dock="Right"/>-->
+            <Grid x:Name="grid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <ItemsControl x:Name="items" ItemsSource="{Binding ElementName=root, Path=Statistics.DayLinkStats}" HorizontalAlignment="Left">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <StackPanel VerticalAlignment="Bottom">
+                                    <!--<TextBlock Text="{Binding LinksCount}" VerticalAlignment="Bottom" FontSize="4" Foreground="Gray">
+                                        <TextBlock.RenderTransform>
+                                            <RotateTransform Angle="270" />
+                                        </TextBlock.RenderTransform>
+                                    </TextBlock>-->
+                                    <Rectangle VerticalAlignment="Bottom"
+                                           Stroke="Blue" Fill="RoyalBlue" StrokeThickness="0.5">
+                                        <Rectangle.Width>
+                                            <MultiBinding Converter="{StaticResource DivideConverter}">
+                                                <Binding Path="ActualWidth" UpdateSourceTrigger="PropertyChanged" ElementName="grid" />
+                                                <Binding Path="Statistics.DayLinkStats.Count" ElementName="root" />
+                                            </MultiBinding>
+                                        </Rectangle.Width>
+                                        <Rectangle.Height>
+                                            <MultiBinding Converter="{StaticResource DivideMultiplyConverter}">
+                                                <Binding Path="LinksCount" />
+                                                <Binding Path="Statistics.MaxLinksForDay" ElementName="root" />
+                                                <Binding Path="ActualHeight" UpdateSourceTrigger="PropertyChanged" ElementName="grid" />
+                                            </MultiBinding>
+                                        </Rectangle.Height>
+                                    </Rectangle>
+                                </StackPanel>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
+                
+                
+                    <Border BorderThickness="0,1,0,0"
+                BorderBrush="Black"
+                VerticalAlignment="Center"
+                Height="1"
+                Margin="5,0"
+                            Grid.Row="1"/>
+                    <Slider x:Name="LowerSlider"
+                    Minimum="{Binding ElementName=root, Path=Minimum,Mode=OneWay}"
+                    Maximum="{Binding ElementName=root, Path=Maximum,Mode=OneWay}"
+                    Value="{Binding ElementName=root, Path=LowerValue,Mode=TwoWay}"
+                    Template="{StaticResource simpleSlider}"
+                    Margin="0,0,10,0" 
+                            Grid.Row="1"/>
+                    <Slider x:Name="UpperSlider"
+                    Minimum="{Binding ElementName=root, Path=Minimum,Mode=OneWay}"
+                    Maximum="{Binding ElementName=root, Path=Maximum,Mode=OneWay}"
+                    Value="{Binding ElementName=root, Path=UpperValue,Mode=TwoWay}"
+                    Template="{StaticResource simpleSlider}"
+                    Margin="10,0,0,0"
+                     Grid.Row="1"/>
+            </Grid>
+        </DockPanel>
+    </Grid>
+</UserControl>

@@ -45,12 +45,12 @@ namespace WebArchive.Data.Loaders
                 catch (WebException ex)
                 {
                     OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Error($"Ошибка соединения: {ex.Message}", 100));
-                    return null;
+                    return Snapshot.Empty();
                 }
                 catch (Exception ex)
                 {
                     OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Error($"Неопределенная ошибка: {ex.Message}", 100));
-                    return null;
+                    return Snapshot.Empty();
                 }
             }
         }

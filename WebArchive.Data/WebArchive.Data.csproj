@@ -50,9 +50,10 @@
     <Compile Include="Загрузка Html\LinkProcessingConfiguration.cs" />
     <Compile Include="Загрузка Html\LinkProcessingEventArgs.cs" />
     <Compile Include="Загрузка Html\LinkProcessingHelper.cs" />
+    <Compile Include="Объекты\SnapshotDatesStatistics.cs" />
     <Compile Include="Загрузка ссылок\SnapshotFileLoader.cs" />
     <Compile Include="Загрузка ссылок\SnapshotRequestLoader.cs" />
-    <Compile Include="Загрузка ссылок\SnapshotLoader.cs" />
+    <Compile Include="Загрузка ссылок\ISnapshotLoader.cs" />
     <Compile Include="Загрузка ссылок\SnapshotLoaderEventArgs.cs" />
     <Compile Include="Запрос\ArchiveRequestBuilder.cs" />
     <Compile Include="Запрос\DefaultRequestBuilder.cs" />

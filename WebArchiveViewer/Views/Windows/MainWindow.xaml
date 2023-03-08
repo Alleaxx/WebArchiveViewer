@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
+        xmlns:controls="clr-namespace:WebArchiveViewer.Views.Controls"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="WebArchiveViewer.MainWindow"
         mc:Ignorable="d" Icon="../../Resources/Веб-архив.png"
         Title="Исследователь Веб-Архива" Height="800" Width="1280"
@@ -24,7 +25,7 @@
             </MenuItem>
 
             <MenuItem x:Name="SaveHTML" Header="Загрузить">
-                <MenuItem Header="HTML" Command="{Binding SnapshotView.OpenLoadOptionsCommand}" />
+                <MenuItem Header="HTML" Command="{Binding OpenLoadHtmlWindowCommand}" />
             </MenuItem>
 
             <MenuItem Header="Сохранить" Command="{Binding SnapshotView.SaveSnapFileCommand}" CommandParameter="AllDefaultPath" />
@@ -148,7 +149,7 @@
                                             <Button Command="{Binding SnapshotView.OpenOptionsCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="Настройки сохранения" />
                                             </Button>
-                                            <Button Command="{Binding SnapshotView.OpenLoadOptionsCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
+                                            <Button Command="{Binding OpenLoadHtmlWindowCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
                                                 <TextBlock Text="Загрузить имена и HTML" />
                                             </Button>
                                             <!--<Button Command="{Binding SnapshotView.ClearProgressCommand}" Padding="5,0" Style="{StaticResource ActionButton}">
@@ -371,7 +372,7 @@
                                             <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[7].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding LinkSource}">
+                                                        <Button Command="{StaticResource OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding LinkSource}">
                                                             <TextBlock Text="{Binding LinkSource}" ToolTip="{Binding LinkSource}" Style="{DynamicResource TextBlockLink}"  />
                                                         </Button>
                                                     </DataTemplate>
@@ -381,7 +382,7 @@
                                             <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[8].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding Link}">
+                                                        <Button Command="{StaticResource OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding Link}">
                                                             <TextBlock Text="Архив" Tag="{Binding Link}" ToolTip="{Binding Link}" Style="{DynamicResource TextBlockLink}" />
                                                         </Button>
                                                     </DataTemplate>
@@ -391,7 +392,7 @@
                                             <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[9].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                                                 <GridViewColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Button x:Name="load" Command="{Binding ElementName=snapshot, Path=DataContext.SnapshotView.OpenLinkCommand}" CommandParameter="{Binding HtmlFilePath}" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
+                                                        <Button x:Name="load" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding HtmlFilePath}" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
                                                             <TextBlock x:Name="text" Text="файл" FontSize="14" Foreground="Black" />
                                                         </Button>
                                                         <DataTemplate.Triggers>
@@ -458,15 +459,21 @@
                             </Border>
 
                             <DockPanel Grid.Column="2" Grid.Row="2">
-                                <DockPanel DockPanel.Dock="Left" Margin="5,0">
+                                <DockPanel DockPanel.Dock="Left" VerticalAlignment="Bottom" Margin="5,0">
                                     <DatePicker SelectedDate="{Binding SnapshotView.ViewOptions.DateRange.From}" />
                                     <TextBlock Text="{Binding SnapshotView.ViewOptions.DateRange.From, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
                                 </DockPanel>
-                                <DockPanel DockPanel.Dock="Right" Margin="5,0">
+                                <DockPanel DockPanel.Dock="Right" VerticalAlignment="Bottom" Margin="5,0">
                                     <TextBlock Text="{Binding SnapshotView.ViewOptions.DateRange.To, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
                                     <DatePicker SelectedDate="{Binding SnapshotView.ViewOptions.DateRange.To}" />
                                 </DockPanel>
-                                <local:IntervalSlider Minimum="0" Maximum="{Binding SnapshotView.ViewOptions.DateRange.Difference}" LowerValue="{Binding SnapshotView.ViewOptions.DateRange.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding SnapshotView.ViewOptions.DateRange.DifferenceTo, Mode=TwoWay}"/>
+                                <!--<local:IntervalSlider Minimum="0" Maximum="{Binding SnapshotView.ViewOptions.DateRange.Difference}" LowerValue="{Binding SnapshotView.ViewOptions.DateRange.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding SnapshotView.ViewOptions.DateRange.DifferenceTo, Mode=TwoWay}"/>-->
+                                <controls:IntervalSliderLinks
+                                    Statistics="{Binding SnapshotView.DatesStatistics}"
+                                    Minimum="0" Maximum="{Binding SnapshotView.ViewOptions.DateRange.Difference}"
+                                    LowerValue="{Binding SnapshotView.ViewOptions.DateRange.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding SnapshotView.ViewOptions.DateRange.DifferenceTo, Mode=TwoWay}"
+                                    MaxHeight="175"
+                                    Visibility="{Binding SnapshotView.IsNotEmptySnapshot,Converter={StaticResource BooleanVisibility}}"/>
 
                             </DockPanel>
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -24,11 +25,15 @@ namespace WebArchiveViewer
 
         public ArchiveMainWindowViewModel()
         {
-            SetSnapshot(null);
+            SetNullSnapshot();
             SnapshotLoader = new SnapshotLoaderViewModel(this);
-            CloseSnapCommand = new RelayCommand(CloseSnapshot, obj => !SnapshotIsNull);
+
+
+            CloseSnapCommand = new RelayCommand(OnCloseSnapshotCommandExecuted, obj => !SnapshotIsNull);
+            OpenLoadHtmlWindowCommand = new RelayCommand(OnOpenLoadHtmlWindowCommandExecuted, obj => !SnapshotIsNull);
         }
 
+        public ICommand OpenLoadHtmlWindowCommand { get; private set; }
         public ICommand CloseSnapCommand { get; private set; }
 
         //Открытый снапшот
@@ -38,6 +43,7 @@ namespace WebArchiveViewer
             private set => Set(ref snapshotView, value);
         }
         private SnapshotView snapshotView;
+
         private bool SnapshotIsNull => SnapshotView.CurrentSnapshot == null;
         public void SetSnapshot(Snapshot value)
         {
@@ -54,10 +60,21 @@ namespace WebArchiveViewer
                 UpdatePagerLinks();
             }
         }
-        private void CloseSnapshot(object obj)
+        public void SetNullSnapshot()
         {
             SetSnapshot(null);
+        }
+
+        private void OnCloseSnapshotCommandExecuted(object obj)
+        {
+            SetNullSnapshot();
             LinksPager = null;
+        }
+        private void OnOpenLoadHtmlWindowCommandExecuted(object obj)
+        {
+            LoadHtmlWindowViewModel saveHTMLView = new LoadHtmlWindowViewModel(SnapshotView);
+            SaveHTMLWindow w = new SaveHTMLWindow(saveHTMLView);
+            w.Show();
         }
 
 

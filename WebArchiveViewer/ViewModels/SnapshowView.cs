@@ -11,11 +11,6 @@ namespace WebArchiveViewer
 {
     public class SnapshotView : NotifyObject
     {
-        public override string ToString()
-        {
-            return CurrentSnapshot != null ? $"Модель {CurrentSnapshot}" : "Нулевой снапшот";
-        }
-
         public string Status
         {
             get
@@ -36,6 +31,8 @@ namespace WebArchiveViewer
                 return status;
             }
         }
+
+
         public FileInfo File
         {
             get
@@ -47,7 +44,6 @@ namespace WebArchiveViewer
                 return string.IsNullOrEmpty(CurrentSnapshot.FilePath) ? null : new FileInfo(CurrentSnapshot.FilePath);
             }
         }
-
         public DateTime LastSaveDate
         {
             get => lastSaveDate;
@@ -57,6 +53,7 @@ namespace WebArchiveViewer
 
 
         public Snapshot CurrentSnapshot { get; private set; }
+        public SnapshotDateStatistics DatesStatistics { get; private set; }
         public RulesViewModel RulesView { get; private set; }
         public ViewOptions ViewOptions { get; private set; }
         public LinksProcessingViewModel LinkLoader { get; private set; }
@@ -68,49 +65,35 @@ namespace WebArchiveViewer
             LastSaveDate = DateTime.Now;
             RulesView = new RulesViewModel(this);
             ViewOptions = new ViewOptions(CurrentSnapshot);
+            DatesStatistics = new SnapshotDateStatistics(CurrentSnapshot);
             LinkLoader = new LinksProcessingViewModel();
             CreateCommands();
         }
+
+        #region Команды
+
         private void CreateCommands()
         {
-            OpenLinkCommand = new RelayCommand(OpenLink, IsCorrectLink);
             SelectSaveFolderCommand = new RelayCommand(SelectFolderSave, NotNull);
             SaveSnapFileCommand = new RelayCommand(Save, NotNull);
 
-            OpenLoadOptionsCommand = new RelayCommand(OpenLoadHtml, NotNull);
             OpenOptionsCommand = new RelayCommand(OpenOptions, NotNull);
 
             UpdateCategoriesCommand = new RelayCommand(UpdateCategories, NotNull);
             ClearProgressCommand = new RelayCommand(ClearProgress, NotNull);
         }
-
-        public ICommand OpenLinkCommand { get; private set; }
-
         public ICommand SelectSaveFolderCommand { get; private set; }
         public ICommand UpdateCategoriesCommand { get; private set; }
         public ICommand SaveSnapFileCommand { get; private set; }
         public ICommand ClearProgressCommand { get; private set; }
-
-
         public ICommand OpenOptionsCommand { get; private set; }
-        public ICommand OpenLoadOptionsCommand { get; private set; }
 
 
         //Условия
+        public bool IsNotEmptySnapshot => NotNull(CurrentSnapshot);
         private bool NotNull(object obj)
         {
             return CurrentSnapshot != null;
-        }
-        private bool IsCorrectLink(object obj)
-        {
-            return obj is string link && !string.IsNullOrEmpty(link);
-        }
-        private void OpenLink(object obj)
-        {
-            if (obj is string link)
-            {
-                System.Diagnostics.Process.Start(link);
-            }
         }
 
 
@@ -167,12 +150,6 @@ namespace WebArchiveViewer
                 return modeS;
             }
         }
-        private void OpenLoadHtml(object obj)
-        {
-            SaveHtmlWindowViewModel saveHTMLView = new SaveHtmlWindowViewModel(this);
-            SaveHTMLWindow w = new SaveHTMLWindow(saveHTMLView);
-            w.Show();
-        }
         private void OpenOptions(object obj)
         {
             PathOptionsWindow w = new PathOptionsWindow(this);
@@ -199,5 +176,7 @@ namespace WebArchiveViewer
         {
             ViewOptions.LoadCategories(CurrentSnapshot);
         }
+
+        #endregion
     }
 }
