@@ -14,7 +14,7 @@
         <StackPanel>
             <StackPanel Margin="5,0">
                 <Border Style="{DynamicResource HeaderPanel}">
-                    <TextBlock Text="Получение ссылок с веб-архива" FontSize="18" />
+                    <TextBlock Text="Формирование запроса к веб-архиву" FontSize="18" />
                 </Border>
                 <StackPanel>
                     <StackPanel>
@@ -111,17 +111,8 @@
                             <TextBlock Text="Коды ответа:" Style="{StaticResource PropertyName}" />
                             <TextBox Text="{Binding RequestBuilder.Codes.FiltersString}" TextWrapping="Wrap" VerticalAlignment="Center" />
                         </DockPanel>
-                        <DockPanel Style="{StaticResource Property}">
-                            <TextBlock Text="Запрос:" Style="{StaticResource PropertyName}" />
-                            <Button Content="Скопировать в буфер обмена" ToolTip="{Binding RequestBuilder.Request}" Command="{Binding CopyRequestCommand}" CommandParameter="{Binding RequestBuilder.Request}" HorizontalAlignment="Right">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource ActionButton}">
-                                    </Style>
-                                </Button.Style>
-                            </Button>
-                        </DockPanel>
                     </StackPanel>
-                    <StackPanel Margin="0,10">
+                    <StackPanel Margin="0,5">
                         <ProgressBar Grid.Row="0" Grid.ColumnSpan="2" Value="{Binding UploadingStatus.Now,Mode=OneWay}" Maximum="{Binding UploadingStatus.Maximum}" Margin="0,1" />
                         <DockPanel Style="{StaticResource Property}">
                             <TextBlock Text="Статус:" Style="{StaticResource PropertyName}" />
@@ -154,28 +145,41 @@
                                         </Style>
                                     </Rectangle.Style>
                                 </Rectangle>
-                                <TextBlock Text="{Binding UploadingStatus.Status}" TextWrapping="Wrap" MaxWidth="200" />
-                                <Button Content="Загрузить" Command="{Binding LoadFromRequestBuilderCommand}" Style="{StaticResource ActionButton}" HorizontalAlignment="Right" />
+                                <TextBlock Text="{Binding UploadingStatus.Status}" TextWrapping="Wrap" />
                             </DockPanel>
                         </DockPanel>
+                    </StackPanel>
+                    <StackPanel Margin="0,5">
+                        <UniformGrid>
+                            <Button Content="Скопировать запрос" ToolTip="{Binding RequestBuilder.Request}"
+                                    Command="{Binding CopyRequestCommand}" CommandParameter="{Binding RequestBuilder.Request}" 
+                                    Margin="5,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource ActionButton}">
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Content="Отправить и загрузить" Command="{Binding LoadFromRequestBuilderCommand}"
+                                    Style="{StaticResource ActionButton}" Margin="5,0" />
+                        </UniformGrid>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
             
-            <ContentPresenter Content="{Binding Snapshot}" Margin="5,20">
+            <ContentPresenter Content="{Binding Snapshot}" Margin="5,5">
                 <ContentPresenter.ContentTemplate>
                     <DataTemplate>
                         <StackPanel  x:Name="snapshot">
 
                             <Border Style="{DynamicResource HeaderPanel}">
-                                <TextBlock Text="Загруженный снапшот" FontSize="18" />
+                                <TextBlock Text="Полученный снапшот" FontSize="18" />
                             </Border>
                             <DockPanel Style="{StaticResource Property}">
-                                <TextBlock Text="Ссылка:" Style="{StaticResource PropertyName}" />
+                                <TextBlock Text="Адрес:" Style="{StaticResource PropertyName}" />
                                 <TextBlock Text="{Binding SourceURI}" />
                             </DockPanel>
                             <DockPanel Style="{StaticResource Property}">
-                                <TextBlock Text="Получено:" Style="{StaticResource PropertyName}"/>
+                                <TextBlock Text="Ссылок:" Style="{StaticResource PropertyName}"/>
                                 <TextBlock Text="{Binding Links.Length}"  />
                             </DockPanel>
                             <DockPanel Style="{StaticResource Property}">

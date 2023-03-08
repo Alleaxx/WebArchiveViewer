@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows.Input;
 using WebArchive.Data;
 namespace WebArchiveViewer
 {
@@ -41,6 +41,8 @@ namespace WebArchiveViewer
             new Sorting("Имя", l => l.Name, false),
             new Sorting("Адрес", l => l.LinkSource, false),
             new Sorting("Тип", l => l.MimeType, false),
+            new Sorting("Код", l => l.StatusCode, false),
+            new Sorting("Категория", l => l.Category, false),
             new Sorting("Порядок", l => "Index", false),
             new Sorting("Нет", null, true)
         };
@@ -60,10 +62,37 @@ namespace WebArchiveViewer
         {
             sortSelected = Sorts.ElementAt(Sorts.Count() - 1);
             groupSelected = Groups.Last();
+            SortCommand = new RelayCommand(OnSortCommandExecuted);
         }
         private void Update()
         {
             OnUpdated?.Invoke();
+        }
+
+        public ICommand SortCommand { get; private set; }
+
+        private void OnSortCommandExecuted(object obj)
+        {
+            if(!(obj is string propertyName))
+            {
+                return;
+            }
+
+            var sort = Sorts.FirstOrDefault(s => s.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
+            if(sort == null)
+            {
+                return;
+            }
+
+            if(SortSelected == sort)
+            {
+                SortSelected.ToggleOrder();
+                Update();
+            }
+            else
+            {
+                SortSelected = sort;
+            }
         }
 
         public IEnumerable<ArchiveLink> SortLinks(IEnumerable<ArchiveLink> links)
@@ -75,21 +104,40 @@ namespace WebArchiveViewer
                 return links;
             }
 
+            IEnumerable<ArchiveLink> linksResult = null;
             switch (sort.Name)
             {
                 case "Имя":
-                    return links.AsParallel().OrderBy(l => l.Name);
+                    linksResult = links.AsParallel().OrderBy(l => l.Name);
+                    break;
                 case "Адрес":
-                    return links.AsParallel().OrderBy(l => l.LinkSource);
+                    linksResult = links.AsParallel().OrderBy(l => l.LinkSource);
+                    break;
                 case "Дата":
-                    return links.AsParallel().OrderBy(l => l.Date);
+                    linksResult = links.AsParallel().OrderBy(l => l.Date);
+                    break;
                 case "Тип":
-                    return links.AsParallel().OrderBy(l => l.MimeType);
+                    linksResult = links.AsParallel().OrderBy(l => l.MimeType);
+                    break;
                 case "Порядок":
-                    return links.AsParallel().OrderBy(l => l.Index);
+                    linksResult = links.AsParallel().OrderBy(l => l.Index);
+                    break;
+                case "Код":
+                    linksResult = links.AsParallel().OrderBy(l => l.StatusCode);
+                    break;
+                case "Категория":
+                    linksResult = links.AsParallel().OrderBy(l => l.Category);
+                    break;
                 default:
                     return links;
             }
+
+            if (!sort.Ascending)
+            {
+                linksResult = linksResult.Reverse();
+            }
+
+            return linksResult;
         }
     }
 }

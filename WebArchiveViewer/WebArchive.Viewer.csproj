@@ -85,9 +85,6 @@
     <Compile Include="Views\Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Windows\PathOptionsWindow.xaml.cs">
-      <DependentUpon>PathOptionsWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\Converters\ColumnWidthConverter.cs" />
     <Compile Include="UI\Converters\Round.cs" />
     <Compile Include="UI\Page.cs" />
@@ -117,9 +114,6 @@
     <Compile Include="Views\Windows\RulesWindow.xaml.cs">
       <DependentUpon>RulesWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Windows\LoadHtmlWindow.xaml.cs">
-      <DependentUpon>LoadHtmlWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UI\Pager.cs" />
     <Compile Include="ViewModels\Загрузка HTML\LoadHtmlWindowViewModel.cs" />
     <Compile Include="Views\Controls\IntervalDateSelector.xaml.cs">
@@ -144,10 +138,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Windows\PathOptionsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\Controls\IntervalSlider.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -157,10 +147,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Windows\RulesWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Windows\LoadHtmlWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -34,7 +34,7 @@ namespace WebArchiveViewer
 
         public MainWindowViewModel()
         {
-            LoadHtmlView = new LoadHtmlWindowViewModel(this);
+            LoadHtmlView = new HtmlLoaderViewModel(this);
             SetNullSnapshot();
             SnapshotLoader = new SnapshotLoaderViewModel(this);
             LinkLoader = new LinksProcessor();
@@ -54,7 +54,7 @@ namespace WebArchiveViewer
         }
         private SnapshotView snapshotView;
 
-        public LoadHtmlWindowViewModel LoadHtmlView { get; private set; }
+        public HtmlLoaderViewModel LoadHtmlView { get; private set; }
 
         private bool SnapshotIsNull => SnapshotView.CurrentSnapshot.IsEmpty;
         public void SetSnapshot(Snapshot value)

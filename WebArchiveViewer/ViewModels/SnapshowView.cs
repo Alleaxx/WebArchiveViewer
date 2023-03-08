@@ -78,8 +78,6 @@ namespace WebArchiveViewer
             SelectSaveFolderCommand = new RelayCommand(SelectFolderSave, NotNull);
             SaveSnapFileCommand = new RelayCommand(Save, NotNull);
 
-            OpenOptionsCommand = new RelayCommand(OpenOptions, NotNull);
-
             UpdateCategoriesCommand = new RelayCommand(UpdateCategories, NotNull);
             ClearProgressCommand = new RelayCommand(ClearProgress, NotNull);
         }
@@ -87,7 +85,6 @@ namespace WebArchiveViewer
         public ICommand UpdateCategoriesCommand { get; private set; }
         public ICommand SaveSnapFileCommand { get; private set; }
         public ICommand ClearProgressCommand { get; private set; }
-        public ICommand OpenOptionsCommand { get; private set; }
 
 
         //Условия
@@ -150,11 +147,6 @@ namespace WebArchiveViewer
                 }
                 return modeS;
             }
-        }
-        private void OpenOptions(object obj)
-        {
-            PathOptionsWindow w = new PathOptionsWindow(this);
-            w.ShowDialog();
         }
         private void SelectFolderSave(object obj)
         {

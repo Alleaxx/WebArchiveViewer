@@ -21,12 +21,12 @@ using WebArchiveViewer.ViewModels;
 
 namespace WebArchiveViewer
 {
-    public class LoadHtmlWindowViewModel : NotifyObject
+    public class HtmlLoaderViewModel : NotifyObject
     {
         public MainWindowViewModel MainWindowModel { get; private set; }
 
 
-        public LoadHtmlWindowViewModel(MainWindowViewModel mainModel)
+        public HtmlLoaderViewModel(MainWindowViewModel mainModel)
         {
             MainWindowModel = mainModel;
         }
