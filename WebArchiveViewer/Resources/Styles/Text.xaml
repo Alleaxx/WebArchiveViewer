@@ -19,6 +19,7 @@
             <Trigger Property="IsMouseOver" Value="true">
                 <Setter Property="TextDecorations" Value="underline" />
             </Trigger>
+            
         </Style.Triggers>
     </Style>
     <Style x:Key="Header" TargetType="{x:Type TextBlock}">

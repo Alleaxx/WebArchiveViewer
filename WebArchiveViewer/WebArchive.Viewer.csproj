@@ -70,14 +70,21 @@
     </ApplicationDefinition>
     <Compile Include="Services\DispatcherService.cs" />
     <Compile Include="Services\HttpService.cs" />
+    <Compile Include="UI\Commands\OpenExceptionWindowCommand.cs" />
     <Compile Include="UI\Commands\OpenLinkCommand.cs" />
     <Compile Include="UI\Converters\DivideConverter.cs" />
     <Compile Include="UI\Converters\DivideMultiplyConverter.cs" />
     <Compile Include="ViewModels\Загрузка HTML\LinkProcessingViewModel.cs" />
     <Compile Include="ViewModels\Загрузка HTML\LoadConfiguration.cs" />
+    <Compile Include="ViewModels\Загрузка ссылок\RequestFiltersViewModel.cs" />
     <Compile Include="ViewModels\Загрузка ссылок\SnapshotLoaderViewModel.cs" />
+    <Compile Include="ViewModels\Настройки\Группировки-сортировки\GroupsEnum.cs" />
+    <Compile Include="ViewModels\Настройки\Группировки-сортировки\SortsEnum.cs" />
     <Compile Include="Views\Controls\IntervalSliderLinks.xaml.cs">
       <DependentUpon>IntervalSliderLinks.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\LinksColumnHeader.xaml.cs">
+      <DependentUpon>LinksColumnHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\ListLinks.xaml.cs">
       <DependentUpon>ListLinks.xaml</DependentUpon>
@@ -94,7 +101,6 @@
     <Compile Include="ViewModels\Настройки\Типы\MimeType.cs" />
     <Compile Include="ViewModels\Настройки\Типы\StatusCode.cs" />
     <Compile Include="ViewModels\Настройки\Колонки\ListViewColumn.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\ProcessProgress.cs" />
     <Compile Include="ViewModels\SaveMode.cs" />
     <Compile Include="ViewModels\Настройки\Группировки-сортировки\Grouping.cs" />
     <Compile Include="ViewModels\Настройки\Группировки-сортировки\Sorting.cs" />
@@ -108,14 +114,14 @@
     <Compile Include="Views\Controls\IntervalSlider.xaml.cs">
       <DependentUpon>IntervalSlider.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Windows\LoadLinksWindow.xaml.cs">
-      <DependentUpon>LoadLinksWindow.xaml</DependentUpon>
+    <Compile Include="Views\Windows\ExceptionWindow.xaml.cs">
+      <DependentUpon>ExceptionWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Windows\RulesWindow.xaml.cs">
       <DependentUpon>RulesWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Pager.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LoadHtmlWindowViewModel.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LoadingHtmlViewModel.cs" />
     <Compile Include="Views\Controls\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
@@ -126,7 +132,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Resources\DataTemplates\EventArgs.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\TreeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\IntervalSliderLinks.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\LinksColumnHeader.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -142,7 +164,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Windows\LoadLinksWindow.xaml">
+    <Page Include="Views\Windows\ExceptionWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

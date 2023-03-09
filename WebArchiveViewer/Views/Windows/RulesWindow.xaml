@@ -8,22 +8,6 @@
         mc:Ignorable="d"
         Icon="../../Resources/Веб-архив.png"
         Title="Групповые правила" Height="475" Width="825" Closed="Window_Closed">
-    <Window.Resources>
-        <Style TargetType="{x:Type TreeViewItem}">
-            <Style.Resources>
-                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
-                                   Color="#FFC9E7F1"/>
-                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}"
-                                   Color="#FFEFEFEF"/>
-                <Style TargetType="{x:Type Border}">
-                    <Setter Property="Grid.ColumnSpan" Value="2" />
-                </Style>
-            </Style.Resources>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="FontWeight" Value="Normal" />
-
-        </Style>
-    </Window.Resources>
     <Window.DataContext>
         <local:RulesViewModel />
     </Window.DataContext>
@@ -49,7 +33,7 @@
                 </DockPanel>--><!--
             </DockPanel>-->
         </Border>
-        <TreeView Grid.Row="2" ItemsSource="{Binding RulesControl.Rules}" BorderThickness="0">
+        <TreeView Grid.Row="2" ItemsSource="{Binding RulesControl.Rules}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
             <TreeView.Resources>
                 <HierarchicalDataTemplate ItemsSource="{Binding Rules}" DataType="{x:Type Lib:GroupRule}">
                     <DockPanel Margin="0,2">

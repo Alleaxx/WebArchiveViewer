@@ -13,24 +13,10 @@ namespace WebArchiveViewer
     {
         public string Status
         {
-            get
-            {
-                string status;
-                if(CurrentSnapshot == null)
-                {
-                    return "Не открыт";
-                }
-                if (string.IsNullOrEmpty(CurrentSnapshot.FilePath))
-                {
-                    status = "Снапшот из архива, не сохранен";
-                }
-                else
-                {
-                    status = "Снапшот сохранен";
-                }
-                return status;
-            }
+            get => status;
+            set => Set(ref status, value);
         }
+        private string status;
 
         public FileInfo File
         {
@@ -58,16 +44,14 @@ namespace WebArchiveViewer
 
         public SnapshotView(Snapshot snap)
         {
-            if(snap == null)
-            {
-                throw new ArgumentNullException(nameof(snap));
-            }
-
             CurrentSnapshot = snap;
             LastSaveDate = DateTime.Now;
             RulesView = new RulesViewModel(this);
             ViewOptions = new ViewOptions(CurrentSnapshot);
             DatesStatistics = new SnapshotDateStatistics(CurrentSnapshot);
+
+            Status = snap.IsEmpty ? "нет" : "есть";
+
             CreateCommands();
         }
 
@@ -88,7 +72,6 @@ namespace WebArchiveViewer
 
 
         //Условия
-        public bool IsNotEmptySnapshot => NotNull(CurrentSnapshot);
         private bool NotNull(object obj)
         {
             return !CurrentSnapshot.IsEmpty;

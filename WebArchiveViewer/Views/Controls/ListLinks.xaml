@@ -52,10 +52,7 @@
                                        Foreground="Gray" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Порядок"
-                            HorizontalContentAlignment="Right" MinWidth="30" Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="№" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[0]}" />
                 </GridViewColumn>
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[1].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
@@ -66,10 +63,7 @@
                                        Foreground="#404040" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Дата"
-                            HorizontalContentAlignment="Right" Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="Дата" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[1]}" />
                 </GridViewColumn>
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[2].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
@@ -82,11 +76,9 @@
                             </DockPanel>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Код"
-                             Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="Время" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[2]}" />
                 </GridViewColumn>
+                
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[3].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
@@ -100,11 +92,9 @@
                             </DataTemplate.Triggers>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Код"
-                            HorizontalContentAlignment="Right" Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="Код" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[3]}" />
                 </GridViewColumn>
+                
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[4].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
@@ -114,11 +104,9 @@
                                        MinWidth="60" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Тип"
-                            Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="Тип" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[4]}" />
                 </GridViewColumn>
+                
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[5].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
@@ -127,10 +115,7 @@
                                        Style="{StaticResource ColumnUsualText}" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Категория"
-                            Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="Категория" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[5]}" />
                 </GridViewColumn>
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[6].Hidden, ConverterParameter=250,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
@@ -145,36 +130,31 @@
                             </DockPanel>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Имя"
-                            Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="Имя страницы" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[6]}" />
                 </GridViewColumn>
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[7].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Command="{StaticResource OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding LinkSource}">
-                                <TextBlock Text="{Binding LinkSource}" FontFamily="Segoe UI" ToolTip="{Binding LinkSource}" Style="{DynamicResource TextBlockLink}"  />
-                            </Button>
+                            <TextBlock Text="{Binding LinkSource}" FontFamily="Segoe UI" ToolTip="{Binding LinkSource}" Style="{DynamicResource TextBlockLink}">
+                                <TextBlock.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding LinkSource}" />
+                                </TextBlock.InputBindings>
+                            </TextBlock>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Адрес"
-                            Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="Ссылка" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[7]}" />
                 </GridViewColumn>
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[8].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Command="{StaticResource OpenLinkCommand}" BorderThickness="0" CommandParameter="{Binding Link}">
-                                <TextBlock Text="Архив" Tag="{Binding Link}" FontFamily="Segoe UI" ToolTip="{Binding Link}" Style="{DynamicResource TextBlockLink}" />
-                            </Button>
+                            <TextBlock Text="Архив" Tag="{Binding Link}" FontFamily="Segoe UI" ToolTip="{Binding Link}" Style="{DynamicResource TextBlockLink}">
+                                <TextBlock.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding Link}" />
+                                </TextBlock.InputBindings>
+                            </TextBlock>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}" CommandParameter="Адрес"
-                            Style="{StaticResource ButtonSort}">
-                        <TextBlock Text="Веб-архив" />
-                    </Button>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[8]}" />
                 </GridViewColumn>
                 <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[9].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
@@ -192,9 +172,7 @@
                             </DataTemplate.Triggers>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <DockPanel>
-                        <TextBlock Text="Загрузка" />
-                    </DockPanel>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[9]}" />
                 </GridViewColumn>
 
             </GridView>

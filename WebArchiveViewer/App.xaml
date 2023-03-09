@@ -8,8 +8,12 @@
         <ResourceDictionary>
 
             <commands:OpenLinkCommand x:Key="OpenLinkCommand" />
+            <commands:OpenExceptionWindowCommand x:Key="OpenExceptionCommand" />
 
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/DataTemplates/EventArgs.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Buttons.xaml" />
+                <ResourceDictionary Source="Resources/Styles/TreeView.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Text.xaml" />
                 <ResourceDictionary Source="Resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>

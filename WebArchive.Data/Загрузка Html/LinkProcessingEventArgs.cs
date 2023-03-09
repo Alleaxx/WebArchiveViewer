@@ -19,15 +19,6 @@ namespace WebArchive.Data.HtmlLoading
         public string PageHtmlContent { get; private set; }
         public FileInfo PageFilePath { get; private set; }
 
-        private LinkProcessingEventArgs(LinkProcessing sender, string message, bool successfull = true, string pageName = null, string pageContent = null, FileInfo fileInfo = null)
-        {
-            Sender = sender;
-            State = new ProcessStatus(message, 0, successfull, false);
-
-            PageName = pageName;
-            PageHtmlContent = pageContent;
-            PageFilePath = fileInfo;
-        }
         private LinkProcessingEventArgs(LinkProcessing sender, ProcessStatus state, string pageName = null, string pageContent = null, FileInfo fileInfo = null)
         {
             Sender = sender;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebArchive.Data.Loaders
@@ -13,8 +14,8 @@ namespace WebArchive.Data.Loaders
     {
         event Action<SnapshotLoaderEventArgs> OnStatusChanged;
 
-        Task StartLoadProcess();
+        Task StartLoadProcess(CancellationToken cancellationToken);
         Task BreakLoadProcess();
-        Task<Snapshot> GetSnapshotAsync();
+        Task<Snapshot> GetSnapshotAsync(CancellationToken cancellationToken);
     }
 }

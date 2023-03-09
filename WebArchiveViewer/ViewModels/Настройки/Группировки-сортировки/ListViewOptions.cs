@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using WebArchive.Data;
+using WebArchiveViewer.ViewModels.ViewOptions;
+
 namespace WebArchiveViewer
 {
     //Сортировки-группировки
@@ -28,23 +30,23 @@ namespace WebArchiveViewer
 
         public IEnumerable<IGrouping> Groups { get; private set; } = new IGrouping[]
         {
-            new Grouping("Ссылка", "LinkSource", false),
-            new Grouping("Имя ссылки", "Name", false),
-            new Grouping("Тип","MimeType",false),
-            new Grouping("Код","StatusCode",false),
-            new Grouping("Категория","Category",false),
-            new Grouping("Нет", null, true)
+            new Grouping(GroupsEnum.LinkURL, "Ссылка", "LinkSource", false),
+            new Grouping(GroupsEnum.PageName, "Имя ссылки", "Name", false),
+            new Grouping(GroupsEnum.MimeType, "Тип","MimeType", false),
+            new Grouping(GroupsEnum.StatusCode, "Код","StatusCode", false),
+            new Grouping(GroupsEnum.Category, "Категория","Category", false),
+            new Grouping(GroupsEnum.None, "Нет", null, true)
         };
         public IEnumerable<ISorting> Sorts { get; private set; } = new ISorting[]
         {
-            new Sorting("Дата", null, false),
-            new Sorting("Имя", l => l.Name, false),
-            new Sorting("Адрес", l => l.LinkSource, false),
-            new Sorting("Тип", l => l.MimeType, false),
-            new Sorting("Код", l => l.StatusCode, false),
-            new Sorting("Категория", l => l.Category, false),
-            new Sorting("Порядок", l => "Index", false),
-            new Sorting("Нет", null, true)
+            new Sorting(SortsEnum.Date, "Дата", null, false),
+            new Sorting(SortsEnum.PageName, "Имя", l => l.Name, false),
+            new Sorting(SortsEnum.LinkURL, "Адрес", l => l.LinkSource, false),
+            new Sorting(SortsEnum.MimeType, "Тип", l => l.MimeType, false),
+            new Sorting(SortsEnum.StatusCode, "Код", l => l.StatusCode, false),
+            new Sorting(SortsEnum.Category, "Категория", l => l.Category, false),
+            new Sorting(SortsEnum.LinkIndex, "Порядок", l => "Index", false),
+            new Sorting(SortsEnum.None, "Нет", null, true)
         };
 
         public ISorting SortSelected
@@ -58,11 +60,22 @@ namespace WebArchiveViewer
             set => Set(ref groupSelected, value);
         }
 
+        public IGrouping GetGroup(GroupsEnum type)
+        {
+            return Groups.First(s => s.Type == type);
+        }
+        public ISorting GetSort(SortsEnum type)
+        {
+            return Sorts.First(s => s.Type == type);
+        }
+
         public ListViewOptions()
         {
             sortSelected = Sorts.ElementAt(Sorts.Count() - 1);
             groupSelected = Groups.Last();
             SortCommand = new RelayCommand(OnSortCommandExecuted);
+            GroupCommand = new RelayCommand(OnGroupCommandExecuted);
+            RemoveSortCommand = new RelayCommand(OnRemoveSortCommandExecuted);
         }
         private void Update()
         {
@@ -70,15 +83,17 @@ namespace WebArchiveViewer
         }
 
         public ICommand SortCommand { get; private set; }
+        public ICommand GroupCommand { get; private set; }
+        public ICommand RemoveSortCommand { get; private set; }
 
         private void OnSortCommandExecuted(object obj)
         {
-            if(!(obj is string propertyName))
+            if(!(obj is ListViewColumn columnInfo))
             {
                 return;
             }
 
-            var sort = Sorts.FirstOrDefault(s => s.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
+            var sort = columnInfo.Sorting;
             if(sort == null)
             {
                 return;
@@ -92,6 +107,46 @@ namespace WebArchiveViewer
             else
             {
                 SortSelected = sort;
+            }
+        }
+        private void OnGroupCommandExecuted(object obj)
+        {
+            if (!(obj is ListViewColumn columnInfo))
+            {
+                return;
+            }
+
+            var group = columnInfo.Grouping;
+            if (group == null)
+            {
+                return;
+            }
+
+            if (GroupSelected == group)
+            {
+                GroupSelected = Groups.Last();
+            }
+            else
+            {
+                GroupSelected = group;
+            }
+        }
+        private void OnRemoveSortCommandExecuted(object obj)
+        {
+            if (!(obj is ListViewColumn columnInfo))
+            {
+                return;
+            }
+
+            var sort = columnInfo.Sorting;
+            if (sort == null)
+            {
+                return;
+            }
+
+            if (SortSelected == sort)
+            {
+                SortSelected = Sorts.Last();
             }
         }
 

@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Threading;
 
 namespace WebArchive.Data.Loaders
 {
@@ -20,33 +22,71 @@ namespace WebArchive.Data.Loaders
 
         public event Action<SnapshotLoaderEventArgs> OnStatusChanged;
 
-        public async Task StartLoadProcess()
+        public async Task StartLoadProcess(CancellationToken cancellationToken)
         {
-            await GetSnapshotAsync();
+            await GetSnapshotAsync(cancellationToken);
         }
         public Task BreakLoadProcess()
         {
             throw new NotImplementedException();
         }
-        public async Task<Snapshot> GetSnapshotAsync()
+        public async Task<Snapshot> GetSnapshotAsync(CancellationToken cancellationToken)
         {
-            OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Загрузка снапшота с архива", 10));
-
             var client = HttpClient ?? new HttpClient();
             try
             {
-                string responceText = await client.GetStringAsync(RequestString);
+                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Отправлен запрос к архиву", 10));
+                var responce = await client.GetAsync(RequestString, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                if (!responce.IsSuccessStatusCode)
+                {
+                    OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.FinishedWithError(this, $"Ошибка соединения с архивом", new Exception($"Статус ответа: {responce.StatusCode}")));
+                    return Snapshot.GetEmptySnapshot();
+                }
 
-                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Обработка данных снапшота", 80));
-                var snapshot = await Task.Run(() => CreateSnapshotFromJson(responceText));
 
-                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Загрузка снапшота с архива завершена", 100));
+                StringBuilder sb = new StringBuilder();
+                try
+                {
+                    using (var stream = await responce.Content.ReadAsStreamAsync())
+                    {
+                        OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, $"Ответ положительный, чтение контента", 30));
+                        using (var reader = new StreamReader(stream))
+                        {
+                            int lines = 0;
+                            while (!reader.EndOfStream)
+                            {
+                                var line = await reader.ReadLineAsync();
+                                sb.AppendLine(line);
+                                lines++;
+                                
+                                //уведомление о продолжающейся загрузке
+                                if(lines % 5000 == 0)
+                                {
+                                    OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, $"Прочитано {lines} строк ответа...", 30));
+                                }
+
+                                if (cancellationToken.IsCancellationRequested)
+                                {
+                                    OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.FinishedSuccessfuly(this, $"Запрошено завершение чтения"));
+                                    return Snapshot.GetEmptySnapshot();
+                                }
+                            }
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.FinishedWithError(this, $"Ошибка чтения потока", ex));
+                    return Snapshot.GetEmptySnapshot();
+                }
+
+                string responceText = sb.ToString();
+
+                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Обработка полученных данных", 80));
+                var snapshot = CreateSnapshotFromJson(responceText);
+
+                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.FinishedSuccessfuly(this, "Загрузка снапшота с архива успешно завершена"));
                 return snapshot;
-            }
-            catch (WebException ex)
-            {
-                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.FinishedWithError(this, $"Ошибка соединения с архивом", ex));
-                return Snapshot.GetEmptySnapshot();
             }
             catch (Exception ex)
             {

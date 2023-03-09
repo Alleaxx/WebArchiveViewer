@@ -10,7 +10,13 @@ namespace WebArchive.Data.RequestParts
     //Заполняется вручную
     public class RequestTypes : RequestFilter
     {
-        public RequestTypes() : base("mimetype")
+        public static readonly string[] AllTypes = new string[]
+        {
+            "text/html",
+            "application/xml"
+        };
+
+        public RequestTypes() : base("mimetype", AllTypes)
         {
 
         }

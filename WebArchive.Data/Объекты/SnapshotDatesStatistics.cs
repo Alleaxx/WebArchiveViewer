@@ -28,7 +28,7 @@ namespace WebArchive.Data
             var links = snapshot.Links;
             DateTime firstDate = links.OrderBy(l => l.Date).Select(l => l.Date).First();
             DateTime lastDate = links.OrderBy(l => l.Date).Select(l => l.Date).Last();
-            int days = (lastDate - firstDate).Days;
+            int days = (lastDate - firstDate).Days + 1;
             var grouped = links.GroupBy(l => Math.Round((double)(l.Date - firstDate).Days, 0));
             foreach (var group in grouped)
             {

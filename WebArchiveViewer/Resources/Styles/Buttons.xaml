@@ -1,0 +1,14 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Style x:Key="ExceptionButton" TargetType="Button">
+        <Setter Property="Content" Value="[ ошибка ]" />
+        <Setter Property="Foreground" Value="red" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="BorderBrush" Value="red" />
+        <Setter Property="ToolTip" Value="Открыть подробности ошибки" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Visibility" Value="Collapsed" />
+    </Style>
+    
+</ResourceDictionary>

@@ -8,7 +8,7 @@ namespace WebArchive.Data.RequestParts
 {
     public class RequestSearch : RequestFilter
     {
-        public RequestSearch() : base("urlkey")
+        public RequestSearch() : base("urlkey", Array.Empty<string>())
         {
 
         }

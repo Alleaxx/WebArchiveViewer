@@ -50,9 +50,17 @@ namespace WebArchiveViewer
         public SnapshotView SnapshotView
         {
             get => snapshotView;
-            private set => Set(ref snapshotView, value);
+            private set {
+                Set(ref snapshotView, value);
+                OnPropertyChanged(nameof(SnapshotIsEmpty));
+                OnPropertyChanged(nameof(SnapshotIsNotEmpty));
+            }
         }
         private SnapshotView snapshotView;
+
+        public bool SnapshotIsEmpty => SnapshotView.CurrentSnapshot.IsEmpty;
+        public bool SnapshotIsNotEmpty => !SnapshotView.CurrentSnapshot.IsEmpty;
+
 
         public HtmlLoaderViewModel LoadHtmlView { get; private set; }
 

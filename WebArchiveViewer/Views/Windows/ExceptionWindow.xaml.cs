@@ -11,21 +11,15 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using WebArchiveViewer.ViewModels;
 
-namespace WebArchiveViewer
+namespace WebArchiveViewer.Views.Windows
 {
-    public partial class LoadWindow : Window
+    public partial class ExceptionWindow : Window
     {
-        public LoadWindow(SnapshotLoaderViewModel loader)
+        public ExceptionWindow(Exception ex)
         {
+            DataContext = ex;
             InitializeComponent();
-            DataContext = loader;
-        }
-
-        private void BtnSaveFile_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
     }
 }

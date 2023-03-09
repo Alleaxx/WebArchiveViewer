@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms.Design;
 using System.Windows.Input;
 using WebArchive.Data;
 using WebArchive.Data.Loaders;
+using WebArchive.Data.RequestParts;
 using WebArchiveViewer.Services;
 
 namespace WebArchiveViewer.ViewModels
@@ -16,6 +19,7 @@ namespace WebArchiveViewer.ViewModels
         #region Ссылки
 
         public MainWindowViewModel MainModel { get; private set; }
+        public SnapshotView SnapshotView => MainModel.SnapshotView;
 
         #endregion
 
@@ -23,6 +27,9 @@ namespace WebArchiveViewer.ViewModels
 
         public FileDialog FileDialog { get; private set; }
         public ArchiveRequestBuilder RequestBuilder { get; private set; }
+        public RequestFiltersViewModel RequestFilters { get; private set; }
+
+        private CancellationTokenSource CancellationTokenSource;
 
         #endregion
 
@@ -34,61 +41,74 @@ namespace WebArchiveViewer.ViewModels
         {
             MainModel = mainModel;
 
-            OpenRequestWindowCommand = new RelayCommand(OnOpenRequestWindowCommandExecuted);
             CopyRequestCommand = new RelayCommand(OnCopyRequestCommandExecuted);
             LoadFromRequestBuilderCommand = new RelayCommand(OnLoadFromRequestBuilderCommandExecuted, IsUploadingAvailable);
             LoadFromFileCommand = new RelayCommand(OnLoadFromFileCommandExecuted);
-            SetSnapshotCommand = new RelayCommand(OnSetSnapshotCommandExecuted, IsNotEmptySnapshotReceived);
+            BreakRequestCommand = new RelayCommand(OnBreakRequestCommandExecuted, IsBreakingAvailable);
 
             FileDialog = new FileDialog();
-            RequestBuilder= new ArchiveRequestBuilder();
+            RequestBuilder = new ArchiveRequestBuilder();
+            RequestFilters = new RequestFiltersViewModel(RequestBuilder);
 
-            UploadingStatus = new ProcessProgress("Ожидание старта загрузки", 10);
+            LoadingEventsList = new ObservableCollection<SnapshotLoaderEventArgs>();
+
+            Status = new ProcessStatus("Ожидание начала загрузки", 0);
         }
 
-        //Результат загрузки
-        public Snapshot Snapshot
+        public ProcessStatus Status
         {
-            get => snapshot;
-            set => Set(ref snapshot, value);
+            get => status;
+            set => Set(ref status, value);
         }
-        private Snapshot snapshot;
-        public ProcessProgress UploadingStatus { get; private set; }
+        private ProcessStatus status;
 
-        public string RequestString { get; set; }
+        public bool IsProcessing
+        {
+            get => isProcessing;
+            set => Set(ref isProcessing, value);
+        }
+        private bool isProcessing;
+
+        public IList<SnapshotLoaderEventArgs> LoadingEventsList { get; private set; }
+
+        public string RequestString => requestString ?? RequestBuilder.GetRequest();
+        private string requestString;
+
 
         #region Команды
 
-        public ICommand OpenRequestWindowCommand { get; private set; }
+        public ICommand BreakRequestCommand { get; private set; }
         public ICommand CopyRequestCommand { get; private set; }
         public ICommand LoadFromRequestBuilderCommand { get; private set; }
         public ICommand LoadFromFileCommand { get; private set; }
-        public ICommand SetSnapshotCommand { get; private set; }
+
 
         //Условия
         private bool IsUploadingAvailable(object obj)
         {
-            return (!string.IsNullOrEmpty(RequestBuilder.GetRequest())) && !UploadingStatus.InProgress;
+            return !string.IsNullOrEmpty(RequestBuilder.GetRequest()) && !IsProcessing;
         }
-        private bool IsNotEmptySnapshotReceived(object obj)
+        private bool IsBreakingAvailable(object obj)
         {
-            return Snapshot != null && Snapshot.Links.Length > 0;
+            return CancellationTokenSource != null && IsProcessing;
         }
 
         //Действия
-        private void OnOpenRequestWindowCommandExecuted(object o)
+        private async void OnBreakRequestCommandExecuted(object obj)
         {
-            LoadWindow window = new LoadWindow(this);
-            window.Show();
+            await Task.Run(() => CancellationTokenSource.Cancel());
         }
         private void OnCopyRequestCommandExecuted(object o)
         {
+            OnPropertyChanged(nameof(RequestString));
             System.Windows.Clipboard.SetText(RequestBuilder.GetRequest());
         }
         private async void OnLoadFromRequestBuilderCommandExecuted(object o)
         {
             var request = RequestBuilder.GetRequest();
-            await LoadFromRequestString(request);
+            OnPropertyChanged(nameof(RequestString));
+            var snapshot = await LoadFromRequestString(request);
+            SendSnapshot(snapshot);
         }
         private async void OnLoadFromFileCommandExecuted(object o)
         {
@@ -97,49 +117,64 @@ namespace WebArchiveViewer.ViewModels
             {
                 return;
             }
-            string path = file.FullName;
 
-            var fileLoader = new SnapshotFileLoader(path);
-            fileLoader.OnStatusChanged += Loader_OnStatusChanged;
-            Snapshot = await fileLoader.GetSnapshotAsync();
-            fileLoader.OnStatusChanged -= Loader_OnStatusChanged;
-            SendSnapshot();
+            var snapshot = await LoadFromFile(file.FullName);            
+            SendSnapshot(snapshot);
         }
-        private void OnSetSnapshotCommandExecuted(object o)
+
+        private void ReadyCleanup()
         {
-            SendSnapshot();
+            IsProcessing = true;
+            LoadingEventsList.Clear();
+            CancellationTokenSource = new CancellationTokenSource();
         }
-
+        #endregion
 
         public async Task<Snapshot> LoadFromRequestString(string request)
         {
             var requestLoader = new SnapshotRequestLoader(request, HttpService.GetHttpClient());
-
-            Snapshot = null;
-
+            ReadyCleanup();
             requestLoader.OnStatusChanged += Loader_OnStatusChanged;
-            Snapshot = await requestLoader.GetSnapshotAsync();
-            Snapshot.SourceURI = RequestBuilder.Site.Value;
+            var receivedSnap = await requestLoader.GetSnapshotAsync(CancellationTokenSource.Token);
+            receivedSnap.SourceURI = RequestBuilder.Site.Value;
+            var snapshot = receivedSnap;
             requestLoader.OnStatusChanged -= Loader_OnStatusChanged;
-            return Snapshot;
+            return snapshot;
         }
-
-        #endregion
-
+        public async Task<Snapshot> LoadFromFile(string path)
+        {
+            var fileLoader = new SnapshotFileLoader(path);
+            ReadyCleanup();
+            fileLoader.OnStatusChanged += Loader_OnStatusChanged;
+            var snapshot = await fileLoader.GetSnapshotAsync(CancellationTokenSource.Token);
+            fileLoader.OnStatusChanged -= Loader_OnStatusChanged;
+            return snapshot;
+        }
 
         private void Loader_OnStatusChanged(SnapshotLoaderEventArgs obj)
         {
-            UploadingStatus.SetStatus(obj.State.Status, obj.State.ReadyPercentage);
+            LoadingEventsList.Insert(0, obj);
+            Status = obj.State;
             MainModel.SetOperation(obj.State);
         }
-        private void SendSnapshot()
+        private void SendSnapshot(Snapshot snapshot)
         {
             if(MainModel == null)
             {
                 return;
             }
+            if (snapshot.IsEmpty)
+            {
+                Status = new ProcessStatus("Получить снапшот со ссылками не удалось", 100, true, true);
+                IsProcessing = false;
+                return;
+            }
 
-            MainModel.SetSnapshot(Snapshot);
+            CancellationTokenSource = null;
+            IsProcessing = false;
+
+            MainModel.SetSnapshot(snapshot);
+            OnPropertyChanged(nameof(SnapshotView));
         }
     }
 }

@@ -53,46 +53,49 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <ItemsControl x:Name="items"
+                <Border BorderThickness="0,0,0,1" BorderBrush="Gainsboro">
+
+                    <ItemsControl x:Name="items"
                               ItemsSource="{Binding ElementName=root, Path=Statistics.DayLinkStats}"
                               HorizontalAlignment="Left"
                               VerticalAlignment="Bottom"
-                              Margin="0,2">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <DockPanel>
-                                <StackPanel VerticalAlignment="Bottom">
-                                    <!--<TextBlock Text="{Binding LinksCount}" VerticalAlignment="Bottom" FontSize="4" Foreground="Gray">
+                              Margin="0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel>
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <!--<TextBlock Text="{Binding LinksCount}" VerticalAlignment="Bottom" FontSize="4" Foreground="Gray">
                                         <TextBlock.RenderTransform>
                                             <RotateTransform Angle="270" />
                                         </TextBlock.RenderTransform>
                                     </TextBlock>-->
-                                    <Rectangle VerticalAlignment="Bottom"
+                                        <Rectangle VerticalAlignment="Bottom"
                                            Stroke="Blue" Fill="RoyalBlue" StrokeThickness="0.5">
-                                        <Rectangle.Width>
-                                            <MultiBinding Converter="{StaticResource DivideConverter}">
-                                                <Binding Path="ActualWidth" UpdateSourceTrigger="PropertyChanged" ElementName="grid" />
-                                                <Binding Path="Statistics.DayLinkStats.Count" ElementName="root" />
-                                            </MultiBinding>
-                                        </Rectangle.Width>
-                                        <Rectangle.Height>
-                                            <MultiBinding Converter="{StaticResource DivideMultiplyConverter}">
-                                                <Binding Path="LinksCount" />
-                                                <Binding Path="Statistics.MaxLinksForDay" ElementName="root" />
-                                                <Binding Path="ActualHeight" UpdateSourceTrigger="PropertyChanged" ElementName="grid" />
-                                            </MultiBinding>
-                                        </Rectangle.Height>
-                                    </Rectangle>
-                                </StackPanel>
-                            </DockPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                                            <Rectangle.Width>
+                                                <MultiBinding Converter="{StaticResource DivideConverter}">
+                                                    <Binding Path="ActualWidth" UpdateSourceTrigger="PropertyChanged" ElementName="grid" />
+                                                    <Binding Path="Statistics.DayLinkStats.Count" ElementName="root" />
+                                                </MultiBinding>
+                                            </Rectangle.Width>
+                                            <Rectangle.Height>
+                                                <MultiBinding Converter="{StaticResource DivideMultiplyConverter}">
+                                                    <Binding Path="LinksCount" />
+                                                    <Binding Path="Statistics.MaxLinksForDay" ElementName="root" />
+                                                    <Binding Path="ActualHeight" UpdateSourceTrigger="PropertyChanged" ElementName="grid" />
+                                                </MultiBinding>
+                                            </Rectangle.Height>
+                                        </Rectangle>
+                                    </StackPanel>
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
                 
                 
                 

@@ -25,6 +25,7 @@ namespace WebArchive.Data
         public ArchiveLink[] Links { get; set; }
 
         public bool IsEmpty => !Links.Any();
+        public bool IsNotEmpty => Links.Any();
 
 
         //Из сохранения
@@ -49,7 +50,7 @@ namespace WebArchive.Data
 
             empty.Links = Array.Empty<ArchiveLink>();
             empty.FolderHtmlSavePath = Directory.GetCurrentDirectory();
-            empty.SourceURI = "";
+            empty.SourceURI = "Ссылок нет, но вы держитесь";
             empty.ReceivingDate = DateTime.Now;
 
             return empty;

@@ -1,0 +1,17 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="TreeViewStrech" TargetType="{x:Type TreeViewItem}">
+        <Style.Resources>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+            <Style TargetType="{x:Type Border}">
+                <Setter Property="Grid.ColumnSpan" Value="2" />
+            </Style>
+        </Style.Resources>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="FontWeight" Value="Normal" />
+
+    </Style>
+
+</ResourceDictionary>

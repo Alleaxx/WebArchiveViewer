@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebArchive.Data.Loaders
@@ -21,15 +22,15 @@ namespace WebArchive.Data.Loaders
         }
 
 
-        public async Task StartLoadProcess()
+        public async Task StartLoadProcess(CancellationToken cancellationToken)
         {
-            await GetSnapshotAsync();
+            await GetSnapshotAsync(cancellationToken);
         }
         public Task BreakLoadProcess()
         {
             throw new NotImplementedException();
         }
-        public async Task<Snapshot> GetSnapshotAsync()
+        public async Task<Snapshot> GetSnapshotAsync(CancellationToken cancellationToken)
         {
             var helper = new FileHelper();
 
@@ -37,7 +38,7 @@ namespace WebArchive.Data.Loaders
             {
                 OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Открытие файла со снапшотом", 3));
                 var snapshot = helper.OpenReadJson<Snapshot>(FilePath);
-                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Снапшот загружен, идёт обработка", 80));
+                OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.Ok(this, "Файл прочитан, идёт обработка", 80));
                 snapshot.FilePath = FilePath;
                 snapshot.ClearNonExistantFilePathes();
                 OnStatusChanged?.Invoke(SnapshotLoaderEventArgs.FinishedSuccessfuly(this, "Снапшот успешно загружен из файла").SetResult(snapshot));

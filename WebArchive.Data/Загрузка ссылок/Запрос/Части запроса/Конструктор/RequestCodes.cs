@@ -10,7 +10,19 @@ namespace WebArchive.Data.RequestParts
     //Заполняется вручную
     public class RequestCodes : RequestFilter
     {
-        public RequestCodes() : base("statuscode")
+        public static readonly string[] AllCodes = new string[]
+        {
+            "200",
+            "404",
+            "302",
+            "502",
+            "301",
+            "400",
+            "405"
+
+        };
+
+        public RequestCodes() : base("statuscode", AllCodes)
         {
 
         }

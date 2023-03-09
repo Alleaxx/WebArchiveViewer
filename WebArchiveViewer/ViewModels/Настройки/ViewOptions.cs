@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 using WebArchive.Data;
+using WebArchiveViewer.ViewModels.ViewOptions;
 namespace WebArchiveViewer
 {
     //Настройки отображения ссылок
@@ -97,7 +98,7 @@ namespace WebArchiveViewer
             bool linkSearchFound = link.LinkSource.Contains(Search);
             bool nameSearchFound = link.Name.Contains(Search);
 
-            return linkSearchFound || !nameSearchFound;
+            return linkSearchFound || nameSearchFound;
         }
         private bool FilterTypes(ArchiveLink link)
         {
@@ -154,18 +155,18 @@ namespace WebArchiveViewer
             ListView.OnUpdated += Update;
             PropertyChanged += ViewOptions_PropertyChanged;
 
-            ShowColumns = new ColumnsInfo();
+            ShowColumns = new ColumnsInfo(this);
             ShowColumns
-                .AddColumn("№")
-                .AddColumn("Дата")
-                .AddColumn("Время", true)
-                .AddColumn("Код")
-                .AddColumn("Тип")
-                .AddColumn("Категория")
-                .AddColumn("Имя страницы")
-                .AddColumn("Ссылка")
-                .AddColumn("Веб-архив")
-                .AddColumn("Загрузка", true);
+                .AddColumn("№", SortsEnum.LinkIndex, GroupsEnum.None)
+                .AddColumn("Дата", SortsEnum.Date, GroupsEnum.None)
+                .AddColumn("Время", SortsEnum.Date, GroupsEnum.None, true)
+                .AddColumn("Код", SortsEnum.StatusCode, GroupsEnum.StatusCode)
+                .AddColumn("Тип", SortsEnum.MimeType, GroupsEnum.MimeType)
+                .AddColumn("Категория", SortsEnum.Category, GroupsEnum.Category)
+                .AddColumn("Имя страницы", SortsEnum.PageName, GroupsEnum.PageName)
+                .AddColumn("Ссылка", SortsEnum.LinkURL, GroupsEnum.LinkURL)
+                .AddColumn("Веб-архив", SortsEnum.None, GroupsEnum.None)
+                .AddColumn("Файл HTML", SortsEnum.None, GroupsEnum.None, true);
 
             if(snap != null)
             {

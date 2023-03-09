@@ -29,5 +29,12 @@ namespace WebArchiveViewer
                 Hidden = !value;
             }
         }
+
+
+        public ISorting Sorting { get; set; }
+        public IGrouping Grouping { get; set; }
+
+
+
     }
 }

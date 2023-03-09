@@ -1,0 +1,36 @@
+﻿<Window x:Class="WebArchiveViewer.Views.Windows.ExceptionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WebArchiveViewer.Views.Windows"
+        xmlns:system="clr-namespace:System;assembly=System"
+        mc:Ignorable="d"
+        Title="{Binding Source}" Height="400" Width="600">
+    <Grid>
+        <GroupBox>
+            <GroupBox.Header>
+                <TextBlock Text="Информация об исключении" />
+            </GroupBox.Header>
+            <StackPanel>
+                <TextBlock Text="{Binding}" Visibility="Collapsed"/>
+                <StackPanel Margin="0,3">
+                    <TextBlock Text="Источник:" FontWeight="Medium" />
+                    <TextBlock Text="{Binding Source}" TextWrapping="Wrap" Margin="15,0" />
+                </StackPanel>
+                <StackPanel Margin="0,3">
+                    <TextBlock Text="Сообщение:" FontWeight="Medium" />
+                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Margin="15,0" />
+                </StackPanel>
+                <StackPanel Margin="0,3" Visibility="{Binding InnerException, Converter={StaticResource BooleanVisibility}}">
+                    <TextBlock Text="Внутреннее исключение:" FontWeight="Medium" />
+                    <TextBlock Text="{Binding InnerException}" TextWrapping="Wrap" Margin="15,0" />
+                </StackPanel>
+                <StackPanel Margin="0,3">
+                    <TextBlock Text="Стек вызовов:" FontWeight="Medium" />
+                    <TextBlock Text="{Binding StackTrace}" FontFamily="Consolas" FontSize="10" TextWrapping="Wrap" Margin="15,0" />
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</Window>

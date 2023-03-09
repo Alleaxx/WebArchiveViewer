@@ -30,11 +30,11 @@ namespace WebArchive.Data.Loaders
 
         public static SnapshotLoaderEventArgs Ok(ISnapshotLoader loader, string message, int ready)
         {
-            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, ready, false));
+            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, ready, true));
         }
         public static SnapshotLoaderEventArgs Error(ISnapshotLoader loader, string message, int ready, Exception ex)
         {
-            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, ready, false, false));
+            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, ready, false, false, ex));
         }
         
         public static SnapshotLoaderEventArgs FinishedSuccessfuly(ISnapshotLoader loader, string message)
@@ -43,7 +43,7 @@ namespace WebArchive.Data.Loaders
         }
         public static SnapshotLoaderEventArgs FinishedWithError(ISnapshotLoader loader, string message, Exception ex)
         {
-            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, 100, false, true));
+            return new SnapshotLoaderEventArgs(loader, new ProcessStatus(message, 100, false, true, ex));
         }
     }
 }
