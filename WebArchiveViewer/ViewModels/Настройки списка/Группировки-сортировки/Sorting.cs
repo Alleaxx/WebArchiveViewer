@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using WebArchive.Data;
-using WebArchiveViewer.ViewModels.ViewOptions;
-namespace WebArchiveViewer
+
+namespace WebArchiveViewer.ViewModels
 {
     public interface ISorting
     {
@@ -16,12 +16,17 @@ namespace WebArchiveViewer
         bool Ascending { get; }
         void ToggleOrder();
     }
-    public class Sorting : ISorting
+    public class Sorting : NotifyObject, ISorting
     {
         public SortsEnum Type { get; private set; }
         public string Name { get; private set; }
         public Func<ArchiveLink, string> KeySelector { get; private set; }
-        public bool Ascending { get; private set; }
+        public bool Ascending
+        {
+            get => ascending;
+            set => Set(ref ascending, value);
+        }
+        private bool ascending;
 
         public Sorting(SortsEnum type, string name, Func<ArchiveLink, string> func, bool enabled, bool ascending = true)
         {

@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+    <SolidColorBrush x:Key="ActiveColor" Color="#3c79ab" />
+    <SolidColorBrush x:Key="ActiveLightColor" Color="#638aa9" />
+    <SolidColorBrush x:Key="ActiveLighterColor" Color="#FF8FB0CA" />
+
+    <SolidColorBrush x:Key="Archive.Blue1" Color="#3c79ab" />
+    <SolidColorBrush x:Key="Archive.Blue2" Color="#638aa9" />
+    <SolidColorBrush x:Key="Archive.Blue3" Color="#FF8FB0CA" />
+    
+    <SolidColorBrush x:Key="ActiveLightColor.Green" Color="#69ab3c" />
+    <SolidColorBrush x:Key="ActiveLightColor.Red" Color="#ab3c3c" />
+
+    <SolidColorBrush x:Key="ActiveLightColor.Orange" Color="#ab873c" />
+
+
+</ResourceDictionary>

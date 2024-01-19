@@ -13,9 +13,22 @@ namespace WebArchive.Data.RequestParts
         private string PrefixFrom { get; set; } = "from";
         private string PrefixTo { get; set; } = "to";
 
-        public override string RequestString => Enabled ? $"{RequestFrom}{RequestTo}" : "";
+        public override string RequestString => GetRequestString();
         private string RequestFrom => $"{PrefixChar}{PrefixFrom}={Range.From.ToString(DateFormat)}";
         private string RequestTo => $"{PrefixChar}{PrefixTo}={Range.To.ToString(DateFormat)}";
+
+        private string GetRequestString()
+        {
+            if (!Enabled)
+            {
+                return "";
+            }
+            bool isFromEnabled = Range.DifferenceFrom != -1;
+            bool isToEnabled = Range.DifferenceTo != -1;
+            string requestFromPart = isFromEnabled ? RequestFrom : "";
+            string requestToPart = isToEnabled ? RequestTo : "";
+            return $"{requestFromPart}{requestToPart}";
+        }
 
 
         public DateRange Range { get; private set; } = new DateRange();

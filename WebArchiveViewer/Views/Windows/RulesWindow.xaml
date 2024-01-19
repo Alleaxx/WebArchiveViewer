@@ -1,15 +1,16 @@
-﻿<Window x:Class="WebArchiveViewer.RulesWindow"
+﻿<Window x:Class="WebArchiveViewer.Views.Windows.RulesWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
+        xmlns:viewmodels="clr-namespace:WebArchiveViewer.ViewModels"
         xmlns:Lib="clr-namespace:WebArchive.Data;assembly=WebArchive.Data"
         mc:Ignorable="d"
         Icon="../../Resources/Веб-архив.png"
         Title="Групповые правила" Height="475" Width="825" Closed="Window_Closed">
     <Window.DataContext>
-        <local:RulesViewModel />
+        <viewmodels:RulesInfoViewModel />
     </Window.DataContext>
     <Grid x:Name="grid" >
         <Grid.RowDefinitions>

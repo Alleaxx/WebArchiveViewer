@@ -17,28 +17,28 @@ using System.Windows.Input;
 using WebArchive.Data;
 using WebArchive.Data.HtmlLoading;
 using WebArchiveViewer.Services;
-using WebArchiveViewer.ViewModels;
 
-namespace WebArchiveViewer
+namespace WebArchiveViewer.ViewModels
 {
     public class HtmlLoaderViewModel : NotifyObject
     {
         public MainWindowViewModel MainWindowModel { get; private set; }
 
-
         public HtmlLoaderViewModel(MainWindowViewModel mainModel)
         {
             MainWindowModel = mainModel;
+            SetSnapshot(mainModel.SnapshotView);
         }
         public void SetSnapshot(SnapshotView snapshot)
         {
             SnapshotView = snapshot;
-            LoadConfiguration = new LoadConfiguration(Snapshot.Links.Length);
+            LoadConfiguration = new HtmlLoadingConfiguration(Snapshot.Links.Any() ? Snapshot.Links.Length : 0);
+            LoadConfiguration.SetLinksSource(snapshot);
             ProcessingConfiguration = new LinkProcessingConfiguration()
             {
                 LoadingTitle = true,
                 SavingHtml = true,
-                FolderPath = FolderWrite.FullName
+                FolderPath = SavingHtmlFolder.FullName
             };
 
             InitCollections();
@@ -47,17 +47,17 @@ namespace WebArchiveViewer
         }
         private void InitCollections()
         {
-            CurrentRequests = new ObservableCollection<LinkProcessing>();
             CurrentTasks = new List<Task>();
-            LogError = new ObservableCollection<LinkProcessingEventArgs>();
-            LinkProcessings = new ObservableCollection<LinkProcessingViewModel>();
+            LinksRemainingList = new List<ArchiveLink>();
+            LinkProcessingsCurrent = new ObservableCollection<LinkProcessingViewModel>();
+            LinkProcessingEventErrors = new ObservableCollection<LinkProcessingEventArgs>();
+            LinkProcessingsAll = new ObservableCollection<LinkProcessingViewModel>();
             var remainingLinks = Snapshot.Links.Where(l => l.MimeType == "text/html" && string.IsNullOrEmpty(l.HtmlFilePath));
-            LinksRemaining = new ObservableCollection<ArchiveLink>(remainingLinks);
-            LinksLoadedCount = Snapshot.Links.Length - remainingLinks.Count();
+            //LinksLoadedCount = Snapshot.Links.Length - remainingLinks.Count();
         }
         private void InitDates()
         {
-            PauseState = new PauseState(false);
+            PauseState = new OperationState(false);
         }
         protected override void InitCommands()
         {
@@ -69,8 +69,17 @@ namespace WebArchiveViewer
         {
             if (!string.IsNullOrEmpty(Snapshot.FilePath))
             {
-                await Task.Run(() => SnapshotView.Save(SaveMode.AllDefaultPath));
+                await Task.Run(() => SnapshotView.Save(new SavingConfiguration(null, SaveMode.All)));
             }
+        }
+
+
+        private void RecountLinksForDownload()
+        {
+            LinksRemainingList.Clear();
+            var links = LoadConfiguration.GetFilteredLinks();
+            LinksRemainingList = new List<ArchiveLink>(links);
+            //рассчитываем количество ссылок для загрузки
         }
 
 
@@ -83,10 +92,11 @@ namespace WebArchiveViewer
         private void StartDownload(object obj)
         {
             TokenSource = new CancellationTokenSource();
-            if (!FolderWrite.Exists)
+            if (!SavingHtmlFolder.Exists)
             {
-                FolderWrite.Create();
+                SavingHtmlFolder.Create();
             }
+            RecountLinksForDownload();
 
             Stopped = false;
             IsStarted = true;
@@ -96,7 +106,7 @@ namespace WebArchiveViewer
         }
         private async void SaveProgress(object obj)
         {
-            await Task.Run(() => SnapshotView.Save(SaveMode.AllDefaultPath));
+            await Task.Run(() => SnapshotView.Save(new SavingConfiguration(null, SaveMode.All)));
         }
         private async void StopDownloading(object obj)
         {
@@ -121,12 +131,13 @@ namespace WebArchiveViewer
             {
                 Set(ref snapshotView, value);
                 OnPropertyChanged(nameof(Snapshot));
-                OnPropertyChanged(nameof(FolderWrite));
+                OnPropertyChanged(nameof(SavingHtmlFolder));
             }
         }
         private SnapshotView snapshotView;
-        public Snapshot Snapshot => SnapshotView.CurrentSnapshot;
-        public DirectoryInfo FolderWrite => SnapshotView.SavingFolderHtmlContent;
+        public Snapshot Snapshot => SnapshotView.SnapshotModel;
+        public DirectoryInfo SavingHtmlFolder => SnapshotView.SavingHtmlFolder;
+
 
         //Процессы
         private ICollection<Task> CurrentTasks;
@@ -135,12 +146,12 @@ namespace WebArchiveViewer
 
 
         //Настройки загрузки
-        public LoadConfiguration LoadConfiguration
+        public HtmlLoadingConfiguration LoadConfiguration
         {
             get => loadConfiguration;
             private set => Set(ref loadConfiguration, value);
         }
-        private LoadConfiguration loadConfiguration;
+        private HtmlLoadingConfiguration loadConfiguration;
         public LinkProcessingConfiguration ProcessingConfiguration
         {
             get => processingConfiguration;
@@ -152,73 +163,46 @@ namespace WebArchiveViewer
 
 
         //Прогресс загрузки
-        public ObservableCollection<ArchiveLink> LinksRemaining
+        private List<ArchiveLink> LinksRemainingList;
+        public int LinksStartCount
         {
-            get => linksRemaining;
-            private set => Set(ref linksRemaining, value);
+            get => linksStartCount;
+            set => Set(ref linksStartCount, value);
         }
-        private ObservableCollection<ArchiveLink> linksRemaining;
+        private int linksStartCount;
+        public int LinksRemainingCount => LinksRemainingList.Count;
+        public int LinksLoadedCount => LinksStartCount - LinksRemainingCount;
 
-        public int LinksLoadedCount
-        {
-            get => linksLoadedCount;
-            private set => Set(ref linksLoadedCount, value);
-        }
-        private int linksLoadedCount;
-
-        public ArchiveLink LastLink
-        {
-            get => lastLink;
-            private set => Set(ref lastLink, value);
-        }
-        private ArchiveLink lastLink;
-
-        public IList<LinkProcessing> CurrentRequests { get; private set; }
-        public IList<LinkProcessingEventArgs> LogError { get; private set; }
-        public IList<LinkProcessingViewModel> LinkProcessings { get; private set; }
+        public IList<LinkProcessingViewModel> LinkProcessingsCurrent { get; private set; }
+        public IList<LinkProcessingViewModel> LinkProcessingsAll { get; private set; }
+        public IList<LinkProcessingEventArgs> LinkProcessingEventErrors { get; private set; }
 
 
-        //Скорость загрузки
-        public double SpeedLinksPerMinute
+        public LinkProcessingViewModel LastLinkProcessing
         {
-            get
-            {
-                if (LinksLoadedCount / PauseState.FromStart.TotalMinutes > 0)
-                {
-                    return LinksLoadedCount / PauseState.FromStart.TotalMinutes;
-                }
-                else
-                {
-                    return 10;
-                }
-            }
+            get => lastLinkProcessing;
+            private set => Set(ref lastLinkProcessing, value);
         }
-        public TimeSpan TimeLeft => TimeSpan.FromMinutes(LinksRemaining.Count / SpeedLinksPerMinute);
-        private void UpdateSpeed()
-        {
-            if (PauseState.IsPlayed && !Stopped)
-            {
-                OnPropertyChanged(nameof(PauseState.FromStart));
-                OnPropertyChanged(nameof(SpeedLinksPerMinute));
-                OnPropertyChanged(nameof(TimeLeft));
-            }
-        }
+        private LinkProcessingViewModel lastLinkProcessing;
+
+
+
 
 
 
         //Обработка ссылки
         private void Downloading()
         {
-            while (LinksRemaining.Any())
+            while (LinksRemainingList.Any())
             {
-                if (CurrentRequests.Count < 25 && PauseState.IsPlayed)
+                if (LinkProcessingsCurrent.Count < 25 && PauseState.IsPlayed)
                 {
-                    var now = LinksRemaining.LastOrDefault();
+                    var now = LinksRemainingList.LastOrDefault();
                     if (now != null)
                     {
                         Task newTask = Task.Run(() => LinkLoadAsync(now));
                         CurrentTasks.Add(newTask);
-                        LinksRemaining.Remove(now);
+                        LinksRemainingList.Remove(now);
                     }
                 }
                 if (TokenCancel.IsCancellationRequested)
@@ -234,8 +218,8 @@ namespace WebArchiveViewer
             var linkProcessingModel = new LinkProcessingViewModel(linkProcess);
             linkProcess.SetClient(HttpService.GetHttpClient());
 
-            DispatcherService.ExeInDispatcher(() => LinkProcessings.Add(linkProcessingModel));
-            DispatcherService.ExeInDispatcher(() => CurrentRequests.Add(linkProcess));
+            DispatcherService.ExeInDispatcher(() => LinkProcessingsAll.Add(linkProcessingModel));
+            DispatcherService.ExeInDispatcher(() => LinkProcessingsCurrent.Add(linkProcessingModel));
 
             linkProcess.OnStatusChanged += LinkProcess_OnStatusChanged;
             await linkProcess.StartProcessing();
@@ -261,8 +245,8 @@ namespace WebArchiveViewer
 
             if (success)
             {
-                LinksLoadedCount++;
-                LastLink = linkProcessing.Link as ArchiveLink;
+                //LinksLoadedCount++;
+                //LastLinkProcessing = linkProcessing.Link as LinkProcessingViewModel;
 
                 //bool saveCounter = linkProcessing.Index % Options.SavingLatencyLinks == 0;
                 //if (saveCounter)
@@ -275,14 +259,41 @@ namespace WebArchiveViewer
             {
                 //
             }
-            int progress = (int)((double)linksLoadedCount / Snapshot.Links.Length * 100);
-            DispatcherService.ExeInDispatcher(() => MainWindowModel.SetOperation(new ProcessStatus($"Загрузка HTML страниц: {linksLoadedCount} / {Snapshot.Links.Length}", progress, true, false)));
-            DispatcherService.ExeInDispatcher(() => CurrentRequests.Remove(linkProcessing));
+            int progress = 1; //(int)((double)linksLoadedCount / Snapshot.Links.Length * 100);
+            DispatcherService.ExeInDispatcher(() => MainWindowModel.SetOperation(new ProcessStatus($"Загрузка HTML страниц: {LinksLoadedCount} / {Snapshot.Links.Length}", progress, true, false)));
+            //DispatcherService.ExeInDispatcher(() => LinkProcessingsCurrent.Remove(l => l. linkProcessing));
             linkProcessing.OnStatusChanged -= LinkProcess_OnStatusChanged;
 
-            if (!LinksRemaining.Any())
+            if (!LinksRemainingList.Any())
             {
                 StopDownloading(null);
+            }
+        }
+
+
+        //Скорость загрузки
+        public double SpeedLinksPerMinute
+        {
+            get
+            {
+                if (LinksLoadedCount / PauseState.FromStart.TotalMinutes > 0)
+                {
+                    return LinksLoadedCount / PauseState.FromStart.TotalMinutes;
+                }
+                else
+                {
+                    return 10;
+                }
+            }
+        }
+        public TimeSpan TimeLeft => TimeSpan.FromMinutes(LinksRemainingList.Count / SpeedLinksPerMinute);
+        private void UpdateSpeed()
+        {
+            if (PauseState.IsPlayed && !Stopped)
+            {
+                OnPropertyChanged(nameof(PauseState.FromStart));
+                OnPropertyChanged(nameof(SpeedLinksPerMinute));
+                OnPropertyChanged(nameof(TimeLeft));
             }
         }
 
@@ -301,7 +312,7 @@ namespace WebArchiveViewer
         private bool isStarted;
         public bool IsReady => IsStarted && !Stopped;
         public bool IsPauseEnabled => IsReady;
-        public PauseState PauseState { get; private set; }
+        public OperationState PauseState { get; private set; }
         private bool Stopped { get; set; }
     }
 }

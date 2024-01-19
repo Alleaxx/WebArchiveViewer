@@ -70,16 +70,19 @@
     </ApplicationDefinition>
     <Compile Include="Services\DispatcherService.cs" />
     <Compile Include="Services\HttpService.cs" />
+    <Compile Include="UI\Commands\MenuItemCommand.cs" />
     <Compile Include="UI\Commands\OpenExceptionWindowCommand.cs" />
     <Compile Include="UI\Commands\OpenLinkCommand.cs" />
     <Compile Include="UI\Converters\DivideConverter.cs" />
     <Compile Include="UI\Converters\DivideMultiplyConverter.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LinkProcessingPreparation.cs" />
+    <Compile Include="ViewModels\Снапшот\SavingConfiguration.cs" />
     <Compile Include="ViewModels\Загрузка HTML\LinkProcessingViewModel.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LoadConfiguration.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\HtmlLoadingConfiguration.cs" />
     <Compile Include="ViewModels\Загрузка ссылок\RequestFiltersViewModel.cs" />
     <Compile Include="ViewModels\Загрузка ссылок\SnapshotLoaderViewModel.cs" />
-    <Compile Include="ViewModels\Настройки\Группировки-сортировки\GroupsEnum.cs" />
-    <Compile Include="ViewModels\Настройки\Группировки-сортировки\SortsEnum.cs" />
+    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\GroupsEnum.cs" />
+    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\SortsEnum.cs" />
     <Compile Include="Views\Controls\IntervalSliderLinks.xaml.cs">
       <DependentUpon>IntervalSliderLinks.xaml</DependentUpon>
     </Compile>
@@ -95,19 +98,18 @@
     <Compile Include="UI\Converters\ColumnWidthConverter.cs" />
     <Compile Include="UI\Converters\Round.cs" />
     <Compile Include="UI\Page.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LinksProcessor.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\PauseState.cs" />
-    <Compile Include="ViewModels\Настройки\Колонки\ColumnsInfo.cs" />
-    <Compile Include="ViewModels\Настройки\Типы\MimeType.cs" />
-    <Compile Include="ViewModels\Настройки\Типы\StatusCode.cs" />
-    <Compile Include="ViewModels\Настройки\Колонки\ListViewColumn.cs" />
-    <Compile Include="ViewModels\SaveMode.cs" />
-    <Compile Include="ViewModels\Настройки\Группировки-сортировки\Grouping.cs" />
-    <Compile Include="ViewModels\Настройки\Группировки-сортировки\Sorting.cs" />
-    <Compile Include="ViewModels\Настройки\Типы\Option.cs" />
-    <Compile Include="ViewModels\Настройки\Группировки-сортировки\ListViewOptions.cs" />
-    <Compile Include="ViewModels\RulesViewModel.cs" />
-    <Compile Include="ViewModels\SnapshowView.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\LinksLoaderViewModel.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\OperationState.cs" />
+    <Compile Include="ViewModels\Настройки списка\ListViewColumnsInfo.cs" />
+    <Compile Include="ViewModels\Настройки списка\Типы\MimeType.cs" />
+    <Compile Include="ViewModels\Настройки списка\Типы\StatusCode.cs" />
+    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\ListViewColumn.cs" />
+    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\Grouping.cs" />
+    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\Sorting.cs" />
+    <Compile Include="ViewModels\Настройки списка\Типы\Option.cs" />
+    <Compile Include="ViewModels\Настройки списка\ListViewGroupSortsInfo.cs" />
+    <Compile Include="ViewModels\Снапшот\RulesInfoViewModel.cs" />
+    <Compile Include="ViewModels\Снапшот\SnapshowView.cs" />
     <Compile Include="Services\FileDialog.cs" />
     <Compile Include="UI\Converters\Date.cs" />
     <Compile Include="UI\Converters\StatusCode.cs" />
@@ -121,12 +123,12 @@
       <DependentUpon>RulesWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Pager.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LoadingHtmlViewModel.cs" />
+    <Compile Include="ViewModels\Загрузка HTML\HtmlLoaderViewModel.cs" />
     <Compile Include="Views\Controls\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="ViewModels\Настройки\ViewOptions.cs" />
+    <Compile Include="ViewModels\Настройки списка\ListViewInfo.cs" />
     <Compile Include="UI\Commands\RelayCommand.cs" />
     <Page Include="Resources\Converters.xaml">
       <SubType>Designer</SubType>
@@ -137,6 +139,34 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Styles\Buttons.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\Colors.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\ComboBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\Dates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\Expanders.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\Menu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\Panels.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\TabControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

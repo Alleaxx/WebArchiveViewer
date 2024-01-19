@@ -9,20 +9,23 @@ using WebArchive.Data;
 using WebArchive.Data.HtmlLoading;
 using WebArchiveViewer.Services;
 
-namespace WebArchiveViewer
+namespace WebArchiveViewer.ViewModels
 {
-    //Контрол на загрузку ссылок
-    public class LinksProcessor
+    /// <summary>
+    /// Представление для загрузки имен страниц
+    /// </summary>
+    public class LinksLoaderViewModel
     {
-        public LinksProcessor()
+        public LinksLoaderViewModel()
         {
             LoadingLinksList = new List<ArchiveLink>();
             LoadLinkNameCommand = new RelayCommand(LoadNameAsync, IsLoadingLinkNameAvailable);
+            ForbiddenCodes = new string[] { "404", "502", "302" };
         }
 
         //Загрузка имени страницы
         private readonly List<ArchiveLink> LoadingLinksList;
-        private readonly string[] ForbiddenCodes = new string[] { "404", "502", "302" };
+        private readonly string[] ForbiddenCodes;
 
         public ICommand LoadLinkNameCommand { get; private set; }
         private bool IsLoadingLinkNameAvailable(object obj)

@@ -5,15 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 using WebArchive.Data;
-namespace WebArchiveViewer
-{
-    public class PauseState : NotifyObject
-    {
-        public override string ToString()
-        {
-            return $"Пауза: {(IsPaused ? "активна" : "выключена")}";
-        }
 
+namespace WebArchiveViewer.ViewModels
+{
+    public class OperationState : NotifyObject
+    {
         private bool isPaused;
         private DateTime startDateTime;
 
@@ -43,7 +39,7 @@ namespace WebArchiveViewer
         }
         public TimeSpan FromStart => DateTime.Now - StartDateTime;
 
-        public PauseState(bool paused)
+        public OperationState(bool paused)
         {
             IsPaused = paused;
             StartDateTime = DateTime.Now;

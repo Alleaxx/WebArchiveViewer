@@ -11,13 +11,21 @@ namespace WebArchive.Data
         public DateTime From
         {
             get => from;
-            set => Set(ref from, value);
+            set
+            {
+                Set(ref from, value);
+                OnPropertyChanged(nameof(DifferenceFrom));
+            }
         }
         private DateTime from;
         public DateTime To
         {
             get => to;
-            set => Set(ref to, value);
+            set
+            {
+                Set(ref to, value);
+                OnPropertyChanged(nameof(DifferenceTo));
+            }
         }
         private DateTime to;
 
@@ -30,14 +38,24 @@ namespace WebArchive.Data
         public double Difference => (Max - Min).TotalHours;
         public double DifferenceFrom
         {
-            get => (From - Min).TotalHours;
-            set => From = Min.AddHours(value);
+            get => differenceFrom == -1 ? differenceFrom : (From - Min).TotalHours;
+            set
+            {
+                From = Min.AddHours(value);
+                Set(ref differenceFrom, value);
+            }
         }
+        private double differenceFrom;
         public double DifferenceTo
         {
             get => (To - Min).TotalHours;
-            set => To = Min.AddHours(value);
+            set
+            {
+                To = Min.AddHours(value);
+                Set(ref differenceTo, value);
+            }
         }
+        private double differenceTo;
 
 
         public DateRange()

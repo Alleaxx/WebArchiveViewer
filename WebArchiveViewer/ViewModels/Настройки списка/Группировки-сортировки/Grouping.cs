@@ -4,10 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-using WebArchiveViewer.ViewModels.ViewOptions;
-
-namespace WebArchiveViewer
+namespace WebArchiveViewer.ViewModels
 {
     public interface IGrouping
     {

@@ -2,14 +2,17 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewmodels="clr-namespace:WebArchiveViewer.ViewModels" 
              xmlns:local="clr-namespace:WebArchiveViewer.Views.Controls"
              mc:Ignorable="d" Name="root"
+             d:DataContext="{d:DesignInstance {x:Type viewmodels:MainWindowViewModel}}"
              d:DesignHeight="450" d:DesignWidth="800">
     <ListView x:Name="links" ItemsSource="{Binding ElementName=root, Path=LinksPager.PageNow.Source.View}"
-              BorderThickness="0,0,0,1" BorderBrush="Gainsboro"
+              BorderThickness="1,1,0,0" BorderBrush="Gainsboro"
               FontFamily="Consolas" FontSize="10">
         <ListView.Resources>
+
             <Style TargetType="{x:Type Button}">
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderBrush" Value="Gainsboro" />
@@ -44,7 +47,7 @@
         </ListView.Resources>
         <ListView.View>
             <GridView>
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[0].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}" >
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[0].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}" >
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Index}"
@@ -52,9 +55,9 @@
                                        Foreground="Gray" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[0]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[0]}" />
                 </GridViewColumn>
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[1].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[1].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock ToolTip="{Binding Date, Converter={StaticResource DateConverter}}"
@@ -63,9 +66,9 @@
                                        Foreground="#404040" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[1]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[1]}" />
                 </GridViewColumn>
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[2].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[2].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <DockPanel >
@@ -76,10 +79,10 @@
                             </DockPanel>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[2]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[2]}" />
                 </GridViewColumn>
-                
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[3].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[3].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock x:Name="code" Text="{Binding StatusCode}"
@@ -92,10 +95,10 @@
                             </DataTemplate.Triggers>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[3]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[3]}" />
                 </GridViewColumn>
-                
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[4].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[4].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding MimeType}"
@@ -104,10 +107,10 @@
                                        MinWidth="60" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[4]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[4]}" />
                 </GridViewColumn>
-                
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[5].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[5].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Category}"
@@ -115,13 +118,13 @@
                                        Style="{StaticResource ColumnUsualText}" />
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[5]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[5]}" />
                 </GridViewColumn>
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[6].Hidden, ConverterParameter=250,Converter={StaticResource ColumnWidthV2Converter}}">
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[6].Hidden, ConverterParameter=250,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <DockPanel>
-                                <Button x:Name="load" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type TabControl}}, Path=DataContext.LinkLoader.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
+                                <Button x:Name="load" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type GridViewColumn}}, Path=DataContext.LinksLoader.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
                                     <TextBlock x:Name="text"
                                                Text="{Binding Name}"
                                                 Style="{StaticResource ColumnUsualText}"
@@ -130,9 +133,9 @@
                             </DockPanel>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[6]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[6]}" />
                 </GridViewColumn>
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[7].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[7].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding LinkSource}" FontFamily="Segoe UI" ToolTip="{Binding LinkSource}" Style="{DynamicResource TextBlockLink}">
@@ -142,9 +145,9 @@
                             </TextBlock>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[7]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[7]}" />
                 </GridViewColumn>
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[8].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[8].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="Архив" Tag="{Binding Link}" FontFamily="Segoe UI" ToolTip="{Binding Link}" Style="{DynamicResource TextBlockLink}">
@@ -154,9 +157,9 @@
                             </TextBlock>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[8]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[8]}" />
                 </GridViewColumn>
-                <GridViewColumn Width="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[9].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[9].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <Button x:Name="load" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding HtmlFilePath}" ToolTip="{Binding HtmlFilePath, StringFormat=[\{0\}]}">
@@ -172,7 +175,7 @@
                             </DataTemplate.Triggers>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ViewOptions.ShowColumns.Columns[9]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[9]}" />
                 </GridViewColumn>
 
             </GridView>

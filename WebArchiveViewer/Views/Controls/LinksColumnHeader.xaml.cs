@@ -13,11 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using WebArchiveViewer.ViewModels;
+
 namespace WebArchiveViewer.Views.Controls
 {
-    /// <summary>
-    /// Логика взаимодействия для LinksColumnHeader.xaml
-    /// </summary>
     public partial class LinksColumnHeader : UserControl
     {
         public ListViewColumn ColumnInfo

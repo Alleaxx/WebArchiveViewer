@@ -13,16 +13,29 @@ using System.Windows.Data;
 using System.Windows.Input;
 
 using WebArchive.Data;
-using WebArchiveViewer.ViewModels;
+using WebArchiveViewer.UI;
 
-namespace WebArchiveViewer
+namespace WebArchiveViewer.ViewModels
 {
     //Представление просмотра ссылок с архива
     public class MainWindowViewModel : NotifyObject
     {
-        //Получение снапшота
+        //Ссылки на загрузчик снапшота и html-контента
         public SnapshotLoaderViewModel SnapshotLoader { get; private set; }
-        public LinksProcessor LinkLoader { get; private set; }
+        public LinksLoaderViewModel LinksLoader { get; private set; }
+        public HtmlLoaderViewModel HtmlLoader { get; private set; }
+
+        public MainWindowViewModel()
+        {
+            SetNullSnapshot();
+            HtmlLoader = new HtmlLoaderViewModel(this);
+            SnapshotLoader = new SnapshotLoaderViewModel(this);
+            LinksLoader = new LinksLoaderViewModel();
+
+            SetOperation(new ProcessStatus("Ожидание ссылок...", 0));
+
+            CloseSnapshotCommand = new RelayCommand(OnCloseSnapshotCommandExecuted, obj => !SnapshotIsEmptyF);
+        }
 
         /// <summary> Текущая операция, отображается в статусе </summary>
         public ProcessStatus Operation
@@ -32,21 +45,21 @@ namespace WebArchiveViewer
         }
         private ProcessStatus operation;
 
-        public MainWindowViewModel()
+        public int SelectedMenuIndex
         {
-            LoadHtmlView = new HtmlLoaderViewModel(this);
-            SetNullSnapshot();
-            SnapshotLoader = new SnapshotLoaderViewModel(this);
-            LinkLoader = new LinksProcessor();
+            get => selectedMenuIndex;
+            set => Set(ref selectedMenuIndex, value);
+        }
+        private int selectedMenuIndex;
 
-            SetOperation(new ProcessStatus("Ожидание ссылок...", 0));
-
-            CloseSnapCommand = new RelayCommand(OnCloseSnapshotCommandExecuted, obj => !SnapshotIsNull);
+        public void SetOperation(ProcessStatus status)
+        {
+            Operation = status;
         }
 
-        public ICommand CloseSnapCommand { get; private set; }
 
-        //Открытый снапшот
+
+        /// <summary> Модель представления текущего снапшота ссылок. Не может быть null </summary>
         public SnapshotView SnapshotView
         {
             get => snapshotView;
@@ -58,37 +71,38 @@ namespace WebArchiveViewer
         }
         private SnapshotView snapshotView;
 
-        public bool SnapshotIsEmpty => SnapshotView.CurrentSnapshot.IsEmpty;
-        public bool SnapshotIsNotEmpty => !SnapshotView.CurrentSnapshot.IsEmpty;
+
+        public ICommand CloseSnapshotCommand { get; private set; }
+
+        public bool SnapshotIsEmpty => SnapshotView.SnapshotModel.IsEmpty;
+        public bool SnapshotIsNotEmpty => !SnapshotView.SnapshotModel.IsEmpty;
 
 
-        public HtmlLoaderViewModel LoadHtmlView { get; private set; }
-
-        private bool SnapshotIsNull => SnapshotView.CurrentSnapshot.IsEmpty;
+        private bool SnapshotIsEmptyF => SnapshotView.SnapshotModel.IsEmpty;
         public void SetSnapshot(Snapshot value)
         {
             var oldSnapshot = snapshotView;
             if(snapshotView != null)
             {
-                snapshotView.ViewOptions.OnUpdated -= UpdatePagerLinks;
+                snapshotView.ListViewInfo.OnUpdated -= UpdatePagerLinks;
             }
 
             SnapshotView = new SnapshotView(value);
-            if (value != null)
+            if (snapshotView != null && value != null && value.IsNotEmpty)
             {
-                LoadHtmlView.SetSnapshot(SnapshotView);
-                SnapshotView.ViewOptions.OnUpdated += UpdatePagerLinks;
+                SelectedMenuIndex = 1;
+                HtmlLoader.SetSnapshot(SnapshotView);
+                SnapshotView.ListViewInfo.OnUpdated += UpdatePagerLinks;
                 UpdatePagerLinks();
+            }
+            else
+            {
+                SelectedMenuIndex = 0;
             }
         }
         public void SetNullSnapshot()
         {
             SetSnapshot(Snapshot.GetEmptySnapshot());
-        }
-
-        public void SetOperation(ProcessStatus status)
-        {
-            Operation = status;
         }
 
         private void OnCloseSnapshotCommandExecuted(object obj)
@@ -97,6 +111,8 @@ namespace WebArchiveViewer
             LinksPager = null;
             SetOperation(new ProcessStatus("Снапшот закрыт", 0));
         }
+
+
 
 
         //Список отображаемых ссылок
@@ -108,17 +124,17 @@ namespace WebArchiveViewer
         private IPager<ArchiveLink> linksPager;
         public void UpdatePagerLinks()
         {
-            if(SnapshotIsNull)
+            if(SnapshotIsEmptyF)
             {
                 return;
             }
 
-            var options = SnapshotView.ViewOptions;
+            var options = SnapshotView.ListViewInfo;
             var filteredLinks = options.GetFilteredLinks();
-            filteredLinks = options.ListView.SortLinks(filteredLinks);
+            filteredLinks = options.GroupSortsInfo.SortLinks(filteredLinks);
             options.LinksFilteredAmount = filteredLinks.Count();
 
-            LinksPager = new Pager<ArchiveLink>(filteredLinks, options.ListView.GroupSelected, LinksPager);
+            LinksPager = new Pager<ArchiveLink>(filteredLinks, options.GroupSortsInfo.GroupSelected, LinksPager);
         }
     }
 }

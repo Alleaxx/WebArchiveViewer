@@ -7,7 +7,9 @@ using System.Windows.Data;
 using System.Windows.Input;
 
 using WebArchive.Data;
-namespace WebArchiveViewer
+using WebArchiveViewer.ViewModels;
+
+namespace WebArchiveViewer.UI
 {
     //Разделение списка по страницам
     public interface IPager

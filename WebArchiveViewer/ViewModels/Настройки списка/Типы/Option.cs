@@ -6,7 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using WebArchive.Data;
-namespace WebArchiveViewer
+
+namespace WebArchiveViewer.ViewModels
 {
     public class Option : NotifyObject
     {

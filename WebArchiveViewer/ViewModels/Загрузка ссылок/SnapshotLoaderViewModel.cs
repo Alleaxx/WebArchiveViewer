@@ -165,7 +165,7 @@ namespace WebArchiveViewer.ViewModels
             }
             if (snapshot.IsEmpty)
             {
-                Status = new ProcessStatus("Получить снапшот со ссылками не удалось", 100, true, true);
+                Status = new ProcessStatus("Загрузка не удалась или ответ вернул 0 ссылок", 100, true, true);
                 IsProcessing = false;
                 return;
             }

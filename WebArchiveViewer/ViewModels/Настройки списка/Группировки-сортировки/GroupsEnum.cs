@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WebArchiveViewer.ViewModels.ViewOptions
+namespace WebArchiveViewer.ViewModels
 {
     public enum GroupsEnum
     {

@@ -11,11 +11,22 @@
             <commands:OpenExceptionWindowCommand x:Key="OpenExceptionCommand" />
 
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/DataTemplates/EventArgs.xaml" />
+
+                <ResourceDictionary Source="Resources/Converters.xaml" />
+
+
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Panels.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Dates.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Buttons.xaml" />
                 <ResourceDictionary Source="Resources/Styles/TreeView.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Text.xaml" />
-                <ResourceDictionary Source="Resources/Converters.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Menu.xaml" />
+                <ResourceDictionary Source="Resources/Styles/ComboBox.xaml" />
+                <ResourceDictionary Source="Resources/Styles/TabControl.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Expanders.xaml" />
+
+                <ResourceDictionary Source="Resources/DataTemplates/EventArgs.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

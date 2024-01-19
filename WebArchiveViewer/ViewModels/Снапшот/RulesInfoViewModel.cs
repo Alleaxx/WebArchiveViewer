@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 using WebArchive.Data;
-namespace WebArchiveViewer
+using WebArchiveViewer.Views.Windows;
+
+namespace WebArchiveViewer.ViewModels
 {
-    public class RulesViewModel : NotifyObject
+    public class RulesInfoViewModel : NotifyObject
     {
         #region Ссылки
 
@@ -17,14 +19,14 @@ namespace WebArchiveViewer
         
         #endregion
 
-        public RulesViewModel()
+        public RulesInfoViewModel()
         {
             RulesControl = new GroupRule();
         }
-        public RulesViewModel(SnapshotView snap)
+        public RulesInfoViewModel(SnapshotView snap)
         {
             SnapshotView = snap;
-            RulesControl = snap?.CurrentSnapshot?.RulesControl;
+            RulesControl = snap?.SnapshotModel?.RulesControl;
             CreateCommands();
         }
 

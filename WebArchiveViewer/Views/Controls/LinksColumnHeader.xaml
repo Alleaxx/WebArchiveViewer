@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WebArchiveViewer.Views.Controls"
-             xmlns:webarchiveviewer="clr-namespace:WebArchiveViewer"
+             xmlns:webarchiveviewer="clr-namespace:WebArchiveViewer.ViewModels"
              d:DataContext="{d:DesignInstance Type=webarchiveviewer:MainWindowViewModel}"
              mc:Ignorable="d"
              Name="root"
@@ -19,19 +19,59 @@
             <Setter Property="Cursor" Value="Hand" />
         </Style>
     </UserControl.Resources>
-    <Button Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}"
-            CommandParameter="{Binding ElementName=root, Path=ColumnInfo}"
-            Style="{StaticResource ButtonSort}">
+    <Button Command="{Binding ElementName=root,Path=ColumnInfo.SortColumnCommand}"
+            Style="{StaticResource ButtonSort}"
+            HorizontalContentAlignment="Stretch" Cursor="Hand">
 
-        <TextBlock Text="{Binding ElementName=root, Path=ColumnInfo.Name}" />
+        <DockPanel>
+            <TextBlock Text="{Binding ElementName=root, Path=ColumnInfo.Name}" FontSize="12">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=root, Path=ColumnInfo.IsGroupingSelected}" Value="true">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <TextBlock Margin="4,0" HorizontalAlignment="Right">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Hidden" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=root, Path=ColumnInfo.IsSortingSelected}" Value="true">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=root, Path=ColumnInfo.Sorting.Ascending}" Value="true">
+                                <Setter Property="Text" Value="▲" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ElementName=root, Path=ColumnInfo.Sorting.Ascending}" Value="false">
+                                <Setter Property="Text" Value="▼" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </DockPanel>
 
         <!--#region -->
-        
+
         <!--#endregion-->
+        <Button.InputBindings>
+            <MouseBinding MouseAction="MiddleClick"
+                          Command="{Binding ElementName=root,Path=ColumnInfo.GroupColumnCommand}"/>
+        </Button.InputBindings>
         <Button.ContextMenu>
-            <ContextMenu Name="contextMenu">
+            <ContextMenu x:Name="contextMenu"
+                         ItemContainerStyle="{StaticResource MenuItemCommand}"
+                         ItemsSource="{Binding ElementName=root, Path=ColumnInfo.MenuCommands}">
+            </ContextMenu>
+
+
+            <!--<ContextMenu Name="contextMenu">
                 <MenuItem Header="Сортировать по столбцу"
-                          Command="{Binding SnapshotView.ViewOptions.ListView.SortCommand}"
+                          Command="{Binding SnapshotView.ListViewInfo.GroupSortsInfo.SortCommand}"
                           CommandParameter="{Binding ElementName=root, Path=ColumnInfo}">
                     <MenuItem.Style>
                         <Style TargetType="MenuItem">
@@ -44,7 +84,7 @@
                     </MenuItem.Style>
                 </MenuItem>
                 <MenuItem Header="Группировать по столбцу"
-                          Command="{Binding SnapshotView.ViewOptions.ListView.GroupCommand}"
+                          Command="{Binding SnapshotView.ListViewInfo.GroupSortsInfo.GroupCommand}"
                           CommandParameter="{Binding ElementName=root, Path=ColumnInfo}">
                     <MenuItem.Style>
                         <Style TargetType="MenuItem">
@@ -56,15 +96,21 @@
                         </Style>
                     </MenuItem.Style>
                 </MenuItem>
-                <!--<MenuItem Header="Убрать сортировку"
+                -->
+            <!--<MenuItem Header="Убрать сортировку"
                           Command="{Binding SnapshotView.ViewOptions.ListView.RemoveSortCommand}"
                           CommandParameter="{Binding ElementName=root, Path=ColumnInfo}">
                 </MenuItem>-->
+            <!--
                 <MenuItem Header="Скрыть столбец"
-                          Command="{Binding SnapshotView.ViewOptions.ShowColumns.HideColumnCommand}"
+                          Command="{Binding SnapshotView.ListViewInfo.ColumnsInfo.HideColumnCommand}"
                           CommandParameter="{Binding ElementName=root, Path=ColumnInfo}">
                 </MenuItem>
-            </ContextMenu>
+            </ContextMenu>-->
+
+
+
+
         </Button.ContextMenu>
     </Button>
 </UserControl>

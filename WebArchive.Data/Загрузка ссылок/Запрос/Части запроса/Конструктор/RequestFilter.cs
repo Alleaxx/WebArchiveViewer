@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 namespace WebArchive.Data.RequestParts
 {
     //Фильтр по кодам и типам контента
-    //Заполняется вручную
+    //Заполняется через конструктор (приоритетнее) или строку
     public class RequestFilter : RequestPart
     {
         public string FilterType { get; protected set; }
@@ -15,8 +16,12 @@ namespace WebArchive.Data.RequestParts
         public override string RequestString => CreateRequestString();
         private string CreateRequestString()
         {
-            Dictionary<string, bool> filters = GetFilters();
+            if (!Enabled)
+            {
+                return string.Empty;
+            }
 
+            Dictionary<string, bool> filters = GetFilters();
             StringBuilder sb = new StringBuilder();
             foreach (var option in filters)
             {
@@ -31,9 +36,10 @@ namespace WebArchive.Data.RequestParts
         //Если текстовая строка заполнена, то фильтр не учитывается
         private Dictionary<string, bool> GetFilters()
         {
-            if (string.IsNullOrEmpty(FiltersString) && FilterConstructor.List != null && FilterConstructor.List.Any())
+            var filtersFromConstructor = FilterConstructor.GetFilters();
+            if (filtersFromConstructor.Any())
             {
-                return RefillFilters(FilterConstructor);
+                return filtersFromConstructor;
             }
             else if (!string.IsNullOrEmpty(FiltersString))
             {
@@ -64,21 +70,6 @@ namespace WebArchive.Data.RequestParts
             }
             return filters;
         }
-        private Dictionary<string, bool> RefillFilters(RequestTypesList constructor)
-        {
-            var filters = new Dictionary<string, bool>();
-            foreach (var item in constructor.List)
-            {
-                string text = item.Content;
-                bool disabled = !item.Enabled;
-
-                if (!filters.ContainsKey(text) && !string.IsNullOrEmpty(text))
-                {
-                    filters.Add(text, !disabled);
-                }
-            }
-            return filters;
-        }
 
         /// <summary> Строка для фильтрации. Имеет приоритет над конструктором </summary>
         public string FiltersString
@@ -87,45 +78,13 @@ namespace WebArchive.Data.RequestParts
             set => Set(ref filtersString, value);
         }
         private string filtersString;
-        public RequestTypesList FilterConstructor { get; private set; }
+        public RequestFiltersList FilterConstructor { get; private set; }
 
 
         public RequestFilter(string filterType, IEnumerable<string> source) : base("filter", "Фильтры", "")
         {
             FilterType = filterType;
-            FilterConstructor = new RequestTypesList(source);
+            FilterConstructor = new RequestFiltersList(source);
         }
-    }
-
-    public class RequestTypesList
-    {
-        public string[] Source { get; private set; }
-        public IList<RequestType> List { get; private set; }
-
-
-        public RequestTypesList(IEnumerable<string> source)
-        {
-            Source = source.ToArray();
-        }
-        public void SetCollection(IList<RequestType> list)
-        {
-            List = list;
-        }
-
-        public IEnumerable<string> GetSourceWithoutPicked()
-        {
-            return Source.Except(List.Select(l => l.Content)).ToArray();
-        }
-        public string GetFilterString()
-        {
-            return List.Any() ? string.Join(",", List.Select(l => l.Enabled ? l.Content : $"!{l.Content}")) : null;
-        }
-    }
-
-
-    public class RequestType
-    {
-        public string Content { get; set; }
-        public bool Enabled { get; set; }
     }
 }

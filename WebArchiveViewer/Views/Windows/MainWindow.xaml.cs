@@ -12,8 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WebArchiveViewer.ViewModels;
 
-namespace WebArchiveViewer
+namespace WebArchiveViewer.Views.Windows
 {
     public partial class MainWindow : Window
     {
@@ -25,12 +26,6 @@ namespace WebArchiveViewer
             DataContext = ArchiveContext;
         }
 
-        private void EntryInfo_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            var elem = sender as FrameworkElement;
-            System.Diagnostics.Process.Start(elem.Tag.ToString());
-        }
-
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
             ArchiveContext.UpdatePagerLinks();
@@ -38,7 +33,7 @@ namespace WebArchiveViewer
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            var closeCommand = ArchiveContext.CloseSnapCommand;
+            var closeCommand = ArchiveContext.CloseSnapshotCommand;
             if (closeCommand.CanExecute(null))
             {
                 closeCommand?.Execute(null);

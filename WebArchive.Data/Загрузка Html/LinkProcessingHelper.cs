@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,37 +15,34 @@ namespace WebArchive.Data.HtmlLoading
     public static class LinkProcessingHelper
     {
         //1 - Получить HTML страницы из URL-адреса
-        public static async Task<string> GetHtmlAsync(string link, HttpClient HttpClient = null, CancellationToken cancellationToken = default)
+        public static async Task<string> GetHtmlAsync(string URI, HttpClient receivedClient = null, CancellationToken token = default)
         {
-            var client = HttpClient ?? new HttpClient();
+            var usedClient = receivedClient ?? new HttpClient();
 
-            HttpResponseMessage responce = await client.GetAsync(link, cancellationToken);
-            if (cancellationToken.IsCancellationRequested)
+            var responce = await usedClient.GetAsync(URI, HttpCompletionOption.ResponseHeadersRead, token);
+            if (!responce.IsSuccessStatusCode)
             {
                 return null;
             }
-            if (HttpClient == null)
+            var encoding = GetGuessedEncoding(responce, Encoding.UTF8);
+
+            StringBuilder html = new StringBuilder();
+            using (var stream = await responce.Content.ReadAsStreamAsync())
             {
-                client.Dispose();
+                using (var streamReader = new StreamReader(stream, encoding))
+                {
+                    while (!streamReader.EndOfStream)
+                    {
+                        var line = await streamReader.ReadLineAsync();
+                        html.Append(line);
+                    }
+                }
             }
-            var buffer = await responce.Content.ReadAsByteArrayAsync();
-            var byteArray = buffer.ToArray();
-
-
-            string win1251 = Encoding.GetEncoding(1251).GetString(byteArray, 0, byteArray.Length);
-            string utf = Encoding.UTF8.GetString(byteArray, 0, byteArray.Length);
-            string shorten = utf.Substring(0, 2000);
-
-
-
-            if (shorten.Contains("windows-1251"))
+            if (receivedClient == null)
             {
-                return win1251;
+                usedClient.Dispose();
             }
-            else
-            {
-                return utf;
-            }
+            return html.ToString();
         }
 
         //2 - Получить имя из HTML страницы
@@ -57,10 +57,64 @@ namespace WebArchive.Data.HtmlLoading
                 System.Text.RegularExpressions.RegexOptions.IgnoreCase).Groups["Title"].Value;
             return name;
         }
-        public static async Task<string> GetNameFromURIAsync(string URI, HttpClient client = null, CancellationToken token = default)
+
+        public static async Task<string> GetNameFromURIAsync(string URI, HttpClient receivedClient = null, CancellationToken token = default)
         {
-            string html = await GetHtmlAsync(URI, client, token);
-            string name = GetNameFromHtmlAsync(html);
+            var usedClient = receivedClient ?? new HttpClient();
+
+            var responce = await usedClient.GetAsync(URI, HttpCompletionOption.ResponseHeadersRead, token);
+
+            if (!responce.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            var encoding = GetGuessedEncoding(responce, Encoding.UTF8);
+
+            string html = "";
+            using (var stream = await responce.Content.ReadAsStreamAsync())
+            {
+                StringBuilder sb = new StringBuilder();
+                using(var streamReader = new StreamReader(stream, encoding))
+                {
+                    bool foundTitleStart = false;
+                    bool foundTitleEnd = false;
+                    while (!(foundTitleEnd && foundTitleStart) && !streamReader.EndOfStream)
+                    {
+                        bool added = false;
+                        var line = await streamReader.ReadLineAsync();
+                        if (line.Contains("<title>"))
+                        {
+                            sb.Append(line);
+                            foundTitleStart = true;
+                            added = true;
+                        }
+                        if (line.Contains("</title>"))
+                        {
+                            foundTitleEnd = true;
+                            if (!added)
+                            {
+                                sb.AppendLine(line);
+                            }
+                        }
+                    }
+                    bool foundAll = foundTitleStart && foundTitleEnd;
+                    //Не нашли
+                    if(!foundAll)
+                    {
+                        return null;
+                    }
+                    //Нашли!
+                    else
+                    {
+                        html = sb.ToString();
+                    }
+                }
+            }
+            if(receivedClient == null)
+            {
+                usedClient.Dispose();
+            }
+            var name = GetNameFromHtmlAsync(html);
             return name;
         }
 
@@ -86,14 +140,14 @@ namespace WebArchive.Data.HtmlLoading
                 return null;
             }
 
-            string fileName = CreateSaveFileName(Link as ArchiveLink);
+            string fileName = CreateFileName(Link as ArchiveLink);
             string filePath = $"{folderPath}\\{fileName}.html";
 
             File.WriteAllText(filePath, htmlContent);
             Link.HtmlFilePath = filePath;
             return new FileInfo(filePath);
         }
-        private static string CreateSaveFileName(ArchiveLink link)
+        private static string CreateFileName(ArchiveLink link)
         {
             bool noName = link.Name == ArchiveLink.DefaultName;
             string withNameText = $"{link.TimeStamp} - {link.Index} - {link.Name}";
@@ -106,6 +160,20 @@ namespace WebArchive.Data.HtmlLoading
                 nameText = nameText.Replace(invChar, '_');
             }
             return nameText.ToString();
+        }
+
+
+        private static Encoding GetGuessedEncoding(HttpResponseMessage responce, Encoding defaultEncoding)
+        {
+            string charset = null;
+            var contentType = responce.Headers.TryGetValues("x-archive-guessed-charset", out var guessedCharsets);
+            if (guessedCharsets != null && guessedCharsets.Any())
+            {
+                charset = guessedCharsets.First();
+            }
+            var encoding = Encoding.GetEncodings().FirstOrDefault(c => c.Name.Equals(charset, StringComparison.OrdinalIgnoreCase))?.GetEncoding();
+
+            return encoding ?? defaultEncoding;
         }
     }
 }

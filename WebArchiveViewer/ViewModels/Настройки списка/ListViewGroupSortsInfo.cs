@@ -6,17 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using WebArchive.Data;
-using WebArchiveViewer.ViewModels.ViewOptions;
 
-namespace WebArchiveViewer
+namespace WebArchiveViewer.ViewModels
 {
-    //Сортировки-группировки
-    public class ListViewOptions : NotifyObject
+    /// <summary>
+    /// Информация о применяемых сортировках и группировках для списка
+    /// </summary>
+    public class ListViewGroupSortsInfo : NotifyObject
     {
         public event Action OnUpdated;
-
-        private ISorting sortSelected;
-        private IGrouping groupSelected;
+        public void Update()
+        {
+            OnUpdated?.Invoke();
+        }
 
         protected override bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
@@ -49,16 +51,21 @@ namespace WebArchiveViewer
             new Sorting(SortsEnum.None, "Нет", null, true)
         };
 
+        public IGrouping NoGrouping { get; private set; }
+        public ISorting NoSorting { get; private set; }
+
         public ISorting SortSelected
         {
             get => sortSelected;
             set => Set(ref sortSelected, value);
         }
+        private ISorting sortSelected;
         public IGrouping GroupSelected
         {
             get => groupSelected;
             set => Set(ref groupSelected, value);
         }
+        private IGrouping groupSelected;
 
         public IGrouping GetGroup(GroupsEnum type)
         {
@@ -69,85 +76,20 @@ namespace WebArchiveViewer
             return Sorts.First(s => s.Type == type);
         }
 
-        public ListViewOptions()
+        public ListViewGroupSortsInfo()
         {
             sortSelected = Sorts.ElementAt(Sorts.Count() - 1);
             groupSelected = Groups.Last();
-            SortCommand = new RelayCommand(OnSortCommandExecuted);
-            GroupCommand = new RelayCommand(OnGroupCommandExecuted);
+            NoGrouping = Groups.Last();
+            NoSorting = Sorts.Last();
+
             RemoveSortCommand = new RelayCommand(OnRemoveSortCommandExecuted);
         }
-        private void Update()
-        {
-            OnUpdated?.Invoke();
-        }
 
-        public ICommand SortCommand { get; private set; }
-        public ICommand GroupCommand { get; private set; }
         public ICommand RemoveSortCommand { get; private set; }
-
-        private void OnSortCommandExecuted(object obj)
-        {
-            if(!(obj is ListViewColumn columnInfo))
-            {
-                return;
-            }
-
-            var sort = columnInfo.Sorting;
-            if(sort == null)
-            {
-                return;
-            }
-
-            if(SortSelected == sort)
-            {
-                SortSelected.ToggleOrder();
-                Update();
-            }
-            else
-            {
-                SortSelected = sort;
-            }
-        }
-        private void OnGroupCommandExecuted(object obj)
-        {
-            if (!(obj is ListViewColumn columnInfo))
-            {
-                return;
-            }
-
-            var group = columnInfo.Grouping;
-            if (group == null)
-            {
-                return;
-            }
-
-            if (GroupSelected == group)
-            {
-                GroupSelected = Groups.Last();
-            }
-            else
-            {
-                GroupSelected = group;
-            }
-        }
         private void OnRemoveSortCommandExecuted(object obj)
         {
-            if (!(obj is ListViewColumn columnInfo))
-            {
-                return;
-            }
-
-            var sort = columnInfo.Sorting;
-            if (sort == null)
-            {
-                return;
-            }
-
-            if (SortSelected == sort)
-            {
-                SortSelected = Sorts.Last();
-            }
+            SortSelected = NoSorting;
         }
 
         public IEnumerable<ArchiveLink> SortLinks(IEnumerable<ArchiveLink> links)

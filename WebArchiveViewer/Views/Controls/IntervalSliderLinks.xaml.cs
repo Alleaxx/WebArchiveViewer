@@ -15,6 +15,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WebArchive.Data;
 
+using WebArchiveViewer.ViewModels;
+
 namespace WebArchiveViewer.Views.Controls
 {
     public partial class IntervalSliderLinks : UserControl

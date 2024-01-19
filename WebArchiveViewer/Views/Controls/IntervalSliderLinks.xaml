@@ -53,7 +53,7 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Border BorderThickness="0,0,0,1" BorderBrush="Gainsboro">
+                <Border BorderThickness="0,1,0,1" BorderBrush="Gainsboro">
 
                     <ItemsControl x:Name="items"
                               ItemsSource="{Binding ElementName=root, Path=Statistics.DayLinkStats}"

@@ -11,15 +11,16 @@
     
     xmlns:Lib="clr-namespace:WebArchive.Data;assembly=WebArchive.Data"
     xmlns:viewmodels="clr-namespace:WebArchiveViewer.ViewModels"
+    xmlns:windw="clr-namespace:WebArchiveViewer.Views.Windows"
     
     xmlns:htmload="clr-namespace:WebArchive.Data.HtmlLoading;assembly=WebArchive.Data"
     xmlns:linkload="clr-namespace:WebArchive.Data.Loaders;assembly=WebArchive.Data"
-    x:Class="WebArchiveViewer.MainWindow"
+    x:Class="WebArchiveViewer.Views.Windows.MainWindow"
         mc:Ignorable="d" Icon="../../Resources/Веб-архив.png"
         Title="Исследователь Веб-Архива" Height="800" Width="1280"
         Closed="Window_Closed">
     <Window.DataContext>
-        <local:MainWindowViewModel />
+        <viewmodels:MainWindowViewModel />
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
@@ -33,14 +34,38 @@
                 <MenuItem Header="Файл" Command="{Binding SnapshotLoader.LoadFromFileCommand}" />
             </MenuItem>
 
-            <MenuItem Header="Сохранить" Command="{Binding SnapshotView.SaveSnapFileCommand}" CommandParameter="AllDefaultPath" />
+            <MenuItem Header="Сохранить" Command="{Binding SnapshotView.SaveSnapshotFileCommand}">
+                <MenuItem.CommandParameter>
+                    <viewmodels:SavingConfiguration Mode="All">
+                        
+                    </viewmodels:SavingConfiguration>
+                </MenuItem.CommandParameter>
+            </MenuItem>
             <MenuItem Header="Сохранить как">
-                <MenuItem Header="Все ссылки" Command="{Binding SnapshotView.SaveSnapFileCommand}" CommandParameter="All" />
-                <MenuItem Header="Все ссылки по условию" Command="{Binding SnapshotView.SaveSnapFileCommand}" CommandParameter="AllFiltered"/>
-                <MenuItem Header="Все ссылки кроме по условию" Command="{Binding SnapshotView.SaveSnapFileCommand}" CommandParameter="AllNotFiltered"/>
+                <MenuItem Header="Все ссылки" Command="{Binding SnapshotView.SaveSnapshotFileCommand}">
+                    <MenuItem.CommandParameter>
+                        <viewmodels:SavingConfiguration Mode="All">
+
+                        </viewmodels:SavingConfiguration>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
+                <MenuItem Header="Все ссылки по условию" Command="{Binding SnapshotView.SaveSnapshotFileCommand}">
+                    <MenuItem.CommandParameter>
+                        <viewmodels:SavingConfiguration Mode="AllFiltered">
+
+                        </viewmodels:SavingConfiguration>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
+                <MenuItem Header="Все ссылки кроме по условию" Command="{Binding SnapshotView.SaveSnapshotFileCommand}">
+                    <MenuItem.CommandParameter>
+                        <viewmodels:SavingConfiguration Mode="AllNotFiltered">
+
+                        </viewmodels:SavingConfiguration>
+                    </MenuItem.CommandParameter>
+                </MenuItem>
             </MenuItem>
 
-            <MenuItem Header="Закрыть" Command="{Binding CloseSnapCommand}" />
+            <MenuItem Header="Закрыть" Command="{Binding CloseSnapshotCommand}" />
             <Separator />
             <MenuItem Header="О программе" Click="AboutMenuItem_Click"/>
 
@@ -48,8 +73,6 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5*" />
-                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="20*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -58,345 +81,460 @@
             </Grid.RowDefinitions>
 
             <!--Настройка-->
-            <Border Grid.RowSpan="4">
+            <!--<Border Grid.RowSpan="4">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
-
-                    <Border Grid.Row="0" BorderBrush="Gainsboro" BorderThickness="0,1" Padding="15,5" DataContext="{Binding SnapshotView.ViewOptions}">
-                        <StackPanel>
-                            <DockPanel>
-                                <TextBlock Text="Отображаемые столбцы:" Margin="-15,0" Style="{DynamicResource Header}" />
-                            </DockPanel>
-                            <ItemsControl ItemsSource="{Binding ShowColumns.Columns}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <CheckBox IsChecked="{Binding Shown}" Margin="15,2">
-                                            <DockPanel>
-                                                <TextBlock Text="{Binding Order,StringFormat=\{0\})}" Margin="2,0" FontSize="12" />
-                                                <TextBlock Text="{Binding Name}" FontSize="12" />
-                                            </DockPanel>
-                                        </CheckBox>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-
-                    <StackPanel Grid.Row="1" Margin="15,5">
-                        <DockPanel>
-                            <TextBlock Text="Категории:"  Style="{DynamicResource Header}" />
-                            <DockPanel HorizontalAlignment="Right">
-                                <Button Command="{Binding SnapshotView.RulesView.OpenRulesWindowCommand}" ToolTip="Показать правила построения категорий" Content="[ ? ]" Margin="4,0" Padding="1,0" BorderThickness="0"  />
-                                <Button Command="{Binding SnapshotView.ViewOptions.ToggleCategoriesCommand}" ToolTip="Переключить видимость всех категорий" Content="[ ~ ]" Margin="1,0" Padding="1,0" BorderThickness="0"  />
-                            </DockPanel>
-                        </DockPanel>
-                    </StackPanel>
-
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0,5">
-                        <TreeView ItemsSource="{Binding SnapshotView.ViewOptions.Categories}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
-                            <TreeView.ItemTemplate>
-                                <HierarchicalDataTemplate ItemsSource="{Binding InnerCates}">
-                                    <ToggleButton x:Name="btn" IsChecked="{Binding Enabled}"  Click="ToggleButton_Click" Padding="15,0" HorizontalContentAlignment="Stretch" Margin="1" BorderThickness="0,0,0,1">
-                                        <DockPanel Margin="0,1">
-                                            <TextBlock Text="{Binding Name}" FontSize="12"/>
-                                            <DockPanel HorizontalAlignment="Right">
-                                                <TextBlock Text="{Binding ItemsAmount}" FontSize="10"/>
-                                                <TextBlock Text="/" Margin="3,0" FontSize="10"/>
-                                                <TextBlock Text="{Binding ItemsTotal}" FontSize="10"/>
-                                            </DockPanel>
-                                        </DockPanel>
-                                    </ToggleButton>
-                                </HierarchicalDataTemplate>
-                            </TreeView.ItemTemplate>
-                        </TreeView>
-                    </ScrollViewer>
-
                 </Grid>
             </Border>
 
-            <GridSplitter Grid.Column="1" Grid.RowSpan="4" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center" />
+            <GridSplitter Grid.Column="1" Grid.RowSpan="4" Width="2" VerticalAlignment="Stretch" HorizontalAlignment="Center" />-->
 
             <!--Заголовок-->
-            <Border Grid.Row="0" Grid.Column="2" BorderThickness="0,0,0,1" BorderBrush="Gainsboro">
+            <Border Grid.Row="0" Grid.Column="2" BorderThickness="0,0,0,1" BorderBrush="Gainsboro" Visibility="Collapsed">
                 <Grid Margin="10,3">
                     <DockPanel Margin="0">
                         <TextBlock Grid.Row="0"
-                                   Text="{Binding SnapshotView.CurrentSnapshot.SourceURI,TargetNullValue=Ссылки не загружены,FallbackValue=Ссылки не загружены}"
+                                   Text="{Binding SnapshotView.SnapshotModel.SourceURI,TargetNullValue=Ссылки не загружены,FallbackValue=Ссылки не загружены}"
                                    FontSize="24" Margin="0,0,10,0"/>
 
                         <DockPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                            <TextBlock FontSize="18" Text="{Binding SnapshotView.ViewOptions.LinksFilteredAmount}" VerticalAlignment="Center" Margin="5,0" />
+                            <TextBlock FontSize="18" Text="{Binding SnapshotView.ListViewInfo.LinksFilteredAmount}" VerticalAlignment="Center" Margin="5,0" />
                             <TextBlock FontSize="18" Text="/" VerticalAlignment="Center" Margin="5,0"/>
-                            <TextBlock FontSize="18" Text="{Binding SnapshotView.CurrentSnapshot.Links.Length}" VerticalAlignment="Center" Margin="5,0" />
+                            <TextBlock FontSize="18" Text="{Binding SnapshotView.SnapshotModel.Links.Length}" VerticalAlignment="Center" Margin="5,0" />
                         </DockPanel>
                     </DockPanel>
                 </Grid>
             </Border>
 
             <!--Список-->
-            <Border Grid.Row="1" Grid.Column="2" Margin="0,5">
-                <TabControl BorderThickness="0,1,0,0">
+            <Border Grid.Row="1" Grid.Column="2" Margin="0,2">
+                <TabControl Name="TabControlMain" SelectedIndex="{Binding SelectedMenuIndex}" BorderThickness="0,1,0,0">
                     <TabItem DataContext="{Binding SnapshotLoader}">
                         <TabItem.Header>
-                            <TextBlock Text="Получение снапшота" FontSize="16" />
+                            <TextBlock Text="Источник" FontSize="16" />
                         </TabItem.Header>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
+                                <ColumnDefinition Width="6*" />
+                                <ColumnDefinition Width="5*" />
                             </Grid.ColumnDefinitions>
                             <ScrollViewer Grid.Column="0" x:Name="elem" VerticalScrollBarVisibility="Auto">
-                                <TabControl>
-                                    <TabItem>
-                                        <TabItem.Header>
-                                            <TextBlock Text="Запрос к веб-архиву" />
-                                        </TabItem.Header>
-                                        <StackPanel Margin="5,0">
+                                <Border BorderThickness="0,0,1,0" BorderBrush="Gainsboro">
+                                    <StackPanel>
+                                        <StackPanel>
+                                            <Border BorderThickness="0,0,0,1" BorderBrush="Gainsboro" Padding="4,0">
+                                                <TextBlock FontSize="16" Text="Загрузить из файла" FontWeight="Medium" />
+                                            </Border>
                                             <StackPanel>
+                                                <Button Content="Выбрать файл" Command="{Binding Path=LoadFromFileCommand}" Margin="5" Padding="2" Style="{StaticResource ActionButton}" VerticalAlignment="Top" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <StackPanel>
+                                            <Border BorderThickness="0,0,0,1" BorderBrush="Gainsboro" Padding="4,0">
+                                                <TextBlock FontSize="16" Text="Запрос к веб-архиву" FontWeight="Medium" />
+                                            </Border>
+
+                                            <StackPanel Margin="5,0">
                                                 <StackPanel>
-                                                    <DockPanel Style="{StaticResource Property}">
-                                                        <TextBlock Text="Ссылка:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
-                                                        <TextBox Text="{Binding RequestBuilder.Site.Value}" TextWrapping="Wrap" VerticalAlignment="Center" />
-                                                    </DockPanel>
-                                                    <DockPanel Style="{StaticResource Property}">
-                                                        <TextBlock Text="Поиск:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
-                                                        <ComboBox ItemsSource="{Binding RequestBuilder.MatchType.Types}" SelectedItem="{Binding RequestBuilder.MatchType.Selected}" VerticalAlignment="Center">
-                                                            <ComboBox.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <StackPanel>
-                                                                        <TextBlock Text="{Binding Name}" ToolTip="{Binding Description}" />
-                                                                        <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray"/>
-                                                                    </StackPanel>
-                                                                </DataTemplate>
-                                                            </ComboBox.ItemTemplate>
-                                                        </ComboBox>
-                                                    </DockPanel>
-                                                    <DockPanel Style="{StaticResource Property}">
-                                                        <TextBlock Text="Вывод:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
-                                                        <ComboBox ItemsSource="{Binding RequestBuilder.Output.Types}" SelectedItem="{Binding RequestBuilder.Output.Selected}" VerticalAlignment="Center" IsEnabled="False" >
-                                                            <ComboBox.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <StackPanel>
-                                                                        <TextBlock Text="{Binding Name}" ToolTip="{Binding Description}" />
-                                                                        <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray"/>
-                                                                    </StackPanel>
-                                                                </DataTemplate>
-                                                            </ComboBox.ItemTemplate>
-                                                        </ComboBox>
-                                                    </DockPanel>
-                                                    <DockPanel Style="{StaticResource Property}">
-                                                        <TextBlock Text="Лимит:" Style="{StaticResource PropertyName}" />
-                                                        <StackPanel Style="{StaticResource PropertiesPanel}">
+                                                    <StackPanel>
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="Ссылка:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
+                                                            <TextBox Text="{Binding RequestBuilder.Site.Value}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                                        </DockPanel>
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="Поиск:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
+                                                            <ComboBox ItemsSource="{Binding RequestBuilder.MatchType.Types}" SelectedItem="{Binding RequestBuilder.MatchType.Selected}" VerticalAlignment="Center">
+                                                                <ComboBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel>
+                                                                            <TextBlock Text="{Binding Name}" ToolTip="{Binding Description}" />
+                                                                            <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray"/>
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ComboBox.ItemTemplate>
+                                                            </ComboBox>
+                                                        </DockPanel>
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="Вывод:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
+                                                            <ComboBox ItemsSource="{Binding RequestBuilder.Output.Types}" SelectedItem="{Binding RequestBuilder.Output.Selected}" VerticalAlignment="Center" IsEnabled="False" >
+                                                                <ComboBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel>
+                                                                            <TextBlock Text="{Binding Name}" ToolTip="{Binding Description}" />
+                                                                            <TextBlock Text="{Binding Description}" FontSize="11" Foreground="Gray"/>
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ComboBox.ItemTemplate>
+                                                            </ComboBox>
+                                                        </DockPanel>
 
-                                                            <TextBlock>
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="Text" Value="{Binding RequestBuilder.Limit.Amount}" />
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding RequestBuilder.Limit.Amount}" Value="-1">
-                                                                                <Setter Property="Text" Value="Без ограничений" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="Лимит:" Style="{StaticResource PropertyName}" />
+                                                            <StackPanel Style="{StaticResource PropertiesPanel}">
 
-                                                            <Slider Minimum="{Binding RequestBuilder.Limit.Min}"
+                                                                <TextBlock>
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Text" Value="{Binding RequestBuilder.Limit.Amount}" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding RequestBuilder.Limit.Amount}" Value="-1">
+                                                                                    <Setter Property="Text" Value="Без ограничений" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+
+                                                                <Slider Minimum="{Binding RequestBuilder.Limit.Min}"
                                                                     Maximum="{Binding RequestBuilder.Limit.Max}"
                                                                     Value="{Binding RequestBuilder.Limit.Amount}" />
 
-                                                            <!--ВАРИАНТ 3-->
-                                                            <TextBlock Text="Внимание! Без лимита загрузка всех данных может занять много времени"
+                                                                <!--ВАРИАНТ 3-->
+                                                                <TextBlock Text="Внимание! Без лимита загрузка всех данных может занять много времени"
                                                                        Foreground="Red" FontSize="11">
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding RequestBuilder.Limit.Amount}" Value="-1">
-                                                                                <Setter Property="Visibility" Value="Visible" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding RequestBuilder.Limit.Amount}" Value="-1">
+                                                                                    <Setter Property="Visibility" Value="Visible" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
 
-                                                        </StackPanel>
-                                                    </DockPanel>
+                                                            </StackPanel>
+                                                        </DockPanel>
 
-                                                    <DockPanel Style="{StaticResource Property}">
-                                                        <StackPanel VerticalAlignment="Top">
-                                                            <TextBlock Text="Даты:" Style="{StaticResource PropertyName}" />
-                                                        </StackPanel>
-                                                        <StackPanel>
-                                                            <WrapPanel Margin="0,5">
-                                                                <RadioButton GroupName="dates" IsChecked="{Binding RequestBuilder.Dates.Enabled}" >
-                                                                    <TextBlock Text="c ограничениями" />
-                                                                </RadioButton>
-                                                                <RadioButton GroupName="dates" Margin="5,0">
-                                                                    <TextBlock Text="без ограничений" />
-                                                                </RadioButton>
-                                                            </WrapPanel>
+                                                        <DockPanel Style="{StaticResource Property}" Visibility="Collapsed">
+                                                            <StackPanel VerticalAlignment="Top">
+                                                                <TextBlock Text="Даты:" Style="{StaticResource PropertyName}" />
+                                                            </StackPanel>
                                                             <StackPanel>
-                                                                <DockPanel>
-                                                                    <TextBlock>
+                                                                <WrapPanel Margin="0,5">
+                                                                    <RadioButton GroupName="dates" IsChecked="{Binding RequestBuilder.Dates.Enabled}" >
+                                                                        <TextBlock Text="c ограничениями" />
+                                                                    </RadioButton>
+                                                                    <RadioButton GroupName="dates" Margin="5,0">
+                                                                        <TextBlock Text="без ограничений" />
+                                                                    </RadioButton>
+                                                                </WrapPanel>
+                                                                <StackPanel>
+                                                                    <DockPanel>
+                                                                        <TextBlock>
                                                                         <Run Text="С" />
                                                                         <Run Text="{Binding RequestBuilder.Dates.Range.From, Mode=OneWay, Converter={StaticResource DateConverter}, ConverterParameter=dd MMMM yyyy}" />
-                                                                    </TextBlock>
-                                                                    <DatePicker SelectedDate="{Binding RequestBuilder.Dates.Range.From}" />
-                                                                    <DockPanel HorizontalAlignment="Right">
-                                                                        <TextBlock>
+                                                                        </TextBlock>
+                                                                        <DatePicker SelectedDate="{Binding RequestBuilder.Dates.Range.From}" />
+                                                                        <DockPanel HorizontalAlignment="Right">
+                                                                            <TextBlock>
                                                                             <Run Text="по" />
                                                                             <Run Text="{Binding RequestBuilder.Dates.Range.To, Mode=OneWay, Converter={StaticResource DateConverter}, ConverterParameter=dd MMMM yyyy}" />
-                                                                        </TextBlock>
-                                                                        <DatePicker SelectedDate="{Binding RequestBuilder.Dates.Range.To}" />
+                                                                            </TextBlock>
+                                                                            <DatePicker SelectedDate="{Binding RequestBuilder.Dates.Range.To}" />
+                                                                        </DockPanel>
                                                                     </DockPanel>
+                                                                    <local:IntervalSlider Minimum="0"
+                                                                                      Maximum="{Binding RequestBuilder.Dates.Range.Difference}"
+                                                                                      LowerValue="{Binding RequestBuilder.Dates.Range.DifferenceFrom, Mode=TwoWay}"
+                                                                                      UpperValue="{Binding RequestBuilder.Dates.Range.DifferenceTo, Mode=TwoWay}"/>
+                                                                    <StackPanel.Style>
+                                                                        <Style TargetType="StackPanel" BasedOn="{StaticResource PropertiesPanel}">
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding RequestBuilder.Dates.Enabled}" Value="false">
+                                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </StackPanel.Style>
+                                                                </StackPanel>
+                                                            </StackPanel>
+                                                        </DockPanel>
+
+
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="С даты:" Style="{StaticResource PropertyName}" />
+                                                            <StackPanel Style="{StaticResource PropertiesPanel}">
+
+                                                                <DockPanel>
+                                                                    <TextBlock VerticalAlignment="Center">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Setter Property="Text" Value="{Binding RequestBuilder.Dates.Range.From, Converter={StaticResource DateConverter}}" />
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding ElementName=SliderFromDate, Path=Value}" Value="-1">
+                                                                                        <Setter Property="Text" Value="Без ограничений" />
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                    <DatePicker SelectedDate="{Binding RequestBuilder.Dates.Range.From}" VerticalAlignment="Bottom" HorizontalAlignment="Right" />
                                                                 </DockPanel>
-                                                                <local:IntervalSlider Minimum="0" Maximum="{Binding RequestBuilder.Dates.Range.Difference}" LowerValue="{Binding RequestBuilder.Dates.Range.DifferenceFrom, Mode=TwoWay}" UpperValue="{Binding RequestBuilder.Dates.Range.DifferenceTo, Mode=TwoWay}"/>
-                                                                <StackPanel.Style>
-                                                                    <Style TargetType="StackPanel" BasedOn="{StaticResource PropertiesPanel}">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding RequestBuilder.Dates.Enabled}" Value="false">
-                                                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </StackPanel.Style>
+
+                                                                <Slider Minimum="-1" x:Name="SliderFromDate"
+                                                                    Maximum="{Binding RequestBuilder.Dates.Range.Difference}"
+                                                                    Value="{Binding RequestBuilder.Dates.Range.DifferenceFrom,Mode=TwoWay}" />
+
                                                             </StackPanel>
-                                                        </StackPanel>
-                                                    </DockPanel>
+                                                        </DockPanel>
 
 
-                                                    <DockPanel Style="{StaticResource Property}">
-                                                        <TextBlock Text="MIME-типы:" Style="{StaticResource PropertyName}" />
-                                                        <StackPanel>
-                                                            <StackPanel Visibility="Collapsed">
-                                                                <TextBox Text="{Binding RequestBuilder.Types.FiltersString}" TextWrapping="Wrap" VerticalAlignment="Center" />
-                                                                <TextBlock Text="например: 200; 300; !404 " HorizontalAlignment="Right" Foreground="Gray" FontSize="11" />
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="По дату:" Style="{StaticResource PropertyName}" />
+                                                            <StackPanel Style="{StaticResource PropertiesPanel}">
+
+                                                                <DockPanel>
+                                                                    <TextBlock VerticalAlignment="Center">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock">
+                                                                                <Setter Property="Text" Value="{Binding RequestBuilder.Dates.Range.To, Converter={StaticResource DateConverter}}" />
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding ElementName=SliderToDate, Path=Value}">
+                                                                                        <Setter Property="Text" Value="Без ограничений" />
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+
+
+                                                                    <DatePicker SelectedDate="{Binding RequestBuilder.Dates.Range.To}" HorizontalAlignment="Right" />
+                                                                </DockPanel>
+
+                                                                <Slider Minimum="-1" x:Name="SliderToDate"
+                                                                    Maximum="{Binding RequestBuilder.Dates.Range.Difference}"
+                                                                    Value="{Binding RequestBuilder.Dates.Range.DifferenceTo,Mode=TwoWay}" />
+
                                                             </StackPanel>
-                                                            <StackPanel DataContext="{Binding RequestFilters}">
-                                                                <ItemsControl x:Name="TypeItems" ItemsSource="{Binding TypesList.List}" Margin="0,5">
-                                                                    <ItemsControl.ItemTemplate>
-                                                                        <DataTemplate>
-                                                                            <ToggleButton IsChecked="{Binding Enabled}" Margin="3,0">
-                                                                                <TextBlock Text="{Binding Content}" Padding="15,0,8,0" Margin="1,0" />
-                                                                                <ToggleButton.InputBindings>
-                                                                                    <MouseBinding MouseAction="RightClick"
+                                                        </DockPanel>
+
+                                                        <DockPanel Style="{StaticResource Property}" Visibility="Collapsed">
+                                                            <TextBlock Text="MIME-типы:" Style="{StaticResource PropertyName}" />
+                                                            <StackPanel>
+                                                                <StackPanel Visibility="Collapsed">
+                                                                    <TextBox Text="{Binding RequestBuilder.Types.FiltersString}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                                                    <TextBlock Text="например: 200; 300; !404 " HorizontalAlignment="Right" Foreground="Gray" FontSize="11" />
+                                                                </StackPanel>
+                                                                <StackPanel DataContext="{Binding RequestFilters}">
+                                                                    <ItemsControl x:Name="TypeItems" ItemsSource="{Binding TypesList.List}" Margin="0,5">
+                                                                        <ItemsControl.ItemTemplate>
+                                                                            <DataTemplate>
+                                                                                <ToggleButton IsChecked="{Binding Enabled}" Margin="3,0">
+                                                                                    <TextBlock Text="{Binding Content}" Padding="15,0,8,0" Margin="1,0" />
+                                                                                    <ToggleButton.InputBindings>
+                                                                                        <MouseBinding MouseAction="RightClick"
                                                                                                   Command="{Binding ElementName=TypeItems, Path=DataContext.RemoveFilterCommand}"
                                                                                                   CommandParameter="{Binding}" />
-                                                                                </ToggleButton.InputBindings>
-                                                                            </ToggleButton>
-                                                                        </DataTemplate>
-                                                                    </ItemsControl.ItemTemplate>
-                                                                    <ItemsControl.ItemsPanel>
-                                                                        <ItemsPanelTemplate>
-                                                                            <WrapPanel />
-                                                                        </ItemsPanelTemplate>
-                                                                    </ItemsControl.ItemsPanel>
-                                                                </ItemsControl>
-                                                                <UniformGrid Columns="2" Margin="8,4" HorizontalAlignment="Right"
+                                                                                    </ToggleButton.InputBindings>
+                                                                                </ToggleButton>
+                                                                            </DataTemplate>
+                                                                        </ItemsControl.ItemTemplate>
+                                                                        <ItemsControl.ItemsPanel>
+                                                                            <ItemsPanelTemplate>
+                                                                                <WrapPanel />
+                                                                            </ItemsPanelTemplate>
+                                                                        </ItemsControl.ItemsPanel>
+                                                                    </ItemsControl>
+                                                                    <UniformGrid Columns="2" Margin="8,4" HorizontalAlignment="Right"
                                                                              Visibility="{Binding Path=TypesSourceIsNotEmpty,Converter={StaticResource BooleanVisibility}}">
-                                                                    <ComboBox SelectedItem="{Binding SelectedType}" ItemsSource="{Binding TypesSources}"/>
-                                                                    <Button Content="добавить"
+                                                                        <ComboBox SelectedItem="{Binding SelectedType}" ItemsSource="{Binding TypesSources}"/>
+                                                                        <Button Content="добавить"
                                                                             Command="{Binding Path=AddFilterTypeCommand}"
                                                                             Style="{StaticResource ActionButton}" Margin="2,0">
-                                                                        <Button.CommandParameter>
-                                                                            <System:Boolean>true</System:Boolean>
-                                                                        </Button.CommandParameter>
-                                                                    </Button>
-                                                                </UniformGrid>
+                                                                            <Button.CommandParameter>
+                                                                                <System:Boolean>true</System:Boolean>
+                                                                            </Button.CommandParameter>
+                                                                        </Button>
+                                                                    </UniformGrid>
+                                                                </StackPanel>
                                                             </StackPanel>
-                                                        </StackPanel>
-                                                    </DockPanel>
-                                                    
-                                                    <DockPanel Style="{StaticResource Property}">
-                                                        <TextBlock Text="Коды ответа:" Style="{StaticResource PropertyName}" />
-                                                        <StackPanel>
-                                                            <StackPanel Visibility="Collapsed">
-                                                                <TextBox Text="{Binding RequestBuilder.Codes.FiltersString}" TextWrapping="Wrap" VerticalAlignment="Center" />
-                                                                <TextBlock Text="например: text/html" HorizontalAlignment="Right" Foreground="Gray" FontSize="11" />
-                                                            </StackPanel>
-                                                            <StackPanel DataContext="{Binding RequestFilters}" Margin="0,5">
-                                                                <ItemsControl x:Name="CodeItems" ItemsSource="{Binding CodesList.List}">
-                                                                    <ItemsControl.ItemTemplate>
-                                                                        <DataTemplate>
-                                                                            <ToggleButton IsChecked="{Binding Enabled}" Margin="3,0">
-                                                                                <TextBlock Text="{Binding Content}" Padding="15,0,8,0" Margin="1,0" />
-                                                                                <ToggleButton.InputBindings>
-                                                                                    <MouseBinding MouseAction="RightClick"
-                                                                                                  Command="{Binding ElementName=CodeItems, Path=DataContext.RemoveFilterCommand}"
+                                                        </DockPanel>
+
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="MIME-типы:" Style="{StaticResource PropertyName}" />
+                                                            <StackPanel DataContext="{Binding RequestFilters.TypesView}">
+                                                                <TabControl ItemContainerStyle="{StaticResource TabItemTest}" SelectedIndex="{Binding Mode}" BorderBrush="Gainsboro" Padding="4">
+                                                                    <TabItem>
+                                                                        <TabItem.Header>
+                                                                            <TextBlock Text="Без ограничений" FontSize="12" />
+                                                                        </TabItem.Header>
+                                                                        <TextBlock Text="Будут возвращены все ссылки" FontSize="12" Foreground="Gray" Margin="0,2" />
+                                                                    </TabItem>
+                                                                    <TabItem>
+                                                                        <TabItem.Header>
+                                                                            <TextBlock Text="Ограничить одним типом" FontSize="12" />
+                                                                        </TabItem.Header>
+                                                                        <StackPanel>
+                                                                            <UniformGrid Rows="1">
+                                                                                <TextBlock Text="Выбранный тип" />
+                                                                                <ComboBox SelectedItem="{Binding Selected}"
+                                                                                      ItemsSource="{Binding ListModel.Source}"/>
+                                                                            </UniformGrid>
+                                                                            <TextBlock Text="Будут возвращены ссылки, имеющие только указанный тип контента" FontSize="12" Foreground="Gray" Margin="0,2" />
+                                                                        </StackPanel>
+                                                                    </TabItem>
+                                                                    <TabItem>
+                                                                        <TabItem.Header>
+                                                                            <TextBlock Text="Исключить несколько" FontSize="12" />
+                                                                        </TabItem.Header>
+                                                                        <StackPanel>
+                                                                            <UniformGrid Columns="3" VerticalAlignment="Top"
+                                                                             Visibility="{Binding Path=SourceIsNotEmpty,Converter={StaticResource BooleanVisibility}}">
+                                                                                <TextBlock Text="Добавить исключение" />
+                                                                                <ComboBox SelectedItem="{Binding SelectedExclude}" ItemsSource="{Binding SourcesForExcluded}"/>
+                                                                                <Button Content="выбрать"
+                                                                                    Command="{Binding Path=AddExcludeFilterCommand}"
+                                                                                    Style="{StaticResource ActionButton}"
+                                                                                    Margin="2,0" />
+                                                                            </UniformGrid>
+                                                                            <TextBlock Text="Будут возвращены ссылки без указанных типов контента" FontSize="12" Foreground="Gray" Margin="0,2" />
+                                                                            <ItemsControl ItemsSource="{Binding ListModel.List}" Margin="0,4">
+                                                                                <ItemsControl.ItemTemplate>
+                                                                                    <DataTemplate>
+                                                                                        <Button Margin="3,2" BorderBrush="WhiteSmoke" HorizontalAlignment="Left"
+                                                                                            ToolTip="ПКМ чтобы исключить"
+                                                                                            Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.RemoveExcludeFilterCommand}"
+                                                                                            CommandParameter="{Binding}">
+                                                                                            <DockPanel>
+                                                                                                <Rectangle Fill="Red" Height="5" Width="5" />
+                                                                                                <TextBlock Text="{Binding Content}" Padding="8,0" Margin="1,0" />
+                                                                                            </DockPanel>
+                                                                                            <Button.InputBindings>
+                                                                                                <MouseBinding MouseAction="RightClick"
+                                                                                                  Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.RemoveExcludeFilterCommand}"
                                                                                                   CommandParameter="{Binding}" />
-                                                                                </ToggleButton.InputBindings>
-                                                                            </ToggleButton>
-                                                                        </DataTemplate>
-                                                                    </ItemsControl.ItemTemplate>
-                                                                    <ItemsControl.ItemsPanel>
-                                                                        <ItemsPanelTemplate>
-                                                                            <WrapPanel />
-                                                                        </ItemsPanelTemplate>
-                                                                    </ItemsControl.ItemsPanel>
-                                                                </ItemsControl>
-                                                                <UniformGrid Columns="2" Margin="8,4" HorizontalAlignment="Right"
-                                                                             Visibility="{Binding Path=CodesSourceIsNotEmpty,Converter={StaticResource BooleanVisibility}}">
-                                                                    <ComboBox SelectedItem="{Binding SelectedCode}" ItemsSource="{Binding CodesSources}"/>
-                                                                    <Button Content="добавить"
-                                                                            Command="{Binding Path=AddFilterCodeCommand}"
-                                                                            Style="{StaticResource ActionButton}" Margin="2,0">
-                                                                        <Button.CommandParameter>
-                                                                            <System:Boolean>true</System:Boolean>
-                                                                        </Button.CommandParameter>
-                                                                    </Button>
-                                                                </UniformGrid>
+                                                                                            </Button.InputBindings>
+                                                                                        </Button>
+                                                                                    </DataTemplate>
+                                                                                </ItemsControl.ItemTemplate>
+                                                                                <ItemsControl.ItemsPanel>
+                                                                                    <ItemsPanelTemplate>
+                                                                                        <WrapPanel />
+                                                                                    </ItemsPanelTemplate>
+                                                                                </ItemsControl.ItemsPanel>
+                                                                            </ItemsControl>
+                                                                        </StackPanel>
+                                                                    </TabItem>
+                                                                </TabControl>
+
                                                             </StackPanel>
+                                                        </DockPanel>
 
-                                                        </StackPanel>
-                                                    </DockPanel>
-                                                </StackPanel>
-                                                <StackPanel Margin="0,5">
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="Коды ответа:" Style="{StaticResource PropertyName}" />
+                                                            <StackPanel DataContext="{Binding RequestFilters.CodesView}">
+                                                                <TabControl ItemContainerStyle="{StaticResource TabItemTest}" SelectedIndex="{Binding Mode}" BorderBrush="Gainsboro" Padding="4">
+                                                                    <TabItem>
+                                                                        <TabItem.Header>
+                                                                            <TextBlock Text="Без ограничений" FontSize="12" />
+                                                                        </TabItem.Header>
+                                                                        <TextBlock Text="Будут возвращены все ссылки" FontSize="12" Foreground="Gray" Margin="0,2" />
+                                                                    </TabItem>
+                                                                    <TabItem>
+                                                                        <TabItem.Header>
+                                                                            <TextBlock Text="Ограничить одним кодом" FontSize="12" />
+                                                                        </TabItem.Header>
+                                                                        <StackPanel>
+                                                                            <UniformGrid Rows="1">
+                                                                                <TextBlock Text="Выбранный код" />
+                                                                                <ComboBox SelectedItem="{Binding Selected}"
+                                                                                      ItemsSource="{Binding ListModel.Source}"/>
+                                                                            </UniformGrid>
+                                                                            <TextBlock Text="Будут возвращены ссылки, имеющие только указанный статус-код" FontSize="12" Foreground="Gray" Margin="0,2" />
+                                                                        </StackPanel>
+                                                                    </TabItem>
+                                                                    <TabItem>
+                                                                        <TabItem.Header>
+                                                                            <TextBlock Text="Исключить несколько" FontSize="12" />
+                                                                        </TabItem.Header>
+                                                                        <StackPanel>
+                                                                            <UniformGrid Columns="3" VerticalAlignment="Top"
+                                                                             Visibility="{Binding Path=SourceIsNotEmpty,Converter={StaticResource BooleanVisibility}}">
+                                                                                <TextBlock Text="Добавить исключение" />
+                                                                                <ComboBox SelectedItem="{Binding SelectedExclude}" ItemsSource="{Binding SourcesForExcluded}"/>
+                                                                                <Button Content="выбрать"
+                                                                                    Command="{Binding Path=AddExcludeFilterCommand}"
+                                                                                    Style="{StaticResource ActionButton}"
+                                                                                    Margin="2,0" />
+                                                                            </UniformGrid>
+                                                                            <TextBlock Text="Будут возвращены ссылки без указанных статус-кодов" FontSize="12" Foreground="Gray" Margin="0,2" />
+                                                                            <ItemsControl ItemsSource="{Binding ListModel.List}" Margin="0,4">
+                                                                                <ItemsControl.ItemTemplate>
+                                                                                    <DataTemplate>
+                                                                                        <Button Margin="3,2" BorderBrush="WhiteSmoke" HorizontalAlignment="Left"
+                                                                                            ToolTip="ПКМ чтобы исключить"
+                                                                                            Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.RemoveExcludeFilterCommand}"
+                                                                                            CommandParameter="{Binding}">
+                                                                                            <DockPanel>
+                                                                                                <Rectangle Fill="Red" Height="5" Width="5" />
+                                                                                                <TextBlock Text="{Binding Content}" Padding="8,0" Margin="1,0" />
+                                                                                            </DockPanel>
+                                                                                            <Button.InputBindings>
+                                                                                                <MouseBinding MouseAction="RightClick"
+                                                                                                  Command="{Binding RelativeSource={RelativeSource AncestorType=ItemsControl}, Path=DataContext.RemoveExcludeFilterCommand}"
+                                                                                                  CommandParameter="{Binding}" />
+                                                                                            </Button.InputBindings>
+                                                                                        </Button>
+                                                                                    </DataTemplate>
+                                                                                </ItemsControl.ItemTemplate>
+                                                                                <ItemsControl.ItemsPanel>
+                                                                                    <ItemsPanelTemplate>
+                                                                                        <WrapPanel />
+                                                                                    </ItemsPanelTemplate>
+                                                                                </ItemsControl.ItemsPanel>
+                                                                            </ItemsControl>
+                                                                        </StackPanel>
+                                                                    </TabItem>
+                                                                </TabControl>
 
-                                                    <DockPanel Style="{StaticResource Property}">
-                                                        <TextBlock Text="Запрос:" Style="{StaticResource PropertyName}" />
-                                                        <StackPanel>
-                                                            <TextBox Text="{Binding RequestString, Mode=OneWay}" IsReadOnly="True"
+                                                            </StackPanel>
+                                                        </DockPanel>
+                                                    </StackPanel>
+                                                    <StackPanel Margin="0,5">
+
+                                                        <DockPanel Style="{StaticResource Property}">
+                                                            <TextBlock Text="Запрос:" Style="{StaticResource PropertyName}" Visibility="Collapsed" />
+                                                            <StackPanel>
+                                                                <TextBox Text="{Binding RequestString, Mode=OneWay}" IsReadOnly="True"
                                                                      FontSize="9" Foreground="Gray"
                                                                      TextWrapping="Wrap" VerticalAlignment="Center" />
-                                                        </StackPanel>
-                                                    </DockPanel>
-                                                </StackPanel>
-                                                <StackPanel Margin="0,5">
-                                                    <UniformGrid>
-                                                        <Button Content="Скопировать запрос" ToolTip="{Binding RequestBuilder.Request}"
+                                                            </StackPanel>
+                                                        </DockPanel>
+                                                    </StackPanel>
+                                                    <StackPanel Margin="0,5">
+                                                        <UniformGrid>
+                                                            <Button Content="Сформировать и скопировать запрос" ToolTip="{Binding RequestBuilder.Request}"
                                     Command="{Binding CopyRequestCommand}" CommandParameter="{Binding RequestBuilder.Request}" 
                                     Margin="5,0">
-                                                            <Button.Style>
-                                                                <Style TargetType="Button" BasedOn="{StaticResource ActionButton}">
-                                                                </Style>
-                                                            </Button.Style>
-                                                        </Button>
-                                                        <Button Content="Отправить и загрузить" Command="{Binding LoadFromRequestBuilderCommand}"
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource ActionButton}">
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
+                                                            <Button Content="Отправить и загрузить" Command="{Binding LoadFromRequestBuilderCommand}"
                                     Style="{StaticResource ActionButton}" Margin="5,0" />
-                                                    </UniformGrid>
+                                                        </UniformGrid>
+                                                    </StackPanel>
                                                 </StackPanel>
                                             </StackPanel>
                                         </StackPanel>
-                                    </TabItem>
-                                    <TabItem>
-                                        <TabItem.Header>
-                                            <TextBlock Text="Загрузить из файла" />
-                                        </TabItem.Header>
-                                        <Button Content="Загрузить из файла" Command="{Binding Path=LoadFromFileCommand}" Style="{StaticResource ActionButton}" VerticalAlignment="Top" />
-                                    </TabItem>
-                                </TabControl>
-                            </ScrollViewer>
-                            <StackPanel x:Name="snapshot" Grid.Column="1" Margin="5" >
-                                
-                                <Border Style="{DynamicResource HeaderPanel}">
-                                    <TextBlock Text="Загрузка" FontSize="18" />
+                                    </StackPanel>
                                 </Border>
-                                
+                            </ScrollViewer>
+                            <GridSplitter HorizontalAlignment="Right" Width="3" Panel.ZIndex="100" />
+                            <StackPanel x:Name="snapshot" Grid.Column="1">
+
+                                <Border BorderThickness="0,0,0,1" BorderBrush="Gainsboro" Padding="4,0">
+                                    <TextBlock FontSize="16" Text="Процесс загрузки" FontWeight="Medium" />
+                                </Border>
+
                                 <StackPanel Margin="0,5">
                                     <ProgressBar Grid.Row="0" Grid.ColumnSpan="2" Value="{Binding Status.ReadyPercentage,Mode=OneWay}" Maximum="100" Margin="0,1" />
                                     <DockPanel Style="{StaticResource Property}">
@@ -447,8 +585,7 @@
                                                 <Border x:Name="border" Style="{StaticResource BorderCheck}">
                                                     <DockPanel>
                                                         <TextBlock Text="{Binding State.Date, Converter={StaticResource DateConverter},ConverterParameter=HH:mm:ss}" FontSize="11" Margin="4,0" />
-                                                        <TextBlock Text="{Binding State.Status}" FontSize="11" Margin="4,0" />
-                                                        <Rectangle x:Name="endRectangle" Fill="DarkOrange" Height="2" Width="10" VerticalAlignment="Center" Visibility="Collapsed" />
+                                                        <TextBlock x:Name="status" Text="{Binding State.Status}" FontSize="11" Margin="4,0" />
                                                         <Button x:Name="exceptionButton" Command="{StaticResource OpenExceptionCommand}" CommandParameter="{Binding State.Exception}" Style="{StaticResource ExceptionButton}" />
                                                     </DockPanel>
                                                 </Border>
@@ -458,7 +595,7 @@
                                                         <Setter TargetName="exceptionButton" Property="Visibility" Value="Visible" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding State.IsEnded}" Value="true">
-                                                        <Setter TargetName="endRectangle" Property="Visibility" Value="Visible" />
+                                                        <Setter TargetName="status" Property="Foreground" Value="Blue" />
                                                     </DataTrigger>
                                                 </DataTemplate.Triggers>
                                             </DataTemplate>
@@ -487,48 +624,53 @@
                                     </UniformGrid>
                                 </StackPanel>
 
-                                <StackPanel Visibility="{Binding MainModel.SnapshotView.CurrentSnapshot.IsNotEmpty,Converter={StaticResource BooleanVisibility}, FallbackValue=Collapsed}">
-                                    <Border Style="{DynamicResource HeaderPanel}">
-                                        <TextBlock Text="Полученный снапшот" FontSize="18" />
+                                <StackPanel Visibility="{Binding MainModel.SnapshotView.SnapshotModel.IsNotEmpty,Converter={StaticResource BooleanVisibility}, FallbackValue=Collapsed}">
+
+                                    <Border BorderThickness="0,0,0,1" BorderBrush="Gainsboro" Padding="4,0">
+                                        <TextBlock FontSize="16" Text="Полученный снапшот" FontWeight="Medium" />
                                     </Border>
+                                    <!--<Border Style="{DynamicResource HeaderPanel}">
+                                        <TextBlock Text="Полученный снапшот" FontSize="18" />
+                                    </Border>-->
 
                                     <DockPanel Style="{StaticResource Property}">
                                         <TextBlock Text="Адрес:" Style="{StaticResource PropertyName}" />
-                                        <TextBlock Text="{Binding MainModel.SnapshotView.CurrentSnapshot.SourceURI}" />
+                                        <TextBlock Text="{Binding MainModel.SnapshotView.SnapshotModel.SourceURI}" />
                                     </DockPanel>
                                     <DockPanel Style="{StaticResource Property}">
                                         <TextBlock Text="Ссылок:" Style="{StaticResource PropertyName}"/>
-                                        <TextBlock Text="{Binding MainModel.SnapshotView.CurrentSnapshot.Links.Length}"  />
+                                        <TextBlock Text="{Binding MainModel.SnapshotView.SnapshotModel.Links.Length}"  />
                                     </DockPanel>
 
                                     <DockPanel Style="{StaticResource Property}">
                                         <TextBlock Text="Получено в:" Style="{StaticResource PropertyName}"/>
-                                        <TextBlock Text="{Binding MainModel.SnapshotView.CurrentSnapshot.ReceivingDate,StringFormat=dd-MM-yyyy; HH:mm}" FontSize="12"/>
+                                        <TextBlock Text="{Binding MainModel.SnapshotView.SnapshotModel.ReceivingDate,StringFormat=dd-MM-yyyy; HH:mm}" FontSize="12"/>
                                     </DockPanel>
 
                                     <DockPanel Style="{StaticResource Property}">
                                         <TextBlock Text="Сохранение:" Style="{StaticResource PropertyName}"/>
-                                        <TextBlock Text="{Binding MainModel.SnapshotView.LastSaveDate,StringFormat=dd-MM-yyyy; HH:mm}" FontSize="12"/>
+                                        <TextBlock Text="{Binding MainModel.SnapshotView.LastSavingDate,StringFormat=dd-MM-yyyy; HH:mm}" FontSize="12"/>
                                     </DockPanel>
 
-                                    <Separator BorderThickness="0,0,0,1" BorderBrush="Gainsboro" />
-
+                                    <Border BorderThickness="0,0,0,1" BorderBrush="Gainsboro" Padding="4,0">
+                                        <TextBlock FontSize="16" Text="Пути сохранения" FontWeight="Medium" />
+                                    </Border>
 
                                     <DockPanel Style="{StaticResource Property}">
                                         <TextBlock Text="Файл снапшота:" Width="120" Style="{StaticResource PropertyName}"/>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding SnapshotView.File.FullName,TargetNullValue=Сохранения еще не происходило, FallbackValue=Сохранения еще не происходило}"
+                                            <TextBlock Text="{Binding SnapshotView.SavingFile.FullName,TargetNullValue=Сохранения еще не происходило, FallbackValue=Сохранения еще не происходило}"
                                                        Style="{StaticResource TextBlockLink}"
                                                        FontSize="10" Margin="0,5">
                                                 <TextBlock.InputBindings>
-                                                    <MouseBinding MouseAction="LeftClick" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding SnapshotView.File.FullName}" />
+                                                    <MouseBinding MouseAction="LeftClick" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding SnapshotView.SavingFile.FullName}" />
                                                 </TextBlock.InputBindings>
                                             </TextBlock>
                                             <UniformGrid>
-                                                <Button Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding MainModel.SnapshotView.File.Directory.FullName}"  Style="{StaticResource ActionButton}">
+                                                <Button Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding MainModel.SnapshotView.SavingFile.Directory.FullName}"  Style="{StaticResource ActionButton}">
                                                     <TextBlock Text="Открыть папку" FontSize="12"/>
                                                 </Button>
-                                                <Button Command="{Binding MainModel.SnapshotView.SaveSnapFileCommand}" CommandParameter="All" Style="{StaticResource ActionButton}" >
+                                                <Button Command="{Binding MainModel.SnapshotView.SaveSnapshotFileCommand}" CommandParameter="All" Style="{StaticResource ActionButton}" >
                                                     <TextBlock Text="Сохранить как" FontSize="12" />
                                                 </Button>
                                             </UniformGrid>
@@ -538,16 +680,16 @@
                                     <DockPanel Style="{StaticResource Property}">
                                         <TextBlock Text="Папка контента:" Width="120" Style="{StaticResource PropertyName}"/>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding SnapshotView.SavingFolderHtmlContent.FullName,TargetNullValue=Сохранения еще не происходило, FallbackValue=Сохранения еще не происходило}"
+                                            <TextBlock Text="{Binding SnapshotView.SavingHtmlFolder.FullName,TargetNullValue=Сохранения еще не происходило, FallbackValue=Сохранения еще не происходило}"
                                                        TextWrapping="Wrap" Style="{StaticResource TextBlockLink}"
                                                        FontSize="10" Margin="0,5">
                                                 <TextBlock.InputBindings>
-                                                    <MouseBinding MouseAction="LeftClick" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding SnapshotView.SavingFolderHtmlContent.FullName}" />
+                                                    <MouseBinding MouseAction="LeftClick" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding SnapshotView.SavingHtmlFolder.FullName}" />
                                                 </TextBlock.InputBindings>
                                             </TextBlock>
 
                                             <UniformGrid>
-                                                <Button Command="{Binding MainModel.SnapshotView.SelectSaveFolderCommand}" CommandParameter="{Binding MainModel.SnapshotView.CurrentSnapshot.FilePath}" Style="{StaticResource ActionButton}">
+                                                <Button Command="{Binding MainModel.SnapshotView.SelectSaveFolderCommand}" CommandParameter="{Binding MainModel.SnapshotView.SnapshotModel.FilePath}" Style="{StaticResource ActionButton}">
                                                     <TextBlock Text="Сменить папку" FontSize="12" />
                                                 </Button>
                                                 <Button Command="{Binding MainModel.SnapshotView.ClearProgressCommand}" Style="{StaticResource ActionButton}" >
@@ -563,9 +705,13 @@
                     </TabItem>
                     <TabItem Visibility="{Binding SnapshotIsNotEmpty, Converter={StaticResource BooleanVisibility}}">
                         <TabItem.Header>
-                            <TextBlock Text="Список ссылок" FontSize="16" />
+                            <TextBlock Text="Архивные ссылки" FontSize="16" />
                         </TabItem.Header>
                         <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="8*" />
+                            </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -573,7 +719,14 @@
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
 
-                            <Border Grid.Row="0" BorderThickness="0,1" BorderBrush="Gainsboro" Padding="0,6">
+                            <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" BorderBrush="Gainsboro" BorderThickness="0,0,0,0">
+                                <TextBlock FontSize="22" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Run Text="{Binding SnapshotView.SnapshotModel.Links.Length,Mode=OneWay}" />
+                                    <Run Text="ссылок" />
+                                </TextBlock>
+                            </Border>
+
+                            <Border Grid.Row="0" Grid.Column="1" BorderThickness="1,0,0,1" BorderBrush="Gainsboro" Padding="0,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="3*" />
@@ -585,7 +738,7 @@
                                     </Grid.RowDefinitions>
                                     <DockPanel Margin="0,0,5,0" Grid.Column="0">
                                         <TextBlock Text="Коды:" Margin="5,0"/>
-                                        <ItemsControl ItemsSource="{Binding SnapshotView.ViewOptions.Codes}" VerticalAlignment="Center">
+                                        <ItemsControl ItemsSource="{Binding SnapshotView.ListViewInfo.Codes}" VerticalAlignment="Center">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <ToggleButton Content="{Binding Code}" IsChecked="{Binding Enabled}" Click="ToggleButton_Click" Padding="15,0,8,0" Margin="1,0"/>
@@ -600,7 +753,7 @@
                                     </DockPanel>
                                     <DockPanel Margin="5,0" Grid.Column="1">
                                         <TextBlock Text="Типы:" Margin="5,0"/>
-                                        <ItemsControl ItemsSource="{Binding SnapshotView.ViewOptions.Types}" VerticalAlignment="Center">
+                                        <ItemsControl ItemsSource="{Binding SnapshotView.ListViewInfo.Types}" VerticalAlignment="Center">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <ToggleButton Content="{Binding Type}" IsChecked="{Binding Enabled}" Click="ToggleButton_Click" Padding="15,0,8,0" Margin="1,0"/>
@@ -616,78 +769,125 @@
                                 </Grid>
                             </Border>
 
-                            <DockPanel Grid.Row="1" Margin="0,5">
+                            <Border BorderThickness="1,0,0,0" BorderBrush="Gainsboro" Grid.Row="1" Grid.Column="1" Padding="0,6">
+                                <DockPanel>
 
-                                <DockPanel Grid.Row="0" Margin="5,0">
-                                    <TextBlock Text="Поиск:" ToolTip="Производится по оригинальной ссылке и имени" />
-                                    <TextBox Text="{Binding SnapshotView.ViewOptions.Search,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" MinWidth="120" BorderThickness="0,0,0,1" Margin="5,0"/>
-                                </DockPanel>
-
-                                <!--ПАГИНАЦИЯ ОТКЛЮЧЕНА-->
-                                <DockPanel x:Name="pagination">
-                                    <Button Padding="15,0" Margin="0,0,2,0" ToolTip="Перейти на первую страницу" Command="{Binding LinksPager.SetPageCommand}" CommandParameter="{Binding LinksPager.PageMinAmount}">
-                                        <TextBlock Text="{Binding LinksPager.PageMinAmount,StringFormat=\{0\} ←}"/>
-                                    </Button>
-                                    <Button Content="←" Padding="15,0" Margin="0,0,5,0" ToolTip="Перейти на предыдущую страницу"  Command="{Binding LinksPager.PrevPageCommand}" />
-                                    <ListBox ItemsSource="{Binding LinksPager.PagesAvailable}" SelectedItem="{Binding LinksPager.PageNowNumber}">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding}" Padding="3,0" Cursor="Hand" />
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                        <ListBox.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel />
-                                            </ItemsPanelTemplate>
-                                        </ListBox.ItemsPanel>
-                                    </ListBox>
-                                    <Button Content="→" Padding="15,0" Margin="5,0,2,0" ToolTip="Перейти на следующую страницу" Command="{Binding LinksPager.NextPageCommand}" />
-                                    <Button  Padding="15,0" Margin="0,0,5,0" ToolTip="Перейти на последнюю страницу" Command="{Binding LinksPager.SetPageCommand}" CommandParameter="{Binding LinksPager.PageMaxAmount}">
-                                        <TextBlock Text="{Binding LinksPager.PageMaxAmount,StringFormat=→ {0}}"/>
-                                    </Button>
-
-                                    <DockPanel.Style>
-                                        <Style TargetType="DockPanel">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding LinksPager.PageMaxAmount}" Value="1">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </DockPanel.Style>
-                                </DockPanel>
-                                
-                                <DockPanel DockPanel.Dock="Right">
-
-                                    <DockPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
-                                        <TextBlock Text="Стр." Margin="5,0" />
-                                        <TextBox Text="{Binding LinksPager.PageNowNumber, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
-                                        <TextBlock Text="из" Margin="5,0" />
-                                        <TextBlock Text="{Binding LinksPager.PageMaxAmount}"/>
-                                        <TextBlock Text="по" Margin="5,0" />
-                                        <ComboBox SelectedItem="{Binding LinksPager.ElementsPerPage}">
-                                            <System:Int32>50</System:Int32>
-                                            <System:Int32>100</System:Int32>
-                                            <System:Int32>250</System:Int32>
-                                            <System:Int32>500</System:Int32>
-                                            <System:Int32>1000</System:Int32>
-                                            <System:Int32>2000</System:Int32>
-                                            <System:Int32>5000</System:Int32>
-                                            <System:Int32>10000</System:Int32>
-                                            <System:Int32>100000</System:Int32>
-                                        </ComboBox>
-                                        <TextBlock Text="ссылок" Margin="5,0" />
+                                    <DockPanel Grid.Row="0" Margin="5,0">
+                                        <TextBlock Text="Поиск:" ToolTip="Производится по оригинальной ссылке и имени" />
+                                        <TextBox Text="{Binding SnapshotView.ListViewInfo.Search,UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" MinWidth="120" BorderThickness="0,0,0,1" Margin="5,0"/>
+                                        <CheckBox IsChecked="{Binding SnapshotView.ListViewInfo.SearchInverted}" VerticalAlignment="Center" ToolTip="Не содержит" />
                                     </DockPanel>
-                                </DockPanel>
-                                <Slider Grid.Row="1" Minimum="1"  Margin="5,0" Maximum="{Binding LinksPager.PageMaxAmount}" Visibility="Collapsed"
-                                Value="{Binding LinksPager.PageNowNumber, UpdateSourceTrigger=PropertyChanged}" AutoToolTipPlacement="TopLeft" TickPlacement="BottomRight" />
-                            </DockPanel>
 
-                            <controls:ListLinks Grid.Row="2" LinksPager="{Binding LinksPager}" />
+                                    <!--ПАГИНАЦИЯ ОТКЛЮЧЕНА-->
+                                    <DockPanel x:Name="pagination">
+                                        <Button Padding="15,0" Margin="0,0,2,0" ToolTip="Перейти на первую страницу" Command="{Binding LinksPager.SetPageCommand}" CommandParameter="{Binding LinksPager.PageMinAmount}">
+                                            <TextBlock Text="{Binding LinksPager.PageMinAmount,StringFormat=\{0\} ←}"/>
+                                        </Button>
+                                        <Button Content="←" Padding="15,0" Margin="0,0,5,0" ToolTip="Перейти на предыдущую страницу"  Command="{Binding LinksPager.PrevPageCommand}" />
+                                        <ListBox ItemsSource="{Binding LinksPager.PagesAvailable}" SelectedItem="{Binding LinksPager.PageNowNumber}">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" Padding="3,0" Cursor="Hand" />
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel />
+                                                </ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
+                                        </ListBox>
+                                        <Button Content="→" Padding="15,0" Margin="5,0,2,0" ToolTip="Перейти на следующую страницу" Command="{Binding LinksPager.NextPageCommand}" />
+                                        <Button  Padding="15,0" Margin="0,0,5,0" ToolTip="Перейти на последнюю страницу" Command="{Binding LinksPager.SetPageCommand}" CommandParameter="{Binding LinksPager.PageMaxAmount}">
+                                            <TextBlock Text="{Binding LinksPager.PageMaxAmount,StringFormat=→ {0}}"/>
+                                        </Button>
+
+                                        <DockPanel.Style>
+                                            <Style TargetType="DockPanel">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding LinksPager.PageMaxAmount}" Value="1">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding LinksPager.PageMaxAmount}" Value="0">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DockPanel.Style>
+                                    </DockPanel>
+
+                                    <DockPanel DockPanel.Dock="Right">
+
+                                        <DockPanel DockPanel.Dock="Right" VerticalAlignment="Bottom">
+                                            <TextBlock Text="Страница" Margin="5,0" />
+                                            <TextBox Text="{Binding LinksPager.PageNowNumber, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                                            <TextBlock Text="из" Margin="5,0" />
+                                            <TextBlock Text="{Binding LinksPager.PageMaxAmount}"/>
+                                            <TextBlock Text="по" Margin="5,0" />
+                                            <ComboBox SelectedItem="{Binding LinksPager.ElementsPerPage}">
+                                                <System:Int32>50</System:Int32>
+                                                <System:Int32>100</System:Int32>
+                                                <System:Int32>250</System:Int32>
+                                                <System:Int32>500</System:Int32>
+                                                <System:Int32>1000</System:Int32>
+                                                <System:Int32>2000</System:Int32>
+                                                <System:Int32>5000</System:Int32>
+                                                <System:Int32>10000</System:Int32>
+                                                <System:Int32>100000</System:Int32>
+                                            </ComboBox>
+                                        </DockPanel>
+                                        <DockPanel.Style>
+                                            <Style TargetType="DockPanel">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding LinksPager.PageMaxAmount}" Value="0">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DockPanel.Style>
+                                    </DockPanel>
+                                    <Slider Grid.Row="1" Minimum="1"  Margin="5,0" Maximum="{Binding LinksPager.PageMaxAmount}" Visibility="Collapsed"
+                                Value="{Binding LinksPager.PageNowNumber, UpdateSourceTrigger=PropertyChanged}" AutoToolTipPlacement="TopLeft" TickPlacement="BottomRight" />
+
+                                </DockPanel>
+                            </Border>
+
+
+                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                <StackPanel Margin="15,5">
+                                    <DockPanel>
+                                        <TextBlock Text="Категории:"  Style="{DynamicResource Header}" />
+                                        <DockPanel HorizontalAlignment="Right">
+                                            <Button Command="{Binding SnapshotView.RulesInfoView.OpenRulesWindowCommand}" ToolTip="Показать правила построения категорий" Content="[ ? ]" Margin="4,0" Padding="1,0" BorderThickness="0"  />
+                                            <Button Command="{Binding SnapshotView.ListViewInfo.ToggleCategoriesCommand}" ToolTip="Переключить видимость всех категорий" Content="[ ~ ]" Margin="1,0" Padding="1,0" BorderThickness="0"  />
+                                        </DockPanel>
+                                    </DockPanel>
+                                </StackPanel>
+
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,5">
+                                    <TreeView ItemsSource="{Binding SnapshotView.ListViewInfo.Categories}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
+                                        <TreeView.ItemTemplate>
+                                            <HierarchicalDataTemplate ItemsSource="{Binding InnerCates}">
+                                                <ToggleButton x:Name="btn" IsChecked="{Binding Enabled}"  Click="ToggleButton_Click" Padding="15,0" HorizontalContentAlignment="Stretch" Margin="1" BorderThickness="0,0,0,1">
+                                                    <DockPanel Margin="0,1">
+                                                        <TextBlock Text="{Binding Name}" FontSize="12"/>
+                                                        <DockPanel HorizontalAlignment="Right">
+                                                            <TextBlock Text="{Binding ItemsAmount}" FontSize="10"/>
+                                                            <TextBlock Text="/" Margin="3,0" FontSize="10"/>
+                                                            <TextBlock Text="{Binding ItemsTotal}" FontSize="10"/>
+                                                        </DockPanel>
+                                                    </DockPanel>
+                                                </ToggleButton>
+                                            </HierarchicalDataTemplate>
+                                        </TreeView.ItemTemplate>
+                                    </TreeView>
+                                </ScrollViewer>
+                            </StackPanel>
+
+                            <controls:ListLinks Grid.Row="2" Grid.Column="1" LinksPager="{Binding LinksPager}" />
 
                             <GridSplitter Grid.Row="2" Grid.Column="0" Height="2" VerticalAlignment="Top" HorizontalAlignment="Stretch" Panel.ZIndex="100" />
 
-                            <Grid Grid.Column="2" Grid.Row="3">
+                            <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*" />
                                     <RowDefinition Height="Auto" />
@@ -695,34 +895,34 @@
                                 <controls:IntervalSliderLinks Grid.Row="0"
                                                               Margin="5,0"
                                                               Statistics="{Binding SnapshotView.DatesStatistics}"
-                                                              Minimum="0" Maximum="{Binding SnapshotView.ViewOptions.DateRange.Difference}"
-                                                              LowerValue="{Binding SnapshotView.ViewOptions.DateRange.DifferenceFrom, Mode=TwoWay}"
-                                                              UpperValue="{Binding SnapshotView.ViewOptions.DateRange.DifferenceTo, Mode=TwoWay}"
+                                                              Minimum="0" Maximum="{Binding SnapshotView.ListViewInfo.DateRange.Difference}"
+                                                              LowerValue="{Binding SnapshotView.ListViewInfo.DateRange.DifferenceFrom, Mode=TwoWay}"
+                                                              UpperValue="{Binding SnapshotView.ListViewInfo.DateRange.DifferenceTo, Mode=TwoWay}"
                                                               Visibility="{Binding SnapshotIsNotEmpty,Converter={StaticResource BooleanVisibility}}"/>
                                 <DockPanel Grid.Row="1">
                                     <DockPanel DockPanel.Dock="Left" VerticalAlignment="Bottom">
-                                        <DatePicker SelectedDate="{Binding SnapshotView.ViewOptions.DateRange.From}" />
-                                        <TextBlock Text="{Binding SnapshotView.ViewOptions.DateRange.From, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
+                                        <DatePicker SelectedDate="{Binding SnapshotView.ListViewInfo.DateRange.From}" />
+                                        <TextBlock Text="{Binding SnapshotView.ListViewInfo.DateRange.From, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
                                     </DockPanel>
                                     <DockPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                                        <TextBlock Text="{Binding SnapshotView.ViewOptions.DateRange.To, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
-                                        <DatePicker SelectedDate="{Binding SnapshotView.ViewOptions.DateRange.To}" />
+                                        <TextBlock Text="{Binding SnapshotView.ListViewInfo.DateRange.To, ConverterParameter=dd.MM.yyyy, Converter={StaticResource DateConverter}}"/>
+                                        <DatePicker SelectedDate="{Binding SnapshotView.ListViewInfo.DateRange.To}" />
                                     </DockPanel>
                                 </DockPanel>
 
                             </Grid>
                         </Grid>
                     </TabItem>
-                    <TabItem Visibility="{Binding SnapshotIsNotEmpty, Converter={StaticResource BooleanVisibility}}">
+                    <TabItem>
                         <TabItem.Header>
-                            <TextBlock Text="Настройки отображения" FontSize="16" />
+                            <TextBlock Text="Настройки" FontSize="16" />
                         </TabItem.Header>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*" />
                                 <ColumnDefinition Width="2*" />
                             </Grid.ColumnDefinitions>
-                            <StackPanel DataContext="{Binding SnapshotView.ViewOptions}">
+                            <StackPanel DataContext="{Binding SnapshotView.ListViewInfo}">
 
 
                                 <StackPanel Margin="5">
@@ -733,21 +933,42 @@
 
                                 <DockPanel Style="{StaticResource Property}">
                                     <TextBlock Text="Сортировка"  Style="{DynamicResource PropertyName}" />
-                                    <ComboBox ItemsSource="{Binding ListView.Sorts}" SelectedItem="{Binding ListView.SortSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center"/>
+                                    <ComboBox ItemsSource="{Binding GroupSortsInfo.Sorts}" SelectedItem="{Binding GroupSortsInfo.SortSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center"/>
                                 </DockPanel>
                                 <DockPanel Style="{StaticResource Property}">
                                     <TextBlock Text="Группировка"  Style="{DynamicResource PropertyName}" />
-                                    <ComboBox ItemsSource="{Binding ListView.Groups}" SelectedItem="{Binding ListView.GroupSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center" />
+                                    <ComboBox ItemsSource="{Binding GroupSortsInfo.Groups}" SelectedItem="{Binding GroupSortsInfo.GroupSelected}" DisplayMemberPath="Name" HorizontalContentAlignment="Center" />
                                 </DockPanel>
                             </StackPanel>
+
+
+                            <Border Grid.Column="1" BorderBrush="Gainsboro" BorderThickness="0,1" Padding="15,5" DataContext="{Binding SnapshotView.ListViewInfo}">
+                                <StackPanel>
+                                    <DockPanel>
+                                        <TextBlock Text="Отображаемые столбцы:" Margin="-15,0" Style="{DynamicResource Header}" />
+                                    </DockPanel>
+                                    <ItemsControl ItemsSource="{Binding ColumnsInfo.Columns}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <CheckBox IsChecked="{Binding Shown}" Margin="15,2">
+                                                    <DockPanel>
+                                                        <TextBlock Text="{Binding Order,StringFormat=\{0\})}" Margin="2,0" FontSize="12" />
+                                                        <TextBlock Text="{Binding Name}" FontSize="12" />
+                                                    </DockPanel>
+                                                </CheckBox>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
                         </Grid>
                     </TabItem>
                     <TabItem Visibility="{Binding SnapshotIsNotEmpty, Converter={StaticResource BooleanVisibility}}">
                         <TabItem.Header>
-                            <TextBlock Text="Загрузка контента страниц" FontSize="16" />
+                            <TextBlock Text="HTML-контент" FontSize="16" />
                         </TabItem.Header>
 
-                        <Grid DataContext="{Binding LoadHtmlView}">
+                        <Grid DataContext="{Binding HtmlLoader}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="4*" />
                                 <ColumnDefinition Width="3*" />
@@ -757,41 +978,64 @@
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
-                            <GroupBox Grid.Row="0" Grid.Column="0">
+                            <GroupBox Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
                                 <GroupBox.Header>
                                     <TextBlock Text="Настройки загрузки" />
                                 </GroupBox.Header>
 
-                                <StackPanel Grid.Row="0" Margin="25,0,0,0">
+                                <StackPanel Margin="25,0,0,0">
                                     <DockPanel Style="{StaticResource Property}">
-                                        <TextBlock Text="Таймаут:" Style="{StaticResource PropertyName}" />
-                                        <StackPanel Style="{StaticResource PropertiesPanel}">
-                                            <TextBlock Text="{Binding Options.TimeoutMinutes, StringFormat=\{0\} минут}"  />
-                                            <Slider Minimum="1" Maximum="60" Value="{Binding Options.TimeoutMinutes}" IsSnapToTickEnabled="True" TickFrequency="1"/>
-                                        </StackPanel>
-                                    </DockPanel>
-                                    <DockPanel Style="{StaticResource Property}">
-                                        <TextBlock Text="Папка:" Style="{StaticResource PropertyName}" />
+                                        <TextBlock Text="Папка сохранения:" Style="{StaticResource PropertyName}" />
                                         <DockPanel>
+                                            <TextBlock Text="{Binding SnapshotView.SavingHtmlFolder.FullName}" TextWrapping="Wrap" Style="{StaticResource TextBlockLink}" VerticalAlignment="Center">
+                                                <TextBlock.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding Snapshot.FolderHtmlSavePath}" />
+                                                </TextBlock.InputBindings>
+                                            </TextBlock>
                                             <Button Command="{Binding SnapshotView.SelectSaveFolderCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
-                                                <TextBlock Text="{Binding SnapshotView.SavingFolderHtmlContent.Name,StringFormat=({0})}" ToolTip="{Binding Snapshot.FolderHtmlSavePath}" TextWrapping="Wrap" MaxWidth="333"/>
-                                            </Button>
-                                            <Button Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding Snapshot.FolderHtmlSavePath}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
-                                                <TextBlock Text="Открыть" />
+                                                <TextBlock Text="Изменить" />
                                             </Button>
                                         </DockPanel>
+                                    </DockPanel>
+                                    <DockPanel Style="{StaticResource Property}">
+                                        <TextBlock Text="Фильтр ссылок:" Style="{StaticResource PropertyName}" />
+                                        <StackPanel>
+                                            <DockPanel>
+                                                <CheckBox Content="Только с типом text/html" />
+                                                <CheckBox Content="Только с незагруженным именем / страницей" />
+                                            </DockPanel>
+                                            <TextBlock Text="Будет обработано n ссылок из n + 100" />
+                                        </StackPanel>
                                     </DockPanel>
                                     <DockPanel Style="{StaticResource Property}">
                                         <TextBlock Text="Что загружать:" Style="{StaticResource PropertyName}" />
                                         <DockPanel VerticalAlignment="Center">
-                                            <CheckBox IsChecked="{Binding ProcessingConfiguration.LoadingTitle}">
+                                            <RadioButton Content="Имена страниц" />
+                                            <RadioButton Content="Имена страниц и HTML" />
+                                            <!--<CheckBox IsChecked="{Binding ProcessingConfiguration.LoadingTitle}">
                                                 <TextBlock Text="Имена страниц" />
                                             </CheckBox>
                                             <CheckBox IsChecked="{Binding ProcessingConfiguration.SavingHtml}" Margin="5,0">
-                                                <TextBlock Text="HTML" />
-                                            </CheckBox>
+                                                <TextBlock Text="Имена страниц и HTML" />
+                                            </CheckBox>-->
                                         </DockPanel>
                                     </DockPanel>
+
+                                    <StackPanel>
+                                        <UniformGrid Columns="2" Rows="3">
+                                            <Button Grid.Column="0" Content="Запустить загрузку" Command="{Binding StartDownloadCommand}" Style="{StaticResource ActionButton}" />
+                                            <Button Grid.Column="2" Content="Завершить загрузку" Command="{Binding StopProgressCommand}" Style="{StaticResource ActionButton}"/>
+                                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
+                                            <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding PauseState.IsPlayed}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
+
+                                            <Button Command="{Binding SaveProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
+                                                <DockPanel>
+                                                    <TextBlock Text="сохранить" />
+                                                    <TextBlock Text="{Binding SnapshotView.LastSavingDate, StringFormat=HH:mm сохранение}" Margin="4,0"/>
+                                                </DockPanel>
+                                            </Button>
+                                        </UniformGrid>
+                                    </StackPanel>
                                 </StackPanel>
                             </GroupBox>
 
@@ -875,48 +1119,14 @@
                                             </DockPanel>
                                         </StackPanel>
                                     </DockPanel>
+                                        
+                                        
 
                                 </StackPanel>
                             </GroupBox>
 
-                            <GroupBox Grid.Column="1">
-                                <GroupBox.Header>
-                                    <TextBlock Text="Действия" />
-                                </GroupBox.Header>
-                                <StackPanel Margin="20,0,0,0">
-                                    <DockPanel Style="{StaticResource Property}">
-                                        <TextBlock Text="Действия:" Style="{StaticResource PropertyName}" />
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="1*" />
-                                                <!--<ColumnDefinition Width="1*"/>-->
-                                                <ColumnDefinition Width="1*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Button Grid.Column="0" Content="Запустить загрузку" Command="{Binding StartDownloadCommand}" Style="{StaticResource ActionButton}" />
-                                            <Button Grid.Column="2" Content="Завершить загрузку" Command="{Binding StopProgressCommand}" Style="{StaticResource ActionButton}"/>
-                                        </Grid>
-                                    </DockPanel>
-                                    <Grid Margin="0,3">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="1*" />
-                                            <ColumnDefinition Width="1*" />
-                                        </Grid.ColumnDefinitions>
-                                        <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
-                                        <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding PauseState.IsPlayed}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
-                                    </Grid>
-                                    <DockPanel>
-                                        <DockPanel>
-                                            <Button Command="{Binding SaveProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
-                                                <TextBlock Text="сохранить" />
-                                            </Button>
-                                        </DockPanel>
-                                        <TextBlock Text="{Binding SnapshotView.LastSaveDate, StringFormat=HH:mm сохранение}" Margin="4,0"/>
-                                    </DockPanel>
-                                </StackPanel>
-                            </GroupBox>
 
-
-                            <TabControl Grid.Row="0" Grid.Column="2" Grid.RowSpan="2">
+                            <TabControl Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" ItemContainerStyle="{StaticResource TabItemTest}" >
                                 <TabControl.Resources>
                                     <DataTemplate x:Key="Request" DataType="{x:Type htmload:LinkProcessing}">
                                         <Border BorderThickness="0,0,0,1" Margin="0,3" BorderBrush="WhiteSmoke">
@@ -976,12 +1186,12 @@
                                 <TabItem>
                                     <TabItem.Header>
                                         <DockPanel>
-                                            <TextBlock Text="{Binding Log.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                                            <TextBlock Text="{Binding LinkProcessings.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
                                             <TextBlock Text="История" />
                                         </DockPanel>
 
                                     </TabItem.Header>
-                                    <TreeView ItemsSource="{Binding Path=LinkProcessings}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
+                                    <TreeView ItemsSource="{Binding Path=LinksRemainingCount}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
                                         <TreeView.Resources>
                                             
                                             <Style x:Key="BorderCheck" TargetType="Border">
@@ -1059,15 +1269,15 @@
             <StatusBarItem Margin="5,0">
                 <TextBlock >
                     <Run Text="Файл:" Foreground="Gray" />
-                    <Run Text="{Binding SnapshotView.File.Name,Mode=OneWay, StringFormat=\{0\},FallbackValue=отсутствует, TargetNullValue=не открыт}" />
+                    <Run Text="{Binding SnapshotView.SavingFile.Name,Mode=OneWay, StringFormat=\{0\},FallbackValue=отсутствует, TargetNullValue=не открыт}" />
                 </TextBlock>
             </StatusBarItem>
             <StatusBarItem Margin="5,0" HorizontalAlignment="Right">
                 <TextBlock>
                     <Run Text="  Всего ссылок:" Foreground="Gray" />
-                    <Run Text="{Binding SnapshotView.CurrentSnapshot.Links.Length, Mode=OneWay, TargetNullValue=-}" />
-                    <Run Text="  Отфильтровано:" Foreground="Gray" />
-                    <Run Text="{Binding SnapshotView.ViewOptions.LinksFilteredAmount, Mode=OneWay, TargetNullValue=-}" />
+                    <Run Text="{Binding SnapshotView.SnapshotModel.Links.Length, Mode=OneWay, TargetNullValue=-}" />
+                    <Run Text="  После фильтрации:" Foreground="Gray" />
+                    <Run Text="{Binding SnapshotView.ListViewInfo.LinksFilteredAmount, Mode=OneWay, TargetNullValue=-}" />
                     <Run Text="  Показано:" Foreground="Gray" />
                     <Run Text="{Binding LinksPager.PageNow.Source.Source.Count, Mode=OneWay,FallbackValue=-, TargetNullValue=-}" />
                 </TextBlock>

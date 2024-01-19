@@ -1,0 +1,9 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style x:Key="MenuItemCommand" TargetType="{x:Type MenuItem}">
+        <Setter Property="Header" Value="{Binding Title}" />
+        <Setter Property="Command" Value="{Binding}" />
+        <Setter Property="Visibility" Value="{Binding Visible, Converter={StaticResource BooleanVisibility}}" />
+    </Style>
+</ResourceDictionary>

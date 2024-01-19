@@ -19,7 +19,12 @@ namespace WebArchiveViewer.UI.Converters
                 var x = System.Convert.ToDouble(values[1]);
                 var y = System.Convert.ToDouble(values[2]);
 
-                return value / x * y;
+                var res = value / x * y;
+                if (double.IsPositiveInfinity(res) || double.IsNegativeInfinity(res))
+                {
+                    return (double)10;
+                }
+                return res;
             }
             catch (Exception ex)
             {

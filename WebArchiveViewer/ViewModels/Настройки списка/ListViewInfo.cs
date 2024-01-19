@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 
 using WebArchive.Data;
-using WebArchiveViewer.ViewModels.ViewOptions;
-namespace WebArchiveViewer
+
+namespace WebArchiveViewer.ViewModels
 {
-    //Настройки отображения ссылок
-    //Фильтрация, сортировка, группировка, отображаемые колонки
-    public class ViewOptions : NotifyObject
+    /// <summary>
+    /// Настройки отображения списка ссылок
+    /// Фильтрация, сортировка, группировка, отображаемые колонки
+    /// </summary>
+    public class ListViewInfo : NotifyObject
     {
         public event Action OnUpdated;
 
@@ -32,6 +34,14 @@ namespace WebArchiveViewer
             get => search;
             set => Set(ref search, value);
         }
+
+        public bool SearchInverted
+        {
+            get => searchInverted;
+            set=> Set(ref searchInverted, value);
+        }
+        private bool searchInverted = false;
+
         public DateRange DateRange { get; private set; }
 
 
@@ -50,8 +60,8 @@ namespace WebArchiveViewer
             get => categories;
             private set => Set(ref categories, value);
         }
-        public ColumnsInfo ShowColumns { get; private set; }
-        public ListViewOptions ListView { get; private set; }
+        public ListViewColumnsInfo ColumnsInfo { get; private set; }
+        public ListViewGroupSortsInfo GroupSortsInfo { get; private set; }
         private Dictionary<string, ICategory> CategoriesDictionary { get; set; }
 
         public bool? ShowOnlyLoaded { get; set; }
@@ -98,6 +108,10 @@ namespace WebArchiveViewer
             bool linkSearchFound = link.LinkSource.Contains(Search);
             bool nameSearchFound = link.Name.Contains(Search);
 
+            if (searchInverted)
+            {
+                return !linkSearchFound && !nameSearchFound;
+            }
             return linkSearchFound || nameSearchFound;
         }
         private bool FilterTypes(ArchiveLink link)
@@ -143,20 +157,20 @@ namespace WebArchiveViewer
         }
 
 
-        public ViewOptions() : this(null)
+        public ListViewInfo() : this(null)
         {
 
         }
-        public ViewOptions(Snapshot snap)
+        public ListViewInfo(Snapshot snap)
         {
             search = "";
             ShowOnlyLoaded = null;
-            ListView = new ListViewOptions();
-            ListView.OnUpdated += Update;
+            GroupSortsInfo = new ListViewGroupSortsInfo();
+            GroupSortsInfo.OnUpdated += Update;
             PropertyChanged += ViewOptions_PropertyChanged;
 
-            ShowColumns = new ColumnsInfo(this);
-            ShowColumns
+            ColumnsInfo = new ListViewColumnsInfo(this);
+            ColumnsInfo
                 .AddColumn("№", SortsEnum.LinkIndex, GroupsEnum.None)
                 .AddColumn("Дата", SortsEnum.Date, GroupsEnum.None)
                 .AddColumn("Время", SortsEnum.Date, GroupsEnum.None, true)
@@ -172,7 +186,7 @@ namespace WebArchiveViewer
             {
                 SetSnapshot(snap);
             }
-            ListView.SortSelected = ListView.Sorts.First(s => s.Name.Equals("Порядок"));
+            GroupSortsInfo.SortSelected = GroupSortsInfo.Sorts.First(s => s.Name.Equals("Порядок"));
         }
         private void ViewOptions_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {

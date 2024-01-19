@@ -12,12 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace WebArchiveViewer
+using WebArchiveViewer.ViewModels;
+
+namespace WebArchiveViewer.Views.Windows
 {
     public partial class RulesWindow : Window
     {
-        public RulesViewModel View { get; set; }
-        public RulesWindow(RulesViewModel view)
+        public RulesInfoViewModel View { get; set; }
+        public RulesWindow(RulesInfoViewModel view)
         {
             InitializeComponent();
             DataContext = view;
@@ -26,7 +28,7 @@ namespace WebArchiveViewer
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            View.SnapshotView.UpdateCategories(null);
+            View.SnapshotView.OnUpdateCategoriesExecuted(null);
         }
     }
 }
