@@ -1025,8 +1025,9 @@
                                         <UniformGrid Columns="2" Rows="3">
                                             <Button Grid.Column="0" Content="Запустить загрузку" Command="{Binding StartDownloadCommand}" Style="{StaticResource ActionButton}" />
                                             <Button Grid.Column="2" Content="Завершить загрузку" Command="{Binding StopProgressCommand}" Style="{StaticResource ActionButton}"/>
-                                            <ToggleButton Grid.Column="0" Content="| |" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
-                                            <ToggleButton Grid.Column="1" Content="&gt;" IsChecked="{Binding PauseState.IsPlayed}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
+                                            
+                                            <ToggleButton Grid.Column="0" Content="| |" HorizontalAlignment="Right" IsChecked="{Binding PauseState.IsPaused}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
+                                            <ToggleButton Grid.Column="1" Content="&gt;" HorizontalAlignment="Left" IsChecked="{Binding PauseState.IsPlayed}" IsEnabled="{Binding IsPauseEnabled}" Padding="15,2" Margin="5,0" Background="White" BorderThickness="1" />
 
                                             <Button Command="{Binding SaveProgressCommand}" Style="{StaticResource ActionButton}"  HorizontalAlignment="Right">
                                                 <DockPanel>
@@ -1081,9 +1082,9 @@
                                                     <ColumnDefinition Width="1*"/>
                                                     <ColumnDefinition Width="1*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" ToolTip="Осталось ссылок" Text="{Binding LinksRemaining.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Blue"/>
+                                                <TextBlock Grid.Column="0" ToolTip="Осталось ссылок" Text="{Binding Path=LinksRemainingCount, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Blue"/>
                                                 <TextBlock Grid.Column="1" Text="→" Margin="3,0" FontSize="18" HorizontalAlignment="Center" />
-                                                <TextBlock Grid.Column="2" ToolTip="Загружающихся ссылок" Text="{Binding CurrentRequests.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="DarkGoldenrod" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="2" ToolTip="Загружающихся ссылок" Text="{Binding Path=LinkProcessingsCurrent.Count, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="DarkGoldenrod" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="3" Text="→" Margin="3,0" FontSize="18" HorizontalAlignment="Center" />
                                                 <TextBlock Grid.Column="4" ToolTip="Загруженных ссылок" Text="{Binding LinksLoadedCount, StringFormat=\{0\}}" Margin="3,0" FontSize="18" Foreground="Green" HorizontalAlignment="Right"/>
                                             </Grid>
@@ -1093,9 +1094,9 @@
                                     <DockPanel Style="{StaticResource Property}">
                                         <TextBlock Text="Сейчас:" Style="{StaticResource PropertyName}" />
                                         <DockPanel>
-                                            <TextBlock Text="{Binding LastLink.Index}" />
+                                            <TextBlock Text="" />
                                             <TextBlock Text="-" Margin="3,0" />
-                                            <TextBlock Text="{Binding LastLink.Name}" />
+                                            <TextBlock Text="{Binding LastLinkProcessing.Link.Name}" />
                                         </DockPanel>
                                     </DockPanel>
 
@@ -1136,7 +1137,7 @@
                                                     <ColumnDefinition />
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Link.Index}" FontSize="12" Margin="4,0"/>
-                                                <!--<TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Status}" FontSize="9" Foreground="Gray" TextWrapping="Wrap" Margin="5,0" VerticalAlignment="Center"/>-->
+                                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Path=Link.Name}" FontSize="9" Foreground="Gray" TextWrapping="Wrap" Margin="5,0" VerticalAlignment="Center"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -1174,24 +1175,24 @@
                                 <TabItem>
                                     <TabItem.Header>
                                         <DockPanel>
-                                            <TextBlock Text="{Binding CurrentRequests.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                                            <TextBlock Text="{Binding Path=LinkProcessingsCurrent.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
                                             <TextBlock Text="Текущие" />
                                         </DockPanel>
 
                                     </TabItem.Header>
-                                    <ScrollViewer MaxHeight="250">
-                                        <ItemsControl ItemsSource="{Binding CurrentRequests}" ItemTemplate="{DynamicResource Request}" />
+                                    <ScrollViewer>
+                                        <ItemsControl ItemsSource="{Binding Path=LinkProcessingsCurrent}" ItemTemplate="{DynamicResource Request}" />
                                     </ScrollViewer>
                                 </TabItem>
                                 <TabItem>
                                     <TabItem.Header>
                                         <DockPanel>
-                                            <TextBlock Text="{Binding LinkProcessings.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
+                                            <TextBlock Text="{Binding Path=LinkProcessingsAll.Count, StringFormat=[\{0\}]}" Margin="3,0"/>
                                             <TextBlock Text="История" />
                                         </DockPanel>
 
                                     </TabItem.Header>
-                                    <TreeView ItemsSource="{Binding Path=LinksRemainingCount}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
+                                    <TreeView ItemsSource="{Binding Path=LinkProcessingsAll}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
                                         <TreeView.Resources>
                                             
                                             <Style x:Key="BorderCheck" TargetType="Border">
