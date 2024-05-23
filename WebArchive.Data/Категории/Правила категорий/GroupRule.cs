@@ -65,6 +65,11 @@ namespace WebArchive.Data
                 {
                     if (rule.CheckLink(link) is string res && !string.IsNullOrEmpty(res))
                     {
+                        if (link.Contains("forum") && link.Contains("thumbs"))
+                        {
+                            Console.WriteLine("tt");
+                        }
+
                         return res;
                     }
                 }

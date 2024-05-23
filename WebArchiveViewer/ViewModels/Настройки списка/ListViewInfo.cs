@@ -40,7 +40,26 @@ namespace WebArchiveViewer.ViewModels
             get => searchInverted;
             set=> Set(ref searchInverted, value);
         }
-        private bool searchInverted = false;
+        private bool searchInverted;
+        public bool ShowUniq
+        {
+            get => showUniq;
+            set => Set(ref showUniq, value);
+        }
+        private bool showUniq;
+        public bool NoBlacklisted
+        {
+            get => noBlacklisted;
+            set => Set(ref noBlacklisted, value);
+        }
+        private bool noBlacklisted;
+
+        public bool ShowDatesControl
+        {
+            get => showDatesControl;
+            set => Set(ref showDatesControl, value);
+        }
+        private bool showDatesControl;
 
         public DateRange DateRange { get; private set; }
 
@@ -96,6 +115,14 @@ namespace WebArchiveViewer.ViewModels
             {
                 return false;
             }
+            if (!FilterUniq(link))
+            {
+                return false;
+            }
+            if (!FilterBlacklisted(link))
+            {
+                return false;
+            }
             return true;
         }
         private bool FilterSearch(ArchiveLink link)
@@ -118,9 +145,13 @@ namespace WebArchiveViewer.ViewModels
         {
             var code = Codes.First(c => c.Code == link.StatusCode);
             var type = Types.First(c => c.Type == link.MimeType);
-            var cate = CategoriesDictionary[link.Category];
+            if (CategoriesDictionary.ContainsKey(link.Category))
+            {
+                var cate = CategoriesDictionary[link.Category];
 
-            return code.Enabled && type.Enabled && cate.Enabled;
+                return code.Enabled && type.Enabled && cate.Enabled;
+            }
+            return false;
         }
         private bool FilterLoaded(ArchiveLink link)
         {
@@ -133,6 +164,14 @@ namespace WebArchiveViewer.ViewModels
                 return false;
             }
             return true;
+        }
+        private bool FilterUniq(ArchiveLink link)
+        {
+            return !ShowUniq || link.IsUniq;
+        }
+        private bool FilterBlacklisted(ArchiveLink link)
+        {
+            return !NoBlacklisted || !link.IsBlacklisted;
         }
 
 
@@ -180,9 +219,10 @@ namespace WebArchiveViewer.ViewModels
                 .AddColumn("Имя страницы", SortsEnum.PageName, GroupsEnum.PageName)
                 .AddColumn("Ссылка", SortsEnum.LinkURL, GroupsEnum.LinkURL)
                 .AddColumn("Веб-архив", SortsEnum.None, GroupsEnum.None)
-                .AddColumn("Файл HTML", SortsEnum.None, GroupsEnum.None, true);
+                .AddColumn("Файл HTML", SortsEnum.None, GroupsEnum.None, true)
+                .AddColumn("Черный список", SortsEnum.None, GroupsEnum.None);
 
-            if(snap != null)
+            if (snap != null)
             {
                 SetSnapshot(snap);
             }
@@ -225,6 +265,7 @@ namespace WebArchiveViewer.ViewModels
             LoadDates(snap);
             LoadCodesTypes(snap);
             LoadCategories(snap);
+            snap.LoadLinksInformation();
         }
         private void LoadDates(Snapshot snap)
         {

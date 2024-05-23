@@ -152,7 +152,7 @@ namespace WebArchive.Data.HtmlLoading
             bool noName = link.Name == ArchiveLink.DefaultName;
             string withNameText = $"{link.TimeStamp} - {link.Index} - {link.Name}";
             string withoutNameText = $"{link.TimeStamp} - {link.Index}";
-
+            return withoutNameText;
             StringBuilder nameText = noName ? new StringBuilder(withoutNameText) : new StringBuilder(withNameText);
             char[] invalidChars = Path.GetInvalidFileNameChars();
             foreach (var invChar in invalidChars)

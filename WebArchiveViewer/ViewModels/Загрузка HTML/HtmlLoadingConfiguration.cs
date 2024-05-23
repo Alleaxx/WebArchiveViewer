@@ -15,23 +15,11 @@ namespace WebArchiveViewer.ViewModels
     {
         private SnapshotView Snapshot;
 
-
         /// <summary> Сохранение снапшота каждые n обработанных ссылок </summary>
         public int SavingLatencyLinks { get; set; }
-        private int GetLatencyFromLinksCount(int links)
-        {
-            int latency = links / 10;
-            int min = 10;
-            if (latency < min)
-            {
-                latency = min;
-            }
-            return latency;
-        }
 
         /// <summary> Обработка не более n ссылок </summary>
         public int LinksLimit { get; set; }
-
 
         public HtmlLoadingConfiguration()
         {
@@ -54,6 +42,16 @@ namespace WebArchiveViewer.ViewModels
         public void UpdateWithLinksAmount(int amount)
         {
             SavingLatencyLinks = GetLatencyFromLinksCount(amount);
+        }
+        private int GetLatencyFromLinksCount(int links)
+        {
+            int latency = links / 10;
+            int min = 10;
+            if (latency < min)
+            {
+                latency = min;
+            }
+            return latency;
         }
     }
 }

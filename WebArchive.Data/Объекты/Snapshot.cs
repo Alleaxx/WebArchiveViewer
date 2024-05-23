@@ -36,12 +36,13 @@ namespace WebArchive.Data
         //Из архива
         public Snapshot(string request, string sourceLink, IEnumerable<ArchiveLink> links)
         {
-            FolderHtmlSavePath = $"{System.IO.Directory.GetCurrentDirectory()}\\Ссылки";
+            FolderHtmlSavePath = $"{Directory.GetCurrentDirectory()}\\Ссылки";
             ReceivingDate = DateTime.Now;
             Request = request;
             SourceURI = sourceLink;
             Links = links.ToArray();
 
+            LoadLinksInformation();
             SetRulesIfNull();
         }
         public static Snapshot GetEmptySnapshot()
@@ -63,6 +64,23 @@ namespace WebArchive.Data
                 if (!string.IsNullOrEmpty(link.HtmlFilePath) && !System.IO.File.Exists(link.HtmlFilePath))
                 {
                     link.HtmlFilePath = null;
+                }
+            }
+        }
+
+        public void LoadLinksInformation()
+        {
+            Dictionary<string, ArchiveLinkInfo> linksInfo = new Dictionary<string, ArchiveLinkInfo>();
+            foreach(var link in Links)
+            {
+                string key = link.LinkSource;
+                if (!linksInfo.ContainsKey(key))
+                {
+                    linksInfo.Add(key, new ArchiveLinkInfo(link));
+                }
+                else
+                {
+                    linksInfo[key].AddLink(link);
                 }
             }
         }

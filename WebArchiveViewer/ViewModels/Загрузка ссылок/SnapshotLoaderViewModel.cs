@@ -44,6 +44,7 @@ namespace WebArchiveViewer.ViewModels
             CopyRequestCommand = new RelayCommand(OnCopyRequestCommandExecuted);
             LoadFromRequestBuilderCommand = new RelayCommand(OnLoadFromRequestBuilderCommandExecuted, IsUploadingAvailable);
             LoadFromFileCommand = new RelayCommand(OnLoadFromFileCommandExecuted);
+            LoadCategoriesFromFileCommand = new RelayCommand(OnLoadCategoriesFromFileCommandExecuted);
             BreakRequestCommand = new RelayCommand(OnBreakRequestCommandExecuted, IsBreakingAvailable);
 
             FileDialog = new FileDialog();
@@ -81,6 +82,7 @@ namespace WebArchiveViewer.ViewModels
         public ICommand CopyRequestCommand { get; private set; }
         public ICommand LoadFromRequestBuilderCommand { get; private set; }
         public ICommand LoadFromFileCommand { get; private set; }
+        public ICommand LoadCategoriesFromFileCommand { get; private set; }
 
 
         //Условия
@@ -120,6 +122,18 @@ namespace WebArchiveViewer.ViewModels
 
             var snapshot = await LoadFromFile(file.FullName);            
             SendSnapshot(snapshot);
+        }
+        private async void OnLoadCategoriesFromFileCommandExecuted(object o)
+        {
+            var file = FileDialog.Open();
+            if (file == null || !file.Exists)
+            {
+                return;
+            }
+
+            var snapshot = await LoadFromFile(file.FullName);
+            MainModel.SnapshotView.SnapshotModel.RulesControl = snapshot.RulesControl;
+            MainModel.SnapshotView.UpdateCategoriesCommand.Execute(null);
         }
 
         private void ReadyCleanup()

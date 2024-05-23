@@ -14,7 +14,7 @@ namespace WebArchiveViewer.Services
         public static void ExeInDispatcher(Action action)
         {
             actions.Add(action);
-            Application.Current.Dispatcher.BeginInvoke(action);
+            Application.Current.Dispatcher.Invoke(action);
         }
         public static async Task ExeInDispatcherAsync(Action action)
         {

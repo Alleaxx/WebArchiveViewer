@@ -52,6 +52,7 @@
     <Compile Include="Загрузка Html\LinkProcessingHelper.cs" />
     <Compile Include="Загрузка ссылок\Запрос\Части запроса\Конструктор\RequestFilterItem.cs" />
     <Compile Include="Загрузка ссылок\Запрос\Части запроса\Конструктор\RequestFiltersList.cs" />
+    <Compile Include="Объекты\ArchiveLinkInfo.cs" />
     <Compile Include="Объекты\ProcessStatus.cs" />
     <Compile Include="Объекты\SnapshotDatesStatistics.cs" />
     <Compile Include="Загрузка ссылок\SnapshotFileLoader.cs" />

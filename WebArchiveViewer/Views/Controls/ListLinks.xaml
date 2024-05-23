@@ -10,6 +10,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <ListView x:Name="links" ItemsSource="{Binding ElementName=root, Path=LinksPager.PageNow.Source.View}"
               BorderThickness="1,1,0,0" BorderBrush="Gainsboro"
+              VirtualizingPanel.ScrollUnit="Pixel"
               FontFamily="Consolas" FontSize="10">
         <ListView.Resources>
 
@@ -124,12 +125,20 @@
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <DockPanel>
-                                <Button x:Name="load" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type GridViewColumn}}, Path=DataContext.LinksLoader.LoadLinkNameCommand}" CommandParameter="{Binding}" Height="18" ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
+                                <!--<Button x:Name="load"
+                                        Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type GridViewColumn}}, Path=DataContext.LinksLoader.LoadLinkNameCommand}"
+                                        CommandParameter="{Binding}"
+                                        Height="18"
+                                        ToolTip="{Binding Name, StringFormat=Загрузить имя страницы [\{0\}]}">
                                     <TextBlock x:Name="text"
                                                Text="{Binding Name}"
                                                 Style="{StaticResource ColumnUsualText}"
                                                Foreground="Black" />
-                                </Button>
+                                </Button>-->
+                                <TextBlock x:Name="text"
+                                               Text="{Binding Name}"
+                                                Style="{StaticResource ColumnUsualText}"
+                                               Foreground="Black" />
                             </DockPanel>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
@@ -175,7 +184,34 @@
                             </DataTemplate.Triggers>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[9]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10]}" />
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding IsBlacklisted}" />
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10]}" />
+                </GridViewColumn>
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                    <GridViewColumn.CellTemplate>
+                        <DataTemplate>
+                            <DockPanel>
+                                <CheckBox x:Name="showImage" Content="превью" FontSize="11" />
+                                <Image Source="{Binding LinkSource}"
+                                       Margin="8,4"
+                                       Visibility="{Binding ElementName=showImage,Path=IsChecked,Converter={StaticResource BooleanVisibility}}"
+                                       MaxWidth="500" />
+                                <CheckBox x:Name="showImageArchive" Content="превью архива" FontSize="11" Margin="4,0" />
+                                <Image Source="{Binding Link}"
+                                       Margin="8,4"
+                                       Visibility="{Binding ElementName=showImageArchive,Path=IsChecked,Converter={StaticResource BooleanVisibility}}"
+                                       MaxWidth="500" />
+                            </DockPanel>
+                        </DataTemplate>
+                    </GridViewColumn.CellTemplate>
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10]}" />
                 </GridViewColumn>
 
             </GridView>

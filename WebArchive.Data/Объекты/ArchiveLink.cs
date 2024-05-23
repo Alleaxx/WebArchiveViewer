@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,10 +45,37 @@ namespace WebArchive.Data
         }
         private string htmlFilePath;
 
+        public bool IsBlacklisted
+        {
+            get => isBlacklisted;
+            set
+            {
+                Set(ref isBlacklisted, value);
+                if(Information != null)
+                {
+                    foreach (var link in Information.AllLinks)
+                    {
+                        link.SetBlackListed(isBlacklisted);
+                    }
+                }
+            }
+        }
+        private bool isBlacklisted;
+        [JsonIgnore]
+        public ArchiveLinkInfo Information { get; set; }
+        [JsonIgnore]
+        public bool IsUniq { get; set; }
+
         public ArchiveLink()
         {
             name = DefaultName;
             category = "Общее";
+        }
+
+        private void SetBlackListed(bool isBlacklisted)
+        {
+            this.isBlacklisted=isBlacklisted;
+            OnPropertyChanged(nameof(IsBlacklisted));
         }
     }
 }
