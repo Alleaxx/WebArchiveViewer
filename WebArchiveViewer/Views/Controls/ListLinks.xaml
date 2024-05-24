@@ -8,7 +8,9 @@
              mc:Ignorable="d" Name="root"
              d:DataContext="{d:DesignInstance {x:Type viewmodels:MainWindowViewModel}}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <ListView x:Name="links" ItemsSource="{Binding ElementName=root, Path=LinksPager.PageNow.Source.View}"
+    <ListView x:Name="links"
+              ItemsSource="{Binding ElementName=root, Path=LinksPager.PageNow.Source.View}"
+              SelectedItem="{Binding ElementName=root, Path=LinksPager.Selected}"
               BorderThickness="1,1,0,0" BorderBrush="Gainsboro"
               VirtualizingPanel.ScrollUnit="Pixel"
               FontFamily="Consolas" FontSize="10">
@@ -136,7 +138,7 @@
                                                Foreground="Black" />
                                 </Button>-->
                                 <TextBlock x:Name="text"
-                                               Text="{Binding Name}"
+                                               Text="{Binding Name,TargetNullValue=-}"
                                                 Style="{StaticResource ColumnUsualText}"
                                                Foreground="Black" />
                             </DockPanel>
@@ -189,12 +191,24 @@
                 <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <CheckBox IsChecked="{Binding IsBlacklisted}" />
+                            <ComboBox SelectedItem="{Binding Tag}"
+                                      FontFamily="Segoe UI"
+                                      FontSize="11"
+                                        ItemsSource="{Binding AvailableTags}"
+                                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                        BorderBrush="Gainsboro"
+                                        Margin="4,2">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" Style="{StaticResource PropertyValueText}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                     <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10]}" />
                 </GridViewColumn>
-                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
+                <GridViewColumn Width="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[11].Hidden, ConverterParameter=Auto,Converter={StaticResource ColumnWidthV2Converter}}">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
                             <DockPanel>
@@ -211,7 +225,7 @@
                             </DockPanel>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
-                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[10]}" />
+                    <local:LinksColumnHeader ColumnInfo="{Binding SnapshotView.ListViewInfo.ColumnsInfo.Columns[11]}" />
                 </GridViewColumn>
 
             </GridView>

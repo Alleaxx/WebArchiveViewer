@@ -16,15 +16,6 @@ namespace WebArchive.Data
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
         }
 
-        public NotifyObject()
-        {
-            InitCommands();
-        }
-        protected virtual void InitCommands()
-        {
-
-        }
-
         protected virtual bool Set<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (Equals(field, value))

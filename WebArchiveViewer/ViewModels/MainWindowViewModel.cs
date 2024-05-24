@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -13,37 +12,22 @@ using System.Windows.Data;
 using System.Windows.Input;
 
 using WebArchive.Data;
+using WebArchive.WpfUI.Helpers;
 using WebArchiveViewer.UI;
+using WebArchiveViewer.WpfUI.Collections.Paged;
+using WebArchiveViewer.WpfUI.Commands;
+using static System.Windows.Forms.Design.AxImporter;
 
 namespace WebArchiveViewer.ViewModels
 {
-    //Представление просмотра ссылок с архива
+    /// <summary>
+    /// Представление просмотра ссылок с архива
+    /// </summary>
     public class MainWindowViewModel : NotifyObject
     {
-        //Ссылки на загрузчик снапшота и html-контента
         public SnapshotLoaderViewModel SnapshotLoader { get; private set; }
         public LinksLoaderViewModel LinksLoader { get; private set; }
         public HtmlLoaderViewModel HtmlLoader { get; private set; }
-
-        public MainWindowViewModel()
-        {
-            SetNullSnapshot();
-            HtmlLoader = new HtmlLoaderViewModel(this);
-            SnapshotLoader = new SnapshotLoaderViewModel(this);
-            LinksLoader = new LinksLoaderViewModel();
-
-            SetOperation(new ProcessStatus("Ожидание ссылок...", 0));
-
-            CloseSnapshotCommand = new RelayCommand(OnCloseSnapshotCommandExecuted, obj => !SnapshotIsEmptyF);
-        }
-
-        /// <summary> Текущая операция, отображается в статусе </summary>
-        public ProcessStatus Operation
-        {
-            get => operation;
-            set => Set(ref operation, value);
-        }
-        private ProcessStatus operation;
 
         public int SelectedMenuIndex
         {
@@ -51,19 +35,24 @@ namespace WebArchiveViewer.ViewModels
             set => Set(ref selectedMenuIndex, value);
         }
         private int selectedMenuIndex;
-
-        public void SetOperation(ProcessStatus status)
+        /// <summary>
+        /// Текущая операция, отображается в статусе
+        /// </summary>
+        public Operation Operation
         {
-            Operation = status;
+            get => operation;
+            set => Set(ref operation, value);
         }
+        private Operation operation;
 
-
-
-        /// <summary> Модель представления текущего снапшота ссылок. Не может быть null </summary>
+        /// <summary>
+        /// Модель представления текущего снапшота ссылок. Не может быть null
+        /// </summary>
         public SnapshotView SnapshotView
         {
             get => snapshotView;
-            private set {
+            private set
+            {
                 Set(ref snapshotView, value);
                 OnPropertyChanged(nameof(SnapshotIsEmpty));
                 OnPropertyChanged(nameof(SnapshotIsNotEmpty));
@@ -71,29 +60,45 @@ namespace WebArchiveViewer.ViewModels
         }
         private SnapshotView snapshotView;
 
+        public IPager<ArchiveLink> LinksPager
+        {
+            get => linksPager;
+            private set => Set(ref linksPager, value);
+        }
+        private IPager<ArchiveLink> linksPager;
+
+        public bool SnapshotIsEmpty => SnapshotView?.SnapshotModel.IsEmpty ?? true;
+        public bool SnapshotIsNotEmpty => !SnapshotView?.SnapshotModel.IsEmpty ?? false;
 
         public ICommand CloseSnapshotCommand { get; private set; }
 
-        public bool SnapshotIsEmpty => SnapshotView.SnapshotModel.IsEmpty;
-        public bool SnapshotIsNotEmpty => !SnapshotView.SnapshotModel.IsEmpty;
-
-
-        private bool SnapshotIsEmptyF => SnapshotView.SnapshotModel.IsEmpty;
-        public void SetSnapshot(Snapshot value)
+        public MainWindowViewModel()
         {
-            var oldSnapshot = snapshotView;
-            if(snapshotView != null)
-            {
-                snapshotView.ListViewInfo.OnUpdated -= UpdatePagerLinks;
-            }
+            SnapshotView = new SnapshotView(this, Snapshot.GetEmptySnapshot());
+            SetNullSnapshot();
+            HtmlLoader = new HtmlLoaderViewModel(this);
+            SnapshotLoader = new SnapshotLoaderViewModel(this);
+            LinksLoader = new LinksLoaderViewModel();
+            LinksPager = new Pager<ArchiveLink>();
 
-            SnapshotView = new SnapshotView(value);
-            if (snapshotView != null && value != null && value.IsNotEmpty)
+            SetOperation(new Operation("Ожидание ссылок...", 0));
+
+            CloseSnapshotCommand = new RelayCommand(CloseSnapshot)
+                .SetCondition(() => !SnapshotIsEmpty);
+        }
+
+        public void SetOperation(Operation status)
+        {
+            Operation = status;
+        }
+        public async void SetSnapshot(Snapshot value)
+        {
+            SnapshotView = new SnapshotView(this, value);
+            if (value.IsNotEmpty)
             {
                 SelectedMenuIndex = 1;
                 HtmlLoader.SetSnapshot(SnapshotView);
-                SnapshotView.ListViewInfo.OnUpdated += UpdatePagerLinks;
-                UpdatePagerLinks();
+                await UpdatePagerLinks();
             }
             else
             {
@@ -105,36 +110,33 @@ namespace WebArchiveViewer.ViewModels
             SetSnapshot(Snapshot.GetEmptySnapshot());
         }
 
-        private void OnCloseSnapshotCommandExecuted(object obj)
+        private void CloseSnapshot(object obj)
         {
             SetNullSnapshot();
-            LinksPager = null;
-            SetOperation(new ProcessStatus("Снапшот закрыт", 0));
+            SetOperation(new Operation("Снапшот закрыт", 0));
         }
 
-
-
-
-        //Список отображаемых ссылок
-        public IPager<ArchiveLink> LinksPager
+        public async Task UpdatePagerLinks()
         {
-            get => linksPager;
-            private set => Set(ref linksPager, value);
-        }
-        private IPager<ArchiveLink> linksPager;
-        public void UpdatePagerLinks()
-        {
-            if(SnapshotIsEmptyF)
+            if(SnapshotIsEmpty)
             {
                 return;
             }
 
+            var filteredLinks = await Task.Run(GetCurrentLinks);
+
+            DispatcherHelper.ExeInDispatcher(() =>
+            {
+                LinksPager.UpdateCollection(filteredLinks);
+            });
+        }
+        private IEnumerable<ArchiveLink> GetCurrentLinks()
+        {
             var options = SnapshotView.ListViewInfo;
             var filteredLinks = options.GetFilteredLinks();
             filteredLinks = options.GroupSortsInfo.SortLinks(filteredLinks);
             options.LinksFilteredAmount = filteredLinks.Count();
-
-            LinksPager = new Pager<ArchiveLink>(filteredLinks, options.GroupSortsInfo.GroupSelected, LinksPager);
+            return filteredLinks;
         }
     }
 }

@@ -1,17 +1,18 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:converters="clr-namespace:WebArchiveViewer.UI.Converters"
-                    xmlns:local="clr-namespace:WebArchiveViewer">
+                    xmlns:local="clr-namespace:WebArchiveViewer"
+                    xmlns:converters="clr-namespace:WebArchiveViewer.WpfUI.Converters;assembly=WebArchive.WpfUI">
 
 
-    <local:DateTextConverter x:Key="DateConverter" />
-    <local:StatusCodeColorConverter x:Key="StatusCodeColorConverter" />
-    <local:ColumnWidthConverter x:Key="ColumnWidthConverter" />
-    <local:ColumnWidthV2Converter x:Key="ColumnWidthV2Converter" />
-    <local:MathRoundConverter x:Key="MathRound" />
+    <converters:DateTextConverter x:Key="DateConverter" />
+    <converters:StatusCodeColorConverter x:Key="StatusCodeColorConverter" />
+    <converters:ColumnWidthConverter x:Key="ColumnWidthConverter" />
+    <converters:ColumnWidthV2Converter x:Key="ColumnWidthV2Converter" />
+    <converters:MathRoundConverter x:Key="MathRound" />
     <converters:DivideConverter x:Key="DivideConverter" />
     <converters:DivideMultiplyConverter x:Key="DivideMultiplyConverter" />
 
     <BooleanToVisibilityConverter x:Key="BooleanVisibility" />
+    <converters:ObjectVisibilityConverter x:Key="ObjectVisibility" />
 
 </ResourceDictionary>

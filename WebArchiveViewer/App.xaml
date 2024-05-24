@@ -2,13 +2,14 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:WebArchiveViewer"
-             xmlns:commands="clr-namespace:WebArchiveViewer.UI.Commands"
+             xmlns:commandsLocal="clr-namespace:WebArchiveViewer.UI.Commands"
+             xmlns:commands="clr-namespace:WebArchiveViewer.WpfUI.Commands;assembly=WebArchive.WpfUI"
              StartupUri="Views/Windows/MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
 
             <commands:OpenLinkCommand x:Key="OpenLinkCommand" />
-            <commands:OpenExceptionWindowCommand x:Key="OpenExceptionCommand" />
+            <commandsLocal:OpenExceptionWindowCommand x:Key="OpenExceptionCommand" />
 
             <ResourceDictionary.MergedDictionaries>
 

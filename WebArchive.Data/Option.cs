@@ -13,6 +13,11 @@ namespace WebArchive.Data
             get => enabled;
             set => Set(ref enabled, value);
         }
-        private bool enabled = true;
+        private bool enabled;
+
+        public Option()
+        {
+            enabled = true;
+        }
     }
 }

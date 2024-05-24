@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WebArchive.Data;
 using WebArchiveViewer.UI;
+using WebArchiveViewer.WpfUI.Collections.Paged;
 
 namespace WebArchiveViewer.Views.Controls
 {
@@ -29,6 +30,14 @@ namespace WebArchiveViewer.Views.Controls
         }
         public static readonly DependencyProperty LinksPagerProperty =
             DependencyProperty.Register(nameof(LinksPager), typeof(IPager<ArchiveLink>), typeof(ListLinks));
+
+        public ArchiveLink SelectedLink
+        {
+            get => (ArchiveLink)GetValue(SelectedLinkProperty);
+            set => SetValue(SelectedLinkProperty, value);
+        }
+        public static readonly DependencyProperty SelectedLinkProperty =
+            DependencyProperty.Register(nameof(SelectedLink), typeof(ArchiveLink), typeof(ListLinks));
 
 
         public ListLinks()

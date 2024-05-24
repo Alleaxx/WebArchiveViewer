@@ -9,7 +9,6 @@
              Name="root">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="conv" />
-        <local:DateTextConverter x:Key="DateConverter" />
     </UserControl.Resources>
 
     <Border BorderBrush="Gainsboro" BorderThickness="1" CornerRadius="2" Padding="8" MouseDown="ProgressFull_MouseDown">

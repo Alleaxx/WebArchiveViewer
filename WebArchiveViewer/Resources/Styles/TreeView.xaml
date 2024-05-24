@@ -3,7 +3,7 @@
 
     <Style x:Key="TreeViewStrech" TargetType="{x:Type TreeViewItem}">
         <Style.Resources>
-            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gainsboro"/>
             <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
             <Style TargetType="{x:Type Border}">
                 <Setter Property="Grid.ColumnSpan" Value="2" />

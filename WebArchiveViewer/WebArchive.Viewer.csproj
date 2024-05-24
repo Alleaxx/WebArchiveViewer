@@ -38,12 +38,6 @@
     <ApplicationIcon>Archive.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=66aa232afad40158, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ookii.Dialogs.Wpf.1.1.0\lib\net45\Ookii.Dialogs.Wpf.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -68,21 +62,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Services\DispatcherService.cs" />
     <Compile Include="Services\HttpService.cs" />
-    <Compile Include="UI\Commands\MenuItemCommand.cs" />
-    <Compile Include="UI\Commands\OpenExceptionWindowCommand.cs" />
-    <Compile Include="UI\Commands\OpenLinkCommand.cs" />
-    <Compile Include="UI\Converters\DivideConverter.cs" />
-    <Compile Include="UI\Converters\DivideMultiplyConverter.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LinkProcessingPreparation.cs" />
-    <Compile Include="ViewModels\Снапшот\SavingConfiguration.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LinkProcessingViewModel.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\HtmlLoadingConfiguration.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\RequestFiltersViewModel.cs" />
-    <Compile Include="ViewModels\Загрузка ссылок\SnapshotLoaderViewModel.cs" />
-    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\GroupsEnum.cs" />
-    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\SortsEnum.cs" />
+    <Compile Include="ViewModels\LinksReceiving\RequestFilterViewModel.cs" />
+    <Compile Include="Views\OpenExceptionWindowCommand.cs" />
+    <Compile Include="ViewModels\HTMLoading\LinkProcessingPreparation.cs" />
+    <Compile Include="ViewModels\Snapshot\SavingConfiguration.cs" />
+    <Compile Include="ViewModels\HTMLoading\LinkProcessingViewModel.cs" />
+    <Compile Include="ViewModels\HTMLoading\HtmlLoadingConfiguration.cs" />
+    <Compile Include="ViewModels\LinksReceiving\RequestFiltersViewModel.cs" />
+    <Compile Include="ViewModels\LinksReceiving\SnapshotLoaderViewModel.cs" />
+    <Compile Include="ViewModels\ListViewConfig\Sorts\SortsEnum.cs" />
     <Compile Include="Views\Controls\IntervalSliderLinks.xaml.cs">
       <DependentUpon>IntervalSliderLinks.xaml</DependentUpon>
     </Compile>
@@ -95,24 +84,17 @@
     <Compile Include="Views\Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Converters\ColumnWidthConverter.cs" />
-    <Compile Include="UI\Converters\Round.cs" />
-    <Compile Include="UI\Page.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\LinksLoaderViewModel.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\OperationState.cs" />
-    <Compile Include="ViewModels\Настройки списка\ListViewColumnsInfo.cs" />
-    <Compile Include="ViewModels\Настройки списка\Типы\MimeType.cs" />
-    <Compile Include="ViewModels\Настройки списка\Типы\StatusCode.cs" />
-    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\ListViewColumn.cs" />
-    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\Grouping.cs" />
-    <Compile Include="ViewModels\Настройки списка\Группировки-сортировки\Sorting.cs" />
-    <Compile Include="ViewModels\Настройки списка\Типы\Option.cs" />
-    <Compile Include="ViewModels\Настройки списка\ListViewGroupSortsInfo.cs" />
-    <Compile Include="ViewModels\Снапшот\RulesInfoViewModel.cs" />
-    <Compile Include="ViewModels\Снапшот\SnapshowView.cs" />
-    <Compile Include="Services\FileDialog.cs" />
-    <Compile Include="UI\Converters\Date.cs" />
-    <Compile Include="UI\Converters\StatusCode.cs" />
+    <Compile Include="ViewModels\HTMLoading\LinksLoaderViewModel.cs" />
+    <Compile Include="ViewModels\HTMLoading\OperationState.cs" />
+    <Compile Include="ViewModels\ListViewConfig\ListViewColumnsInfo.cs" />
+    <Compile Include="ViewModels\ListViewConfig\Options\MimeType.cs" />
+    <Compile Include="ViewModels\ListViewConfig\Options\StatusCode.cs" />
+    <Compile Include="ViewModels\ListViewConfig\ListViewColumn.cs" />
+    <Compile Include="ViewModels\ListViewConfig\Sorts\Sorting.cs" />
+    <Compile Include="ViewModels\ListViewConfig\Options\Option.cs" />
+    <Compile Include="ViewModels\ListViewConfig\ListViewGroupSortsInfo.cs" />
+    <Compile Include="ViewModels\Snapshot\RulesInfoViewModel.cs" />
+    <Compile Include="ViewModels\Snapshot\SnapshowView.cs" />
     <Compile Include="Views\Controls\IntervalSlider.xaml.cs">
       <DependentUpon>IntervalSlider.xaml</DependentUpon>
     </Compile>
@@ -122,14 +104,12 @@
     <Compile Include="Views\Windows\RulesWindow.xaml.cs">
       <DependentUpon>RulesWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Pager.cs" />
-    <Compile Include="ViewModels\Загрузка HTML\HtmlLoaderViewModel.cs" />
+    <Compile Include="ViewModels\HTMLoading\HtmlLoaderViewModel.cs" />
     <Compile Include="Views\Controls\IntervalDateSelector.xaml.cs">
       <DependentUpon>IntervalDateSelector.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
-    <Compile Include="ViewModels\Настройки списка\ListViewInfo.cs" />
-    <Compile Include="UI\Commands\RelayCommand.cs" />
+    <Compile Include="ViewModels\ListViewConfig\ListViewInfo.cs" />
     <Page Include="Resources\Converters.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -241,7 +221,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -260,6 +239,10 @@
     <ProjectReference Include="..\WebArchive.Data\WebArchive.Data.csproj">
       <Project>{84d53a64-8fc1-4279-8e86-18090f37b1ea}</Project>
       <Name>WebArchive.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebArchive.WpfUI\WebArchive.WpfUI.csproj">
+      <Project>{a1bf0ed0-fafd-4ae3-bc7d-945cb7f0e630}</Project>
+      <Name>WebArchive.WpfUI</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

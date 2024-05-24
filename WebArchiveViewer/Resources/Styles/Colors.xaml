@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
 
+    <SolidColorBrush x:Key="LinkColor" Color="RoyalBlue" />
     <SolidColorBrush x:Key="ActiveColor" Color="#3c79ab" />
     <SolidColorBrush x:Key="ActiveLightColor" Color="#638aa9" />
     <SolidColorBrush x:Key="ActiveLighterColor" Color="#FF8FB0CA" />

@@ -26,9 +26,9 @@ namespace WebArchiveViewer.Views.Windows
             DataContext = ArchiveContext;
         }
 
-        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        private async void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            ArchiveContext.UpdatePagerLinks();
+            await ArchiveContext.UpdatePagerLinks();
         }
 
         private void Window_Closed(object sender, EventArgs e)

@@ -7,8 +7,10 @@
         xmlns:viewmodels="clr-namespace:WebArchiveViewer.ViewModels"
         xmlns:Lib="clr-namespace:WebArchive.Data;assembly=WebArchive.Data"
         mc:Ignorable="d"
+        MaxWidth="1200"
+        ResizeMode="CanResize"
         Icon="../../Resources/Веб-архив.png"
-        Title="Групповые правила" Height="475" Width="825" Closed="Window_Closed">
+        Title="Групповые правила" Height="475" Width="700">
     <Window.DataContext>
         <viewmodels:RulesInfoViewModel />
     </Window.DataContext>
@@ -16,36 +18,52 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0">
-            <Button Content="Добавить новое правило" Command="{Binding AddRuleCommand}" CommandParameter="{Binding RulesControl}" Margin="6,3" Padding="10,2" HorizontalAlignment="Left"/>
-
+        <Border Grid.Row="0"
+                Style="{DynamicResource HeaderPanelNew}">
+            <TextBlock Text="Список правил формирования категорий" FontSize="16" FontWeight="Medium" />
         </Border>
-        <Border Grid.Row="1" Padding="0,8" BorderThickness="0,1" BorderBrush="Gainsboro">
-            <Border Style="{DynamicResource HeaderPanel}">
-                <TextBlock Text="Список правил формирования категорий" FontSize="18" />
-            </Border>
-            <!--<DockPanel>
-                <TextBlock Text="Список правил" Style="{StaticResource Header}" HorizontalAlignment="Left" Margin="10,0" />
-                --><!--<DockPanel>
-                    <Button Content="@ Обновить категории" Command="{Binding UpdateCategoriesCommand}" Margin="10,0" Padding="10,2"/>
-                </DockPanel>--><!--
-            </DockPanel>-->
-        </Border>
-        <TreeView Grid.Row="2" ItemsSource="{Binding RulesControl.Rules}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
+        
+        <ToolBar Grid.Row="1">
+            <Button Content="Добавить правило"
+                    Command="{Binding AddRuleCommand}"
+                    CommandParameter="{Binding RulesControl}"
+                    Margin="4,2" Padding="4,2"/>
+            <Button Content="Обновить ссылки"
+                    Command="{Binding SnapshotView.UpdateCategoriesCommand}"
+                    Margin="4,2" Padding="4,2"/>
+            <Separator />
+            <Button Content="Вложить в правило"
+                    Command="{Binding AddRuleCommand}"
+                    CommandParameter="{Binding ElementName=rulesView,Path=SelectedItem}"
+                    Margin="4,2" Padding="4,2"/>
+            <Button Content="Удалить правило"
+                    Command="{Binding RemoveRuleCommand}"
+                    CommandParameter="{Binding ElementName=rulesView,Path=SelectedItem}"
+                    Margin="4,2" Padding="4,2"/>
+        </ToolBar>
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="Названия категорий должны быть уникальны!" Margin="12,2" Foreground="Gray" />
+        </StackPanel>
+        <TreeView Grid.Row="3"
+                  x:Name="rulesView"
+                  ItemsSource="{Binding RulesControl.Rules}"
+                  BorderThickness="0,1,0,0"
+                  Padding="0,4,0,0"
+                  BorderBrush="Silver"
+                  ItemContainerStyle="{StaticResource TreeViewStrech}">
             <TreeView.Resources>
                 <HierarchicalDataTemplate ItemsSource="{Binding Rules}" DataType="{x:Type Lib:GroupRule}">
-                    <DockPanel Margin="0,2">
-                        <TextBlock Text="{Binding Rules.Count,StringFormat=\{0\} }" Margin="5,0"/>
-                        <TextBox Text="{Binding GroupName}" MinWidth="225"/>
-                        <TextBox Text="{Binding FoundText}" HorizontalAlignment="Right" Margin="20,0"/>
-                        <DockPanel HorizontalAlignment="Right">
-                            <Button Content="Удалить" Command="{Binding ElementName=grid, Path=DataContext.RemoveRuleCommand}" CommandParameter="{Binding }"  Margin="5,0" Padding="3,0" />
-                            <Button Content="Добавить" Command="{Binding ElementName=grid, Path=DataContext.AddRuleCommand}" CommandParameter="{Binding}" Margin="5,0" Padding="3,0" />
+                    <Border>
+                        <DockPanel Margin="0,2">
+                            <TextBlock Text="{Binding Rules.Count,StringFormat=[\{0\}] }" Foreground="Black" Margin="5,0"/>
+                            <TextBox Text="{Binding GroupName}" Background="Transparent" MinWidth="225"/>
+                            <TextBox Text="{Binding FoundText}" Background="Transparent" HorizontalAlignment="Right" Margin="20,0"/>
                         </DockPanel>
-                    </DockPanel>
+                    </Border>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
         </TreeView>

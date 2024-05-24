@@ -25,10 +25,5 @@ namespace WebArchiveViewer.Views.Windows
             DataContext = view;
             View = view;
         }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            View.SnapshotView.OnUpdateCategoriesExecuted(null);
-        }
     }
 }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 
 using WebArchive.Data;
+using WebArchive.WpfUI.Helpers;
 namespace WebArchive.Tests
 {
     [TestClass]

@@ -11,6 +11,15 @@ namespace WebArchive.Data
 {
     public class FileHelper
     {
+        private JsonSerializerSettings SerializerSettings { get; set; }
+        public FileHelper()
+        {
+            SerializerSettings = new JsonSerializerSettings()
+            {
+                Formatting = Formatting.Indented,
+            };
+        }
+
         public string OpenReadText(string path)
         {
             using (FileStream fs = new FileStream(path, FileMode.Open))
@@ -25,12 +34,12 @@ namespace WebArchive.Data
         public T OpenReadJson<T>(string path)
         {
             string text = OpenReadText(path);
-            return JsonConvert.DeserializeObject<T>(text, new JsonSerializerSettings());
+            return JsonConvert.DeserializeObject<T>(text, SerializerSettings);
         }
 
         public bool SaveFile<T>(string path, T obj)
         {
-            string json = JsonConvert.SerializeObject(obj, new JsonSerializerSettings());
+            string json = JsonConvert.SerializeObject(obj, SerializerSettings);
             File.WriteAllText(path, json, new UTF8Encoding(false));
             return true;
         }
