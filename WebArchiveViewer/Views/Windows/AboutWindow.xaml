@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WebArchiveViewer"
         mc:Ignorable="d"
-        Title="AboutWindow" Height="250" Width="550">
+        ResizeMode="NoResize"
+        Title="О программе" Height="250" Width="550">
     <Grid Margin="6,3">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

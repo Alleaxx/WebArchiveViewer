@@ -195,7 +195,7 @@ namespace WebArchiveViewer.ViewModels
             }
 
             bool linkSearchFound = link.LinkSource.Contains(Search);
-            bool nameSearchFound = link.Name.Contains(Search);
+            bool nameSearchFound = $"{link.Name}".Contains(Search);
 
             if (searchInverted)
             {

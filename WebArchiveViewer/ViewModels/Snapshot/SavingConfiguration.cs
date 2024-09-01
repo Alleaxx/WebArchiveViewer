@@ -18,7 +18,7 @@ namespace WebArchiveViewer.ViewModels
     public class SavingConfiguration
     {
         public string FilePath { get; set; }
-        public bool UseDefaultPath => string.IsNullOrEmpty(FilePath);
+        public bool UseDefaultPath { get; set; } 
 
         public SaveMode Mode { get; set; }
 

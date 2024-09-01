@@ -80,5 +80,16 @@ namespace WebArchive.Data
             }
             return null;
         }
+
+        public IEnumerable<GroupRule> GetAllRules()
+        {
+            List<GroupRule> rules = new List<GroupRule>();
+            rules.AddRange(Rules);
+            foreach (GroupRule rule in Rules)
+            {
+                rules.AddRange(rule.GetAllRules());
+            }
+            return rules;
+        }
     }
 }

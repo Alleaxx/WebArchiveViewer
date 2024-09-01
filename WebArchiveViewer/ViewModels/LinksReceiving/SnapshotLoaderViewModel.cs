@@ -126,6 +126,7 @@ namespace WebArchiveViewer.ViewModels
 
             var snapshot = await LoadFromFile(file.FullName);
             MainModel.SnapshotView.ReplaceRulesWith(snapshot.RulesControl);
+            EndProcessing();
         }
 
         private void ReadyCleanup()
@@ -183,6 +184,12 @@ namespace WebArchiveViewer.ViewModels
 
             MainModel.SetSnapshot(snapshot);
             OnPropertyChanged(nameof(SnapshotView));
+        }
+        private void EndProcessing()
+        {
+            Status = new Operation("Загрузка завершена", 100, true, true);
+            CancellationTokenSource = null;
+            IsProcessing = false;
         }
     }
 }

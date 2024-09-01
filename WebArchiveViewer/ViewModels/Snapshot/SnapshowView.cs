@@ -86,16 +86,22 @@ namespace WebArchiveViewer.ViewModels
             var links = ListViewInfo.GetFilteredLinks(config.Mode)
                 .Where(l => l.Tag != ArchiveLink.RemoveTag);
             Snapshot saveCopy = SnapshotModel.CloneThis(links);
+            if(config.Mode == SaveMode.AllDefaultPath)
+            {
+                config.UseDefaultPath = true;
+                config.Mode = SaveMode.All;
+            }
 
             string filePath;
-            if (!string.IsNullOrEmpty(SnapshotModel.FilePath) && SavingFile.Exists && config.UseDefaultPath)
+            if (!string.IsNullOrEmpty(SnapshotModel.FilePath) && SavingFile.Exists && config.UseDefaultPath && config.Mode != SaveMode.OnlyRules)
             {
                 filePath = SnapshotModel.FilePath;
             }
             else
             {
                 int linksCount = saveCopy.Links.Count();
-                var file = new FileDialog().Save($"Ссылки {SnapshotModel.ReceivingDate:yyyy-MM-dd} (всего {linksCount})");
+                string name = config.Mode == SaveMode.OnlyRules ? "Правила категоризации" : $"Ссылки {SnapshotModel.ReceivingDate:yyyy-MM-dd} (всего {linksCount})";
+                var file = new FileDialog().Save(name);
                 if (file != null)
                 {
                     filePath = file.FullName;

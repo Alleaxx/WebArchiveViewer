@@ -44,6 +44,15 @@
                     Command="{Binding RemoveRuleCommand}"
                     CommandParameter="{Binding ElementName=rulesView,Path=SelectedItem}"
                     Margin="4,2" Padding="4,2"/>
+            <Separator />
+            <Button Content="Вверх"
+                    Command="{Binding MoveRuleUpCommand}"
+                    CommandParameter="{Binding ElementName=rulesView,Path=SelectedItem}"
+                    Margin="4,2" Padding="4,2"/>
+            <Button Content="Вниз"
+                    Command="{Binding MoveRuleDownCommand}"
+                    CommandParameter="{Binding ElementName=rulesView,Path=SelectedItem}"
+                    Margin="4,2" Padding="4,2"/>
         </ToolBar>
         <StackPanel Grid.Row="2">
             <TextBlock Text="Названия категорий должны быть уникальны!" Margin="12,2" Foreground="Gray" />

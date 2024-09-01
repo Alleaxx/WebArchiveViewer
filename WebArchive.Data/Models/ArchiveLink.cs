@@ -25,6 +25,9 @@ namespace WebArchive.Data
             return Link;
         }
 
+        /// <summary>
+        /// Название страницы (тег title)
+        /// </summary>
         public string Name
         {
             get => name;

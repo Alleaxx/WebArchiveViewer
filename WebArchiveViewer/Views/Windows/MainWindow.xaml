@@ -50,7 +50,7 @@
 
             <MenuItem Header="Сохранить" Command="{Binding SnapshotView.SaveSnapshotFileCommand}">
                 <MenuItem.CommandParameter>
-                    <viewmodels:SavingConfiguration Mode="All">
+                    <viewmodels:SavingConfiguration Mode="All" UseDefaultPath="True">
                         
                     </viewmodels:SavingConfiguration>
                 </MenuItem.CommandParameter>
@@ -195,7 +195,7 @@
                                                         </DockPanel>
                                                         <DockPanel Style="{StaticResource Property}">
                                                             <TextBlock Text="Вывод:" ToolTip="{Binding RequestString}" Style="{StaticResource PropertyName}" />
-                                                            <ComboBox ItemsSource="{Binding RequestBuilder.Output.Types}" SelectedItem="{Binding RequestBuilder.Output.Selected}" VerticalAlignment="Center" IsEnabled="False" >
+                                                            <ComboBox ItemsSource="{Binding RequestBuilder.Output.Types}" SelectedItem="{Binding RequestBuilder.Output.Selected}" VerticalAlignment="Center" >
                                                                 <ComboBox.ItemTemplate>
                                                                     <DataTemplate>
                                                                         <StackPanel>
@@ -1004,6 +1004,7 @@
                                     Grid.RowSpan="3"
                                     Grid.Column="3"
                                     BorderThickness="1,0,0,0"
+                                    MaxWidth="400"
                                     BorderBrush="Gainsboro">
                                 <TabControl DataContext="{Binding LinksPager.Selected}"
                                             MinWidth="400"
@@ -1091,7 +1092,9 @@
                                             <Separator />
                                             <DockPanel Margin="0,1">
                                                 <TextBlock Text="Путь к файлу:" Width="100" Style="{StaticResource PropertyName100}" />
-                                                <TextBlock Text="{Binding HtmlFilePath,TargetNullValue=не сохранен}" Style="{StaticResource PropertyValueText}" />
+                                                <TextBlock Text="{Binding HtmlFilePath,TargetNullValue=не сохранен}"
+                                                           Style="{StaticResource PropertyValueText}"
+                                                           TextWrapping="Wrap"/>
                                             </DockPanel>
                                             <Image Source="{Binding LinkSource}"
                                                    MaxHeight="200"
@@ -1112,9 +1115,16 @@
                                             <TextBlock Text="Статистика" />
                                         </TabItem.Header>
                                         <Grid>
-                                            <TextBlock Text="Список ссылок мета-ссылки" />
-                                            <ListView ItemsSource="{Binding Information.AllLinks}">
-                                                
+                                            <ListView ItemsSource="{Binding Information.AllLinks}" FontSize="9">
+                                                <ListView.View>
+                                                    <GridView>
+                                                        <GridView.Columns>
+                                                            <GridViewColumn Header="#" DisplayMemberBinding="{Binding Index}" />
+                                                            <GridViewColumn Header="Дата" DisplayMemberBinding="{Binding Date,StringFormat=dd.MM.yyyy}" />
+                                                            <GridViewColumn Header="Ссылка" DisplayMemberBinding="{Binding LinkSource}" />
+                                                        </GridView.Columns>
+                                                    </GridView>
+                                                </ListView.View>
                                             </ListView>
                                         </Grid>
                                     </TabItem>
@@ -1131,7 +1141,7 @@
                                     </TabItem>
                                     <TabItem>
                                         <TabItem.Header>
-                                            <TextBlock Text="Предпросмотр (архив)" />
+                                            <TextBlock Text="(оригинал)" />
                                         </TabItem.Header>
                                         <Image Source="{Binding Link}"
                                                    MaxHeight="700"
@@ -1224,19 +1234,27 @@
                                                     <TextBlock Text="Будет обработано" Margin="2" />
                                                     <TextBlock Text="{Binding LinksStartCount}" Margin="2" TextDecorations="Underline" />
                                                     <TextBlock Text="ссылок из" Margin="2" />
-                                                    <TextBlock Text="{Binding LinksStartCount}" Margin="2" TextDecorations="Underline" />
+                                                    <TextBlock Text="{Binding LinksMaxCount}" Margin="2" TextDecorations="Underline" />
                                                 </DockPanel>
-                                                <CheckBox Content="Только с типом text/html" Margin="0,2" />
-                                                <CheckBox Content="Только с незагруженным именем / страницей" Margin="0,2" />
+                                                <CheckBox Content="Только text/html"
+                                                          IsChecked="{Binding LoadConfiguration.OnlyHtmlType}"
+                                                          Margin="0,2" />
+                                                <CheckBox Content="Только с незагруженным именем"
+                                                          IsChecked="{Binding LoadConfiguration.OnlyWithoutTitles}"
+                                                          IsEnabled="{Binding ProcessingConfiguration.LoadingTitle}"
+                                                          Margin="0,2" />
+                                                <CheckBox Content="Пропускать уже загруженные файлы"
+                                                          IsChecked="{Binding LoadConfiguration.IgnoreLoadedLinks}"
+                                                          IsEnabled="{Binding ProcessingConfiguration.SavingHtml}"
+                                                          Margin="0,2" />
                                             </StackPanel>
                                         </DockPanel>
                                         <TextBlock Text="Что загружать:"
                                                    FontWeight="Medium"
                                                    Foreground="Black" />
-                                        <DockPanel Style="{StaticResource Property}" Margin="12,4">
+                                        
+                                        <DockPanel Style="{StaticResource Property}" Margin="8,3">
                                             <DockPanel VerticalAlignment="Center">
-                                                <!--<RadioButton Content="Имена страниц" />
-                                            <RadioButton Content="Имена страниц и HTML" Margin="4,0" />-->
                                                 <CheckBox IsChecked="{Binding ProcessingConfiguration.LoadingTitle}">
                                                     <TextBlock Text="Имена страниц" />
                                                 </CheckBox>
@@ -1294,20 +1312,20 @@
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
                                                             <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding PauseState.IsPaused}" Value="true">
-                                                                    <Setter Property="Foreground" Value="DarkRed" />
-                                                                    <Setter Property="Text" Value="Стоит пауза, продолжить?" />
-                                                                </DataTrigger>
                                                                 <DataTrigger Binding="{Binding PauseState.IsPaused}" Value="false">
                                                                     <Setter Property="Foreground" Value="Green" />
                                                                     <Setter Property="Text" Value="Загрузка активна, поставить паузу?" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding PauseState.IsPaused}" Value="true">
+                                                                    <Setter Property="Foreground" Value="DarkRed" />
+                                                                    <Setter Property="Text" Value="Стоит пауза, продолжить?" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
                                             </Button>
-                                            <ProgressBar Value="{Binding LinksLoadedCount, Mode=OneWay}" Maximum="{Binding Snapshot.Links.Length}" Height="6">
+                                            <ProgressBar Value="{Binding LinksLoadedCount, Mode=OneWay}" Maximum="{Binding LinksStartCount}" Height="6">
                                                 <ProgressBar.Style>
                                                     <Style TargetType="ProgressBar">
                                                         <Style.Triggers>
@@ -1341,9 +1359,10 @@
                                             <StackPanel Style="{StaticResource PropertiesPanel}">
 
                                                 <DockPanel>
-                                                    <TextBlock Text="{Binding TimeLeft.TotalMinutes, ConverterParameter=0, Converter={StaticResource MathRound}, StringFormat=\{0\} мин.}" />
-                                                    <TextBlock Text="{Binding TimeLeft.Seconds, Converter={StaticResource MathRound}, StringFormat=\{0\} сек.}" Margin="1,0"/>
-
+                                                    <TextBlock>
+                                                        <Run Text="{Binding TimeLeft.TotalMinutes,Mode=OneWay,StringFormat=0 мин}" /> 
+                                                        <Run Text="{Binding TimeLeft.Seconds,Mode=OneWay,StringFormat=0 сек}" />
+                                                    </TextBlock>
                                                 </DockPanel>
                                             </StackPanel>
                                         </DockPanel>
@@ -1430,7 +1449,7 @@
                                     </TabItem.Header>
                                     <TreeView ItemsSource="{Binding Path=LinkProcessingEventErrors}" BorderThickness="0" ItemContainerStyle="{StaticResource TreeViewStrech}">
                                         <TreeView.Resources>
-                                            
+
                                             <Style x:Key="BorderCheck" TargetType="Border">
                                                 <Setter Property="BorderBrush" Value="Green" />
                                                 <Setter Property="BorderThickness" Value="4,0,0,0" />

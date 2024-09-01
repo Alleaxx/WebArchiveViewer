@@ -148,14 +148,19 @@ namespace WebArchive.Data.HtmlLoading
                 return null;
             }
 
-            string fileName = CreateFileName(Link as ArchiveLink);
-            string filePath = $"{folderPath}\\{fileName}.html";
+            string filePath = CreateFullFilePath(folderPath, Link as ArchiveLink);
 
             File.WriteAllText(filePath, htmlContent);
             Link.HtmlFilePath = filePath;
             return new FileInfo(filePath);
         }
-        private static string CreateFileName(ArchiveLink link)
+        public static string CreateFullFilePath(string folderPath, ArchiveLink link)
+        {
+            string fileName = CreateFileName(link);
+            string filePath = $"{folderPath}\\{fileName}.html";
+            return filePath;
+        }
+        public static string CreateFileName(ArchiveLink link)
         {
             bool noName = link.Name == ArchiveLink.DefaultName;
             string withNameText = $"{link.TimeStamp} - {link.Index} - {link.Name}";

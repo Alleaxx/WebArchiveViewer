@@ -38,11 +38,13 @@ namespace WebArchiveViewer.ViewModels
         private SnapshotView snapshotView;
         public Snapshot Snapshot => SnapshotView.SnapshotModel;
         public DirectoryInfo SavingHtmlFolder => SnapshotView.SavingHtmlFolder;
+        private DirectoryInfo savingHtmlFOlder;
 
 
         private ICollection<Task> CurrentTasks;
         private CancellationTokenSource TokenSource;
         private CancellationToken TokenCancel;
+
 
         public HtmlLoadingConfiguration LoadConfiguration
         {
@@ -59,6 +61,7 @@ namespace WebArchiveViewer.ViewModels
 
 
         private List<ArchiveLink> LinksRemainingList;
+        public int LinksMaxCount => SnapshotView.ListViewInfo.LinksFilteredAmount;
         public int LinksStartCount
         {
             get => linksStartCount;
@@ -111,7 +114,12 @@ namespace WebArchiveViewer.ViewModels
         private bool isStarted;
         public bool IsReady => IsStarted && !Stopped;
         public bool IsPauseEnabled => IsReady;
-        public OperationState PauseState { get; private set; }
+        public OperationState PauseState
+        {
+            get => pauseState;
+            set => Set(ref pauseState, value);
+        }
+        private OperationState pauseState;
         private bool Stopped { get; set; }
 
 
@@ -150,6 +158,8 @@ namespace WebArchiveViewer.ViewModels
             SnapshotView = snapshot;
             LoadConfiguration = new HtmlLoadingConfiguration(Snapshot.Links.Any() ? Snapshot.Links.Length : 0);
             LoadConfiguration.SetLinksSource(snapshot);
+            LoadConfiguration.PropertyChanged += LoadConfiguration_PropertyChanged;
+            SnapshotView.PropertyChanged += LoadConfiguration_PropertyChanged;
             ProcessingConfiguration = new LinkProcessingConfiguration()
             {
                 LoadingTitle = true,
@@ -167,6 +177,12 @@ namespace WebArchiveViewer.ViewModels
             PauseState = new OperationState(false);
             RecountLinksForDownload();
         }
+        private void LoadConfiguration_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            ProcessingConfiguration.FolderPath = SavingHtmlFolder.FullName;
+            RecountLinksForDownload();
+        }
+
         private void RecountLinksForDownload()
         {
             if(Snapshot.IsEmpty)
@@ -175,9 +191,11 @@ namespace WebArchiveViewer.ViewModels
             }
 
             LinksRemainingList.Clear();
+
             var links = LoadConfiguration.GetFilteredLinks();
             LinksRemainingList = new List<ArchiveLink>(links);
             LinksStartCount = links.Count();
+            OnPropertyChanged(nameof(LinksMaxCount));
             //рассчитываем количество ссылок для загрузки
         }
 
@@ -216,7 +234,7 @@ namespace WebArchiveViewer.ViewModels
         {
             try
             {
-                await SnapshotView.Save(new SavingConfiguration(null, SaveMode.All));
+                await SnapshotView.Save(new SavingConfiguration(null, SaveMode.All) { UseDefaultPath = true });
             }
             catch (Exception ex)
             {
@@ -313,7 +331,7 @@ namespace WebArchiveViewer.ViewModels
 
         private LinkProcessingViewModel GetVm(LinkProcessingEventArgs eventArgs)
         {
-            return LinkProcessingsCurrent.FirstOrDefault(l => l.Link == eventArgs.Sender.Link);
+            return LinkProcessingsCurrent.ToArray().FirstOrDefault(l => l.Link == eventArgs.Sender.Link);
         }
     }
 }
